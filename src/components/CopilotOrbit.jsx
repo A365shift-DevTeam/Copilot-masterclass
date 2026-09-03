@@ -272,8 +272,10 @@ class OrbitEngine {
       el.style.zIndex = String(Math.round(10 + depth * 40))
       const appIn = this.ramp(700 + n * 70, 520)
       n += 1
-      el.style.opacity = ((0.58 + depth * 0.42) * appIn).toFixed(3)
-      el.style.filter = p.zn < 0 ? `blur(${(Math.abs(p.zn) * 0.9).toFixed(2)}px)` : 'none'
+      // Every app stays fully opaque and sharp; scale and z-index carry the
+      // depth on their own. Dimming and blurring the far half made the icons
+      // on the back of each ring hard to read.
+      el.style.opacity = appIn.toFixed(3)
       if (this.hover === app.id) this.placeTip(p)
     })
   }

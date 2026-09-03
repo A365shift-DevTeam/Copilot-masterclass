@@ -1,5 +1,7 @@
+import { CircleCheck } from 'lucide-react'
 import useReveal from '../hooks/useReveal.js'
-import { FLOW_STEPS, AGENT_CAPS } from '../data/content.js'
+import { STUDIO_POINTS } from '../data/content.js'
+import AgentAnimation from './ui/AgentAnimation.jsx'
 
 export default function CopilotStudio() {
   const leftRef = useReveal()
@@ -9,52 +11,27 @@ export default function CopilotStudio() {
     <section className="section--subtle" style={{ padding: 'var(--section-pad)' }}>
       <div className="studio-grid">
         <div ref={leftRef}>
-          <div className="eyebrow eyebrow--teal">COPILOT STUDIO</div>
-          <h2 className="h2 studio__title">Build Your Own AI Agents with Copilot Studio</h2>
+          <div className="eyebrow eyebrow--teal">GO BEYOND AUTOMATION</div>
+          <h2 className="h2 studio__title">
+            Build Your Own AI Agents with <span className="text-gradient">Copilot Studio</span>
+          </h2>
           <p className="studio__desc">
-            See how organisations create intelligent agents connected to their business information
-            and the Microsoft ecosystem — no developer support required.
+            Create intelligent AI agents that understand your business, talk to your data
+            and automate work for you — 24/7.
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {FLOW_STEPS.map((s) => (
-              <div key={s.n}>
-                <div className="flow-step">
-                  <span className="flow-step__num">{s.n}</span>
-                  <span className="flow-step__label">{s.label}</span>
-                </div>
-                <div className="flow-connector" />
-              </div>
+          <ul className="studio-points">
+            {STUDIO_POINTS.map((point) => (
+              <li key={point} className="studio-point">
+                <CircleCheck className="studio-point__tick" strokeWidth={2} aria-hidden="true" />
+                {point}
+              </li>
             ))}
-            <div className="flow-step flow-step--result">
-              <span className="flow-step__num">✓</span>
-              <span className="flow-step__label">Result delivered</span>
-            </div>
-          </div>
+          </ul>
         </div>
 
-        <div ref={rightRef} className="agent-panel">
-          <div className="agent-panel__head">
-            <div className="agent-panel__id">
-              <span className="agent-panel__avatar">CS</span>
-              <div>
-                <div className="agent-panel__name">Customer Support Agent</div>
-                <div className="agent-panel__status"><i />Online</div>
-              </div>
-            </div>
-            <span className="agent-panel__tag">copilot studio</span>
-          </div>
-          <div className="agent-panel__caps">
-            {AGENT_CAPS.map((cap) => (
-              <div key={cap} className="agent-cap"><i />{cap}</div>
-            ))}
-          </div>
-          <svg className="agent-panel__svg" viewBox="0 0 400 60" preserveAspectRatio="none">
-            <path d="M10 30 H130 M150 30 H270 M290 30 H390" stroke="rgba(255,255,255,0.16)" strokeWidth="1.5" fill="none" />
-            <path d="M10 30 H130 M150 30 H270 M290 30 H390" stroke="#6BD194" strokeWidth="1.8" fill="none" strokeDasharray="18 120" style={{ animation: 'om-flow 3.4s linear infinite' }} />
-            <circle cx="140" cy="30" r="5" fill="#1D5368" stroke="#3FC073" strokeWidth="1.5" />
-            <circle cx="280" cy="30" r="5" fill="#1D5368" stroke="#308BAF" strokeWidth="1.5" />
-          </svg>
+        <div ref={rightRef}>
+          <AgentAnimation />
         </div>
       </div>
     </section>

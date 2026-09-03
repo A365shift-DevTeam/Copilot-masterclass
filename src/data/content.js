@@ -19,24 +19,25 @@ export const APP_CARDS = [
   { mark: 'S', title: 'SharePoint', icon: 'microsoft-365/sharepoint.svg', color: '#1D5368', tint: '#E8F3F8', points: ['Knowledge management', 'Enterprise content', 'Copilot-powered search'] },
 ]
 
-export const FLOW_STEPS = [
-  { n: '1', label: 'Employee asks a question' },
-  { n: '2', label: 'Copilot agent interprets intent' },
-  { n: '3', label: 'Microsoft 365 context applied' },
-  { n: '4', label: 'SharePoint / CRM / business data' },
-  { n: '5', label: 'Automation runs' },
+export const STUDIO_POINTS = [
+  'No-code / low-code agent building',
+  'Connect to your data and systems',
+  'Deploy across Microsoft 365',
+  'Real-world business use cases',
 ]
 
-export const AGENT_CAPS = ['Answer questions', 'Search company knowledge', 'Create support tickets', 'Check customer information', 'Trigger workflows', 'Generate responses']
+export const AGENT_CAPS = [
+  { icon: 'data', t: 'Understands your data' },
+  { icon: 'ask', t: 'Answers questions' },
+  { icon: 'act', t: 'Takes actions' },
+  { icon: 'always', t: 'Works 24/7' },
+]
 
 export const AGENDA = [
-  { n: '01', t: 'Introduction to Microsoft 365 Copilot' },
-  { n: '02', t: 'Using Copilot across Microsoft 365' },
-  { n: '03', t: 'Real-world AI productivity workflows' },
-  { n: '04', t: 'Building AI agents with Copilot Studio' },
-  { n: '05', t: 'Automating business processes' },
-  { n: '06', t: 'Live demonstration' },
-  { n: '07', t: 'Q&A and implementation guidance' },
+  { n: '01', time: '0 – 30 MIN', t: 'Copilot Foundations', d: 'Introduction to Copilot, prompting and best practices across Microsoft 365.' },
+  { n: '02', time: '30 – 60 MIN', t: 'Copilot in Action', d: 'Hands-on with Excel, Word, PowerPoint, Outlook and Teams.' },
+  { n: '03', time: '60 – 90 MIN', t: 'Automation & Insights', d: 'Power Automate, Power BI and Power Apps working alongside Copilot.' },
+  { n: '04', time: '90 – 120 MIN', t: 'Build & Deploy AI Agents', d: 'Build a Copilot Studio agent, see it live, and close with Q&A.' },
 ]
 
 export const AUDIENCE = [
