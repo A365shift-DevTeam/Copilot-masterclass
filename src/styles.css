@@ -1009,15 +1009,59 @@ html[data-theme="dark"] .fpm__item.is-open .fpm__icon { color: #FFFFFF; }
 /* ============================================================
    FOOTER
    ============================================================ */
-.footer {
-  background: #112831; color: rgba(255, 255, 255, 0.55);
-  padding: 32px clamp(20px, 4vw, 56px);
-  display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
-  font-size: 13.5px; border-top: 1px solid rgba(255, 255, 255, 0.08);
+.footer { padding: clamp(40px, 6vh, 64px) clamp(20px, 4vw, 56px) 28px; font-size: 14px; }
+.footer__inner { max-width: 1240px; margin: 0 auto; }
+.footer__grid {
+  display: grid; gap: clamp(28px, 4vw, 48px);
+  grid-template-columns: minmax(220px, 1.4fr) repeat(3, minmax(140px, 1fr));
 }
-.footer__brand { display: flex; align-items: center; gap: 14px; }
-.footer__logo-plate { display: flex; align-items: center; padding: 8px 14px; border-radius: 10px; background: #FFFFFF; }
+.footer__brand { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.footer__logo-plate {
+  display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 10px; background: #FFFFFF;
+}
 .footer__logo-plate img { height: 26px; width: auto; display: block; }
+.footer__company { margin: 0; font-weight: 600; color: #E7E9E9; line-height: 1.5; }
+.footer__tagline,
+.footer__regions { margin: 0; font-size: 13.5px; line-height: 1.5; }
+.footer__regions { display: flex; align-items: center; gap: 7px; }
+
+.footer__col-title {
+  margin: 0 0 14px; font-family: var(--font-display);
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #9FD884;
+}
+.footer__col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.footer__contact li { display: flex; align-items: center; gap: 9px; line-height: 1.5; }
+.footer__contact svg { flex: 0 0 auto; opacity: 0.7; }
+
+.footer__bar {
+  margin-top: clamp(28px, 4vh, 44px); padding-top: 22px; border-top: 1px solid #1F5A3C;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px;
+}
+.footer__copy { margin: 0; font-size: 13px; }
+.footer__legal,
+.footer__social { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; }
+.footer__legal { gap: 8px 22px; font-size: 13px; }
+.footer__social { gap: 10px; }
+.footer__social a {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px;
+  background: rgba(255, 255, 255, 0.07); border: 1px solid #1F5A3C;
+  transition: background 200ms var(--ease), border-color 200ms var(--ease);
+}
+.footer__social a:hover { background: rgba(159, 216, 132, 0.16); border-color: #9FD884; }
+
+/* Placeholder hrefs still read as links; dim them so it is obvious which
+   ones are not wired up yet. Remove once the real URLs land. */
+.footer a[aria-disabled='true'] { opacity: 0.72; }
+
+@media (max-width: 900px) {
+  .footer__grid { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+  .footer__brand { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .footer__grid { grid-template-columns: 1fr; }
+  .footer__bar { flex-direction: column; align-items: flex-start; }
+}
 
 /* ============================================================
    THEME TOGGLE
@@ -1594,18 +1638,13 @@ html[data-theme="dark"] .cf__meta-row dd { color: #FFFFFF; }
    background and the footer shows through every section. */
 .page-stack { position: relative; z-index: 1; background: var(--page-bg); }
 
-.sticky-reveal {
+/* Pinned only when the component decides it fits; otherwise it is an
+   ordinary block at the end of the page. */
+.sticky-reveal.is-pinned {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 0;
 }
 /* Transparent, so the pinned footer shows through exactly here. */
 .sticky-reveal__spacer { background: transparent; }
-
-/* A pinned footer needs a viewport tall enough to be worth revealing; below
-   that it just eats the screen, so it returns to normal flow. */
-@media (max-height: 520px) {
-  .sticky-reveal { position: static; }
-  .sticky-reveal__spacer { display: none; }
-}
 
 /* ============================================================
    PAGE CURTAINS — src/components/ui/PageCurtains.jsx

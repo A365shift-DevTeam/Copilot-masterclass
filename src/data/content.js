@@ -116,3 +116,44 @@ export const FAQS = [
   { q: 'How do I join the webinar?', a: 'Register on this page and the joining link is sent to your email, along with a calendar invitation and a reminder before the session.' },
   { q: 'Will learning resources be provided?', a: 'Practical checklists and reference material are shared with registered participants where applicable.' },
 ]
+
+// Footer content. Contact details are AmBot365's own, taken from the site.
+// TODO: the legal and social hrefs are placeholders — swap in the real URLs.
+export const FOOTER = {
+  company: 'Ambot365 RPA & IT Solutions OPC Pvt Ltd',
+  tagline: 'AI • Automation • Microsoft 365 Solutions',
+  regions: 'UAE | India',
+  email: 'Connect@ambot365.in',
+  phone: '+91 9043777365',
+  location: 'Coimbatore | Tamil Nadu',
+  // Real, working anchors on this page.
+  webinar: [
+    { href: '#overview', label: 'Overview' },
+    { href: '#learn', label: "What You'll Learn" },
+    { href: '#agenda', label: 'Agenda' },
+    { href: '#speaker', label: 'Speaker' },
+    { href: '#faq', label: 'FAQ' },
+    { href: '#register', label: 'Reserve a seat' },
+  ],
+  offerings: [
+    { href: '#', label: 'M365 Copilot' },
+    { href: '#', label: 'M365 Apps' },
+    { href: '#', label: 'OfficeBots' },
+    { href: '#', label: 'AI Chatbot' },
+    { href: '#', label: 'Business Hub CRM' },
+    { href: '#', label: 'Premium 3D Websites' },
+  ],
+  legal: [
+    { href: '#', label: 'Terms & Conditions' },
+    { href: '#', label: 'Privacy Policy' },
+    { href: '#', label: 'Disclaimer' },
+    { href: '#', label: 'Cookie Policy' },
+  ],
+  social: [
+    { href: '#', label: 'LinkedIn', icon: 'linkedin' },
+    { href: '#', label: 'WhatsApp', icon: 'whatsapp' },
+    { href: '#', label: 'YouTube', icon: 'youtube' },
+    { href: '#', label: 'Instagram', icon: 'instagram' },
+    { href: '#', label: 'Facebook', icon: 'facebook' },
+  ],
+}
