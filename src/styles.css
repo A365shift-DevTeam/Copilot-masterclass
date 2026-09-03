@@ -142,11 +142,13 @@
   --fg-secondary: var(--ref-body);
   --fg-muted:     var(--ref-micro);
 
+  --page-bg: #FDFDFE;
+
   --ease: cubic-bezier(.4, 0, .2, 1);
   --section-pad: clamp(56px, 8vh, 96px) clamp(20px, 4vw, 56px);
 }
 
-html, body { margin: 0; padding: 0; background: #FDFDFE; }
+html, body { margin: 0; padding: 0; background: var(--page-bg); }
 body {
   overflow-x: hidden;
   scrollbar-width: none;
@@ -861,6 +863,7 @@ input, select, textarea, button { font-family: var(--font-sans); }
   gap: clamp(20px, 3vw, 40px); align-items: start;
 }
 .pricing-card {
+  position: relative;
   padding: 32px; border-radius: 16px; background: linear-gradient(155deg, #1A3E4C, #1D5368);
   color: #fff; box-shadow: 0 16px 48px rgba(26, 62, 76, 0.22);
 }
@@ -923,21 +926,51 @@ input, select, textarea, button { font-family: var(--font-sans); }
    FAQ
    ============================================================ */
 .faq-section { padding: var(--section-pad); max-width: 880px; margin: 0 auto; }
-.faq-list { display: flex; flex-direction: column; gap: 12px; }
-.faq-item { border-radius: 12px; border: 1px solid var(--ref-card-line); background: #FFFFFF; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-.faq-item__btn {
-  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding: 18px 22px; background: transparent; border: none; text-align: left; cursor: pointer;
+/* --- FAQ, plus/minus ---------------------------------------------
+   One rounded container with hairline dividers, not a stack of cards.
+   The panel opens on grid-template-rows so any answer length works. */
+.fpm {
+  border-radius: 16px; border: 1px solid var(--ref-card-line); background: #FFFFFF;
+  overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.fpm__item + .fpm__item { border-top: 1px solid var(--ref-card-line); }
+.fpm__item.is-open { background: #F8FAF9; }
+.fpm__heading { margin: 0; font-size: inherit; font-weight: inherit; }
+.fpm__trigger {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  padding: 20px 24px; background: transparent; border: none; text-align: left; cursor: pointer;
   font-family: var(--font-display); font-size: 16px; font-weight: 600; color: #002060;
 }
-.faq-item__plus {
-  flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; background: #E9F7EE; color: #35A160;
-  display: grid; place-items: center; font-size: 16px; transition: transform 250ms var(--ease);
+.fpm__trigger:focus-visible { outline: 2px solid var(--ref-teal); outline-offset: -3px; }
+.fpm__q { flex: 1 1 auto; }
+
+/* Two bars; the upright one lies down so the plus becomes a minus. */
+.fpm__icon { position: relative; flex: 0 0 auto; width: 17px; height: 17px; color: var(--fg-secondary); }
+.fpm__icon i {
+  position: absolute; left: 0; top: 50%; width: 100%; height: 1.5px; margin-top: -0.75px;
+  border-radius: 2px; background: currentColor;
+  transition: transform 300ms var(--ease);
 }
-.faq-item.open .faq-item__plus { transform: rotate(45deg); }
-.faq-item__body { max-height: 0; overflow: hidden; transition: max-height 300ms var(--ease); }
-.faq-item.open .faq-item__body { max-height: 240px; }
-.faq-item__body p { margin: 0; padding: 0 22px 20px; font-size: 15px; line-height: 1.7; color: var(--fg-secondary); }
+.fpm__icon i:last-child { transform: rotate(90deg); }
+.fpm__item.is-open .fpm__icon { color: #002060; }
+.fpm__item.is-open .fpm__icon i:last-child { transform: rotate(0deg); }
+
+/* 0fr -> 1fr animates to the content's own height, so a long answer is
+   never clipped and a short one never eases at the wrong speed. */
+.fpm__panel {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 320ms var(--ease);
+}
+.fpm__item.is-open .fpm__panel { grid-template-rows: 1fr; }
+.fpm__panel-clip { overflow: hidden; }
+.fpm__a { margin: 0; padding: 0 24px 22px; font-size: 15px; line-height: 1.7; color: var(--fg-secondary); }
+
+html[data-theme="dark"] .fpm { background: #101828; border-color: #1E2939; }
+html[data-theme="dark"] .fpm__item + .fpm__item { border-top-color: #1E2939; }
+html[data-theme="dark"] .fpm__item.is-open { background: #141D30; }
+html[data-theme="dark"] .fpm__trigger { color: #FFFFFF; }
+html[data-theme="dark"] .fpm__icon { color: rgba(255, 255, 255, 0.55); }
+html[data-theme="dark"] .fpm__item.is-open .fpm__icon { color: #FFFFFF; }
 
 /* ============================================================
    FINAL CTA
@@ -1006,18 +1039,19 @@ input, select, textarea, button { font-family: var(--font-sans); }
    Sections that are dark by design (hero, demo, speaker, CTA,
    pricing, footer) are untouched.
    ============================================================ */
-html[data-theme="dark"] { background: #0A0F1D; color-scheme: dark; }
+html[data-theme="dark"] { background: var(--page-bg); color-scheme: dark; }
 html[data-theme="dark"] {
   /* Surfaces and text sampled from the AmBot365 site (see --ref-* below). */
   --ref-ground: #0A0F1D;
   --ref-card:   #101828;
   --ref-deep:   #030915;
   --ref-line:   #1E2939;
+  --page-bg:    #0A0F1D;
   --fg-primary:   #D1D5DC;
   --fg-secondary: #9AA4B6;
   --fg-muted:     #6B7689;
 }
-html[data-theme="dark"] body { background: #0A0F1D; }
+html[data-theme="dark"] body { background: var(--page-bg); }
 html[data-theme="dark"] .section--subtle { background: #0C121F; }
 html[data-theme="dark"] .h2 { color: #FFFFFF; }
 
@@ -1096,8 +1130,7 @@ html[data-theme="dark"] .benefit-card,
 html[data-theme="dark"] .eco-card,
 html[data-theme="dark"] .agenda-item,
 html[data-theme="dark"] .testimonial-card,
-html[data-theme="dark"] .register-card,
-html[data-theme="dark"] .faq-item {
+html[data-theme="dark"] .register-card {
   background: #101828;
   border: 1px solid #1E2939;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -1114,13 +1147,11 @@ html[data-theme="dark"] .benefit-card h3,
 html[data-theme="dark"] .eco-card h3,
 html[data-theme="dark"] .testimonial-card__name,
 html[data-theme="dark"] .register-card h3,
-html[data-theme="dark"] .register-success h3,
-html[data-theme="dark"] .faq-item__btn { color: #FFFFFF; }
+html[data-theme="dark"] .register-success h3 { color: #FFFFFF; }
 
 /* Green badge chips */
 html[data-theme="dark"] .flow-step__num,
 html[data-theme="dark"] .eco-card__icon,
-html[data-theme="dark"] .faq-item__plus,
 html[data-theme="dark"] .register-success__icon {
   background: rgba(63, 192, 115, 0.16); color: #6BD194;
 }
@@ -1413,3 +1444,185 @@ html[data-theme="light"] .agenda-item__num { color: var(--ref-teal-dk); }
 html[data-theme="light"] .testimonial-card__stars { color: #2B824E; }
 html[data-theme="light"] .app-card__points .dot { color: #2B824E; }
 html[data-theme="light"] .flow-step--result .flow-step__num { background: #2B824E; color: #FFFFFF; }
+
+
+/* Screen-reader-only. Kept in the a11y tree, so not display:none. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* ============================================================
+   COVERFLOW CAROUSEL — the Overview deck
+   Structural CSS for the ported component (src/components/ui/
+   CoverflowCarousel.jsx). The per-card transform, opacity and
+   z-index are written straight to the DOM by the component, so
+   nothing here may set those three properties on .cf__card.
+   ============================================================ */
+.cf { width: 100%; }
+.cf__rel { position: relative; }
+.cf__frame {
+  /* Vertical padding keeps the drop shadows clear of the overflow clip. */
+  padding: 40px 0; overflow: hidden; cursor: grab; outline: none;
+}
+.cf__frame:active { cursor: grabbing; }
+.cf__frame:focus-visible { outline: 2px solid var(--ref-teal); outline-offset: 4px; }
+.cf__stage {
+  position: relative; user-select: none; -webkit-user-select: none;
+  /* Every card shares one grid cell, so the row is exactly as tall as the
+     tallest card needs at this width and each card stretches to match. No
+     fixed ratio to over-size, and nothing to clip when text wraps. */
+  display: grid; justify-items: center; align-items: stretch;
+}
+.cf__card {
+  grid-area: 1 / 1;
+  width: var(--cf-card);
+  overflow: hidden; border-radius: 16px;
+  will-change: transform;
+  background: #FFFFFF; border: 1px solid var(--ref-card-line);
+  box-shadow: 0 18px 40px rgba(0, 32, 96, 0.16);
+}
+.cf__img { height: 100%; width: 100%; object-fit: cover; user-select: none; }
+
+/* --- navigation ------------------------------------------------- */
+.cf__nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 200;
+  display: grid; place-items: center; width: 40px; height: 40px; padding: 0;
+  border-radius: 50%; border: 1px solid var(--ref-card-line); cursor: pointer;
+  background: rgba(255, 255, 255, 0.82); color: var(--ref-navy);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  transition: background 200ms var(--ease), transform 200ms var(--ease);
+}
+.cf__nav:hover { background: #FFFFFF; }
+.cf__nav--prev { left: 12px; }
+.cf__nav--next { right: 12px; }
+
+/* --- pagination -------------------------------------------------- */
+.cf__dots { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 24px; }
+.cf__dot {
+  width: 8px; height: 8px; padding: 0; border: none; border-radius: 50%;
+  background: var(--ref-navy); opacity: 0.28; cursor: pointer;
+  transition: opacity 200ms var(--ease), transform 200ms var(--ease);
+}
+.cf__dot.is-active { opacity: 1; transform: scale(1.25); }
+
+/* --- caption ----------------------------------------------------- */
+.cf__caption { display: flex; flex-direction: column; align-items: center; margin-top: 8px; padding: 0 24px; }
+.cf__caption-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--ref-navy); margin: 0; }
+.cf__caption-sub { margin: 4px 0 0; font-size: 13px; color: var(--fg-secondary); }
+.cf__meta { width: 100%; max-width: 230px; margin-top: 40px; font-size: 12px; }
+.cf__meta-row { display: flex; justify-content: space-between; padding: 5px 0; }
+.cf__meta-row dt { color: var(--fg-secondary); margin: 0; }
+.cf__meta-row dd { margin: 0; font-weight: 500; color: var(--ref-navy); }
+
+/* --- an app card as a coverflow face ----------------------------- */
+/* Breaks out of .section's centred column so the deck runs edge to edge. */
+.app-coverflow {
+  margin-top: 8px;
+  width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw);
+}
+.app-face { height: 100%; display: flex; flex-direction: column; padding: 26px 24px 24px; }
+.app-face__rule { position: absolute; left: 0; right: 0; top: 0; height: 4px; background-image: var(--gradient-primary); }
+.app-face__mark {
+  position: relative; width: 46px; height: 46px; border-radius: 12px;
+  display: grid; place-items: center; flex: 0 0 auto; overflow: hidden;
+}
+.app-face__mono { font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1; }
+.app-face__mark img { position: absolute; inset: 18%; width: 64%; height: 64%; object-fit: contain; }
+.app-face__title {
+  margin: 16px 0 10px; font-family: var(--font-display);
+  font-size: 19px; font-weight: 700; line-height: 1.2; color: #002060;
+}
+.app-face__points { display: flex; flex-direction: column; gap: 7px; font-size: 14.5px; line-height: 1.5; color: var(--fg-secondary); }
+.app-face__points > span { display: flex; align-items: baseline; }
+.app-face__dot { color: #2B824E; font-style: normal; margin-right: 8px; font-weight: 700; }
+
+/* --- dark theme --------------------------------------------------- */
+html[data-theme="dark"] .cf__card { background: #101828; border-color: #1E2939; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); }
+html[data-theme="dark"] .app-face__title { color: #FFFFFF; }
+html[data-theme="dark"] .app-face__points { color: rgba(255, 255, 255, 0.62); }
+html[data-theme="dark"] .app-face__dot { color: #6BD194; }
+html[data-theme="dark"] .cf__nav { background: rgba(16, 24, 40, 0.82); border-color: #1E2939; color: #FFFFFF; }
+html[data-theme="dark"] .cf__nav:hover { background: #101828; }
+html[data-theme="dark"] .cf__dot { background: #FFFFFF; }
+html[data-theme="dark"] .cf__caption-title,
+html[data-theme="dark"] .cf__meta-row dd { color: #FFFFFF; }
+
+/* ============================================================
+   BORDER BEAM — src/components/ui/BorderBeam.jsx
+   ============================================================ */
+/* An unregistered custom property is just a token, so it cannot be
+   interpolated. Registering it as an <angle> is what makes the lap
+   animate rather than jump. */
+@property --bb-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.border-beam {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  /* The padding is the ring: the two masks cancel everywhere except here. */
+  padding: var(--bb-width, 1.5px);
+  background: conic-gradient(
+    from var(--bb-angle, 0deg),
+    transparent 0deg,
+    transparent calc(360deg - var(--bb-size, 72deg)),
+    var(--bb-from, #4D9AA1) calc(360deg - var(--bb-size, 72deg)),
+    var(--bb-to, #65A859) 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: bb-travel var(--bb-duration, 7s) linear infinite;
+  animation-delay: var(--bb-delay, 0s);
+}
+@keyframes bb-travel { to { --bb-angle: 360deg; } }
+
+/* The global reduced-motion rule already collapses the duration; this keeps
+   the ring as a finished gradient edge rather than a stalled bright arc. */
+@media (prefers-reduced-motion: reduce) {
+  .border-beam { animation: none; opacity: 0.5; }
+}
+
+/* ============================================================
+   STICKY REVEAL FOOTER — src/components/ui/StickyRevealFooter.jsx
+   ============================================================ */
+/* Opaque and above the footer, so the footer only appears once the page
+   has scrolled past it. Both properties are required: drop the
+   background and the footer shows through every section. */
+.page-stack { position: relative; z-index: 1; background: var(--page-bg); }
+
+.sticky-reveal {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 0;
+}
+/* Transparent, so the pinned footer shows through exactly here. */
+.sticky-reveal__spacer { background: transparent; }
+
+/* A pinned footer needs a viewport tall enough to be worth revealing; below
+   that it just eats the screen, so it returns to normal flow. */
+@media (max-height: 520px) {
+  .sticky-reveal { position: static; }
+  .sticky-reveal__spacer { display: none; }
+}
+
+/* ============================================================
+   PAGE CURTAINS — src/components/ui/PageCurtains.jsx
+   ============================================================ */
+.curtains {
+  position: fixed; inset: 0; z-index: 999;
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  /* Never swallow a click, even mid-sweep. */
+  pointer-events: none;
+}
+.curtains span {
+  background-image: var(--gradient-primary);
+  transform: translateY(0);
+  animation-name: curtain-up;
+  animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes curtain-up {
+  to { transform: translateY(-101%); }
+}

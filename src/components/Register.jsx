@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import useReveal from '../hooks/useReveal.js'
 import { INCLUDED } from '../data/content.js'
+import BorderBeam from './ui/BorderBeam.jsx'
 
 export default function Register() {
   const priceRef = useReveal()
@@ -16,10 +17,11 @@ export default function Register() {
     <section id="register" className="section--subtle" style={{ padding: 'var(--section-pad)' }}>
       <div className="register-grid">
         <div ref={priceRef} className="pricing-card">
+          <BorderBeam duration={8} />
           <div className="pricing-card__eyebrow">SPECIAL WEBINAR ACCESS</div>
           <div className="pricing-card__price-row">
-            <span className="pricing-card__price">₹[PRICE]</span>
-            <span className="pricing-card__strike">₹[VALUE]</span>
+            <span className="pricing-card__price">₹499</span>
+            {/* <span className="pricing-card__strike">₹[VALUE]</span> */}
           </div>
           <div className="pricing-card__note">Or configure as a free webinar with limited registration.</div>
           <div className="pricing-card__list">
