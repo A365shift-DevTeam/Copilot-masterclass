@@ -23,7 +23,9 @@ function initialTheme() {
     const saved = localStorage.getItem('theme')
     if (saved === 'dark' || saved === 'light') return saved
   } catch { /* storage unavailable */ }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  // Dark by default, matching the pre-paint script in index.html. Keep the two
+  // in step: if they disagree, the page flips theme on mount.
+  return 'dark'
 }
 
 export default function Navbar() {

@@ -43,16 +43,16 @@ export default function LiveDemo() {
           <p className="demo__desc">Every capability is shown live inside real Microsoft 365 applications — not slides.</p>
           <div className="demo__list">
             {DEMOS.map((d) => (
-              <div key={d} className="demo__list-item"><span style={{ color: '#8BBF2F', fontWeight: 700 }}>✓</span>{d}</div>
+              <div key={d} className="demo__list-item"><span style={{ color: '#6BD194', fontWeight: 700 }}>✓</span>{d}</div>
             ))}
           </div>
         </div>
 
         <div ref={rightRef} className="demo-window">
           <div className="demo-window__bar">
-            <i style={{ background: '#D94F4F' }} />
-            <i style={{ background: '#F5A623' }} />
-            <i style={{ background: '#75B734' }} />
+            <i style={{ background: '#EF4444' }} />
+            <i style={{ background: '#F59E0B' }} />
+            <i style={{ background: '#3FC073' }} />
             <span className="demo-window__bar-title">microsoft 365 — copilot</span>
           </div>
           <div className="demo-window__body">

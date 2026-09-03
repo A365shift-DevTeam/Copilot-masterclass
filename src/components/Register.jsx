@@ -24,7 +24,7 @@ export default function Register() {
           <div className="pricing-card__note">Or configure as a free webinar with limited registration.</div>
           <div className="pricing-card__list">
             {INCLUDED.map((i) => (
-              <div key={i} className="pricing-card__list-item"><span style={{ color: '#8BBF2F', fontWeight: 700 }}>✓</span>{i}</div>
+              <div key={i} className="pricing-card__list-item"><span style={{ color: '#6BD194', fontWeight: 700 }}>✓</span>{i}</div>
             ))}
           </div>
           <div className="pricing-card__banner">Limited seats available — registration closes when the room is full.</div>

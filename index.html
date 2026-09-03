@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/assets/logo-icon.png" />
@@ -7,14 +7,15 @@
     <meta name="description" content="Live interactive webinar — Master Microsoft 365 Copilot & AI with AmBot365. Transform the way you work with Microsoft 365 + AI." />
     <title>Master Microsoft 365 Copilot &amp; AI — AmBot365 Webinar</title>
     <script>
-      // Apply the saved (or system) theme before first paint to avoid a flash.
+      // Apply the saved theme before first paint to avoid a flash.
+      // The page is dark by default; light is opt-in via the toggle.
       try {
         var t = localStorage.getItem('theme')
-        if (t !== 'dark' && t !== 'light') {
-          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        }
+        if (t !== 'dark' && t !== 'light') t = 'dark'
         document.documentElement.setAttribute('data-theme', t)
-      } catch (e) {}
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark')
+      }
     </script>
   </head>
   <body>

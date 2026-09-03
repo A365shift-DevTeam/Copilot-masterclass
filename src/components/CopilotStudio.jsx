@@ -51,9 +51,9 @@ export default function CopilotStudio() {
           </div>
           <svg className="agent-panel__svg" viewBox="0 0 400 60" preserveAspectRatio="none">
             <path d="M10 30 H130 M150 30 H270 M290 30 H390" stroke="rgba(255,255,255,0.16)" strokeWidth="1.5" fill="none" />
-            <path d="M10 30 H130 M150 30 H270 M290 30 H390" stroke="#8BBF2F" strokeWidth="1.8" fill="none" strokeDasharray="18 120" style={{ animation: 'om-flow 3.4s linear infinite' }} />
-            <circle cx="140" cy="30" r="5" fill="#0C576A" stroke="#75B734" strokeWidth="1.5" />
-            <circle cx="280" cy="30" r="5" fill="#0C576A" stroke="#128CA8" strokeWidth="1.5" />
+            <path d="M10 30 H130 M150 30 H270 M290 30 H390" stroke="#6BD194" strokeWidth="1.8" fill="none" strokeDasharray="18 120" style={{ animation: 'om-flow 3.4s linear infinite' }} />
+            <circle cx="140" cy="30" r="5" fill="#1D5368" stroke="#3FC073" strokeWidth="1.5" />
+            <circle cx="280" cy="30" r="5" fill="#1D5368" stroke="#308BAF" strokeWidth="1.5" />
           </svg>
         </div>
       </div>

@@ -33,9 +33,9 @@ const LINKS = [
 
 const RAD = Math.PI / 180
 const RING_GRADS = [
-  { id: 'orbGradA', x1: 0, y1: 0, x2: 1, y2: 1, stops: [['0%', '#A4D4E3', 0.3], ['45%', '#6AB8D2', 0.07], ['100%', '#C3E093', 0.28]], pulse: '#C3E093', pulseOp: 0.65, dash: '4 96', anim: 'orb-ringpulse 7s linear infinite' },
-  { id: 'orbGradB', x1: 1, y1: 0, x2: 0, y2: 1, stops: [['0%', '#6AB8D2', 0.26], ['50%', '#128CA8', 0.06], ['100%', '#A4D4E3', 0.24]], pulse: '#6AB8D2', pulseOp: 0.6, dash: '3 97', anim: 'orb-ringpulse 11s linear infinite reverse' },
-  { id: 'orbGradC', x1: 0, y1: 1, x2: 1, y2: 0, stops: [['0%', '#C3E093', 0.22], ['55%', '#75B734', 0.05], ['100%', '#6AB8D2', 0.22]], pulse: '#8BBF2F', pulseOp: 0.5, dash: '3 97', anim: 'orb-ringpulse 15s linear infinite' },
+  { id: 'orbGradA', x1: 0, y1: 0, x2: 1, y2: 1, stops: [['0%', 'var(--orb-a)', 0.3], ['45%', 'var(--orb-b)', 0.07], ['100%', 'var(--orb-c)', 0.28]], pulse: 'var(--orb-c)', pulseOp: 0.65, dash: '4 96', anim: 'orb-ringpulse 7s linear infinite' },
+  { id: 'orbGradB', x1: 1, y1: 0, x2: 0, y2: 1, stops: [['0%', 'var(--orb-b)', 0.26], ['50%', 'var(--orb-d)', 0.06], ['100%', 'var(--orb-a)', 0.24]], pulse: 'var(--orb-b)', pulseOp: 0.6, dash: '3 97', anim: 'orb-ringpulse 11s linear infinite reverse' },
+  { id: 'orbGradC', x1: 0, y1: 1, x2: 1, y2: 0, stops: [['0%', 'var(--orb-c)', 0.22], ['55%', 'var(--orb-e)', 0.05], ['100%', 'var(--orb-b)', 0.22]], pulse: 'var(--orb-f)', pulseOp: 0.5, dash: '3 97', anim: 'orb-ringpulse 15s linear infinite' },
 ]
 
 class OrbitEngine {
@@ -414,9 +414,9 @@ export default function CopilotOrbit() {
 
         <div className="orbit-beams">
           <div className="orbit-beam-line" data-beam-line="1" />
-          <div className="orbit-beam-dot" data-beam-dot="0" style={{ width: 4, height: 4, margin: '-2px 0 0 -2px', background: '#D8EEB5', boxShadow: '0 0 10px rgba(216,238,181,0.9)' }} />
-          <div className="orbit-beam-dot" data-beam-dot="1" style={{ width: 3, height: 3, margin: '-1.5px 0 0 -1.5px', background: '#A4D4E3', boxShadow: '0 0 8px rgba(164,212,227,0.9)' }} />
-          <div className="orbit-beam-dot" data-beam-dot="2" style={{ width: 3, height: 3, margin: '-1.5px 0 0 -1.5px', background: '#8BBF2F', boxShadow: '0 0 8px rgba(139,191,47,0.9)' }} />
+          <div className="orbit-beam-dot" data-beam-dot="0" style={{ width: 4, height: 4, margin: '-2px 0 0 -2px', background: 'var(--orb-g)', boxShadow: '0 0 10px var(--orb-glow-g)' }} />
+          <div className="orbit-beam-dot" data-beam-dot="1" style={{ width: 3, height: 3, margin: '-1.5px 0 0 -1.5px', background: 'var(--orb-a)', boxShadow: '0 0 8px var(--orb-glow-a)' }} />
+          <div className="orbit-beam-dot" data-beam-dot="2" style={{ width: 3, height: 3, margin: '-1.5px 0 0 -1.5px', background: 'var(--orb-f)', boxShadow: '0 0 8px var(--orb-glow-f)' }} />
           <div className="orbit-beam-label" data-beam-label="1">Analyse Data</div>
         </div>
 
@@ -451,10 +451,10 @@ export default function CopilotOrbit() {
         </div>
 
         <div className="orbit-dust">
-          <span style={{ left: '18%', top: '80%', background: '#A4D4E3', animation: 'orb-drift 12s linear infinite' }} />
-          <span style={{ left: '42%', top: '88%', background: '#C3E093', animation: 'orb-drift 15s linear 3s infinite' }} />
-          <span style={{ left: '68%', top: '84%', background: '#6AB8D2', animation: 'orb-drift 13s linear 6.5s infinite' }} />
-          <span style={{ left: '84%', top: '78%', background: '#8BBF2F', animation: 'orb-drift 16s linear 9s infinite' }} />
+          <span style={{ left: '18%', top: '80%', background: 'var(--orb-a)', animation: 'orb-drift 12s linear infinite' }} />
+          <span style={{ left: '42%', top: '88%', background: 'var(--orb-c)', animation: 'orb-drift 15s linear 3s infinite' }} />
+          <span style={{ left: '68%', top: '84%', background: 'var(--orb-b)', animation: 'orb-drift 13s linear 6.5s infinite' }} />
+          <span style={{ left: '84%', top: '78%', background: 'var(--orb-f)', animation: 'orb-drift 16s linear 9s infinite' }} />
         </div>
       </div>
     </div>
