@@ -135,6 +135,7 @@
   --ref-green:   #00b050;  /* active nav / link hover */
   --ref-teal:    #4c99a0;  /* eyebrows; the Brand 2 gradient's left end */
   --ref-teal-dk: #2f6e75;  /* the same teal, darkened for small text */
+  --ref-card-line: #e5e7eb; /* card edge — visible against a near-white ground */
 
   /* ---- Application aliases ------------------------------------ */
   --fg-primary:   var(--ref-navy);
@@ -248,6 +249,26 @@ input, select, textarea, button { font-family: var(--font-sans); }
   .nav__cta { padding: 11px 18px; font-size: 12.5px; }
   .nav__logo-plate img { height: 24px; }
 }
+
+/* At phone widths the logo plate + toggle + burger + CTA overflow the
+   viewport (measured 19px at 390px). Tighten the plate, the CTA and the
+   gap so the row fits; the white plate itself has to stay for the logo to
+   read against the dark hero. */
+@media (max-width: 480px) {
+  .nav { padding-left: 16px; padding-right: 16px; }
+  .nav__logo-plate { padding: 4px 8px; }
+  .nav__logo-plate img { height: 22px; }
+  .nav__right { gap: 10px; }
+  .nav__cta { padding: 10px 14px; font-size: 12px; }
+  .theme-toggle { width: 38px; height: 38px; }
+}
+
+/* Below ~380px even the tightened row overflows, so the nav CTA gives way
+   to the one already inside the mobile menu panel. */
+@media (max-width: 380px) {
+  .nav__cta { display: none; }
+}
+
 
 .menu-panel {
   position: fixed; top: 0; left: 0; right: 0; z-index: 79;
@@ -498,7 +519,7 @@ input, select, textarea, button { font-family: var(--font-sans); }
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(265px, 100%), 1fr)); gap: 20px; }
 .app-card {
   position: relative; overflow: hidden; padding: 26px; border-radius: 12px;
-  border: none; background: #FFFFFF; box-shadow: 0 4px 16px rgba(0, 32, 96, 0.08);
+  border: 1px solid var(--ref-card-line); background: #FFFFFF; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 250ms var(--ease), box-shadow 250ms, border-color 250ms;
 }
 .app-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(26, 62, 76, 0.14); border-color: #B3E6C7; }
@@ -528,7 +549,7 @@ input, select, textarea, button { font-family: var(--font-sans); }
 .studio__desc { margin: 0 0 28px; font-size: 16px; line-height: 1.7; color: var(--fg-secondary); max-width: 520px; }
 .flow-step {
   display: flex; align-items: center; gap: 14px; padding: 13px 18px; border-radius: 8px;
-  background: #FFFFFF; border: none; box-shadow: 0 4px 16px rgba(0, 32, 96, 0.08);
+  background: #FFFFFF; border: 1px solid var(--ref-card-line); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 250ms var(--ease), border-color 250ms;
 }
 .flow-step:hover { transform: translateX(4px); border-color: #3FC073; }
@@ -584,7 +605,7 @@ input, select, textarea, button { font-family: var(--font-sans); }
 .agenda-item {
   position: relative; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
   padding: 16px 18px 16px 20px; margin-left: 16px; border-radius: 12px;
-  background: #FFFFFF; border: none; box-shadow: 0 4px 16px rgba(0, 32, 96, 0.08);
+  background: #FFFFFF; border: 1px solid var(--ref-card-line); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 250ms var(--ease), box-shadow 250ms;
 }
 .agenda-item:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(26, 62, 76, 0.12); }
@@ -605,7 +626,7 @@ input, select, textarea, button { font-family: var(--font-sans); }
 .aud-card {
   position: relative; display: flex; align-items: center; gap: 18px;
   padding: 34px 22px 24px; border-radius: 10px;
-  background: #FFFFFF; border: none; box-shadow: 0 4px 16px rgba(0, 32, 96, 0.08);
+  background: #FFFFFF; border: 1px solid var(--ref-card-line); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 220ms var(--ease), box-shadow 220ms;
 }
 .aud-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(26, 62, 76, 0.12); }
@@ -641,8 +662,8 @@ input, select, textarea, button { font-family: var(--font-sans); }
 .usecases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 20px; }
 .usecase-card {
   display: flex; flex-direction: column;
-  border-radius: 12px; overflow: hidden; border: none; background: #FFFFFF;
-  box-shadow: 0 4px 16px rgba(0, 32, 96, 0.08);
+  border-radius: 12px; overflow: hidden; border: 1px solid var(--ref-card-line); background: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 250ms var(--ease), box-shadow 250ms;
 }
 .usecase-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(26, 62, 76, 0.14); }
@@ -722,8 +743,8 @@ input, select, textarea, button { font-family: var(--font-sans); }
    ============================================================ */
 .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(205px, 100%), 1fr)); gap: 18px; }
 .benefit-card {
-  padding: 26px 22px; border-radius: 12px; border: none; background: #FFFFFF;
-  box-shadow: 0 4px 16px rgba(0, 32, 96, 0.08);
+  padding: 26px 22px; border-radius: 12px; border: 1px solid var(--ref-card-line); background: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 250ms var(--ease), box-shadow 250ms, border-color 250ms;
 }
 .benefit-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(26, 62, 76, 0.14); border-color: #B3E6C7; }
@@ -798,8 +819,8 @@ input, select, textarea, button { font-family: var(--font-sans); }
 .eco-hub__title { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
 .eco-hub__sub { font-size: 13.5px; color: rgba(255, 255, 255, 0.62); margin-top: 8px; line-height: 1.55; }
 .eco-card {
-  padding: 24px; border-radius: 12px; background: #FFFFFF; border: none;
-  box-shadow: 0 4px 16px rgba(0, 32, 96, 0.08);
+  padding: 24px; border-radius: 12px; background: #FFFFFF; border: 1px solid var(--ref-card-line);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 250ms var(--ease), border-color 250ms, box-shadow 250ms;
 }
 .eco-card:hover { transform: translateY(-4px); border-color: #3FC073; box-shadow: 0 8px 32px rgba(26, 62, 76, 0.12); }
@@ -824,7 +845,7 @@ input, select, textarea, button { font-family: var(--font-sans); }
 .testimonials__nav button:hover { border-color: #3FC073; transform: translateY(-2px); }
 .testimonials__viewport { overflow: hidden; }
 .testimonials__track { display: flex; gap: 18px; transition: transform 450ms var(--ease); }
-.testimonial-card { flex: 0 0 min(360px, 84vw); padding: 26px; border-radius: 12px; border: none; background: #FFFFFF; box-shadow: 0 4px 16px rgba(0, 32, 96, 0.08); }
+.testimonial-card { flex: 0 0 min(360px, 84vw); padding: 26px; border-radius: 12px; border: 1px solid var(--ref-card-line); background: #FFFFFF; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
 .testimonial-card__stars { color: #3FC073; letter-spacing: 0.12em; font-size: 15px; }
 .testimonial-card__quote { margin: 14px 0 18px; font-size: 15px; line-height: 1.65; color: var(--fg-secondary); }
 .testimonial-card__name { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; color: #002060; }
@@ -856,7 +877,7 @@ input, select, textarea, button { font-family: var(--font-sans); }
 }
 .register-card {
   position: relative; padding: 32px; border-radius: 16px; background: #FFFFFF;
-  border: none; box-shadow: 0 10px 34px rgba(0, 32, 96, 0.10);
+  border: 1px solid var(--ref-card-line); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
 }
 .register-card h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 22px; font-weight: 700; color: #002060; }
 .register-card__sub { margin: 0 0 22px; font-size: 14.5px; color: var(--fg-secondary); }
@@ -903,7 +924,7 @@ input, select, textarea, button { font-family: var(--font-sans); }
    ============================================================ */
 .faq-section { padding: var(--section-pad); max-width: 880px; margin: 0 auto; }
 .faq-list { display: flex; flex-direction: column; gap: 12px; }
-.faq-item { border-radius: 12px; border: none; background: #FFFFFF; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 32, 96, 0.08); }
+.faq-item { border-radius: 12px; border: 1px solid var(--ref-card-line); background: #FFFFFF; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
 .faq-item__btn {
   width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 18px 22px; background: transparent; border: none; text-align: left; cursor: pointer;
@@ -1012,7 +1033,6 @@ html[data-theme="dark"] .cta-section {
 html[data-theme="dark"] .speaker-section {
   background: linear-gradient(150deg, #101828, #030915);
 }
-html[data-theme="dark"] .footer { background: #030915; }
 html[data-theme="dark"] .pricing-card {
   background: linear-gradient(155deg, #111A2B, #172034);
   border: 1px solid #1E2939;
@@ -1270,3 +1290,126 @@ html[data-theme="light"] .orbit-tip {
 }
 html[data-theme="light"] .orbit-tip__title { color: var(--ref-navy); }
 html[data-theme="light"] .orbit-tip__sub { color: var(--ref-body); }
+
+/* ============================================================
+   LIGHT THEME — the remaining dark-by-design panels
+   Speaker, ecosystem hub, pricing, Copilot Studio, demo and the
+   final CTA were authored as dark contrast bands. In the white
+   theme they become light surfaces, so every "text on dark" rule
+   inside them is relit here.
+   ============================================================ */
+
+/* --- Copilot Studio panel -------------------------------------- */
+html[data-theme="light"] .agent-panel {
+  background: linear-gradient(158deg, #F4F8FB, #EAF2F7);
+  border: 1px solid var(--ref-card-line);
+}
+html[data-theme="light"] .agent-panel__name { color: var(--ref-navy); }
+html[data-theme="light"] .agent-panel__tag { color: var(--ref-micro); }
+html[data-theme="light"] .agent-cap {
+  background: #FFFFFF; border: 1px solid var(--ref-card-line); color: var(--ref-body);
+}
+
+/* The "result" step keeps its emphasis as a green-tinted panel. */
+html[data-theme="light"] .flow-step--result {
+  background: #E9F7EE; border: 1px solid #B3E6C7; color: var(--ref-navy);
+}
+html[data-theme="light"] .flow-step--result .flow-step__label { color: var(--ref-navy); }
+
+/* --- Live demo -------------------------------------------------- */
+html[data-theme="light"] .demo-section {
+  color: var(--ref-navy);
+  background: linear-gradient(158deg, #F4F8FB, #EDF3F7 60%, #F6F9FB);
+}
+html[data-theme="light"] .demo__title { color: var(--ref-navy); }
+html[data-theme="light"] .demo__desc { color: var(--ref-body); }
+html[data-theme="light"] .demo__list-item { color: var(--ref-body); }
+html[data-theme="light"] .demo-window {
+  border: 1px solid var(--ref-card-line); background: #FFFFFF;
+  box-shadow: 0 16px 40px rgba(0, 32, 96, 0.10);
+}
+html[data-theme="light"] .demo-window__bar {
+  background: #F6F7F9; border-bottom: 1px solid var(--ref-card-line);
+}
+html[data-theme="light"] .demo-window__bar-title { color: var(--ref-micro); }
+html[data-theme="light"] .demo-window__answer {
+  background: #F6F7F9; border: 1px solid var(--ref-card-line); color: var(--ref-body);
+}
+html[data-theme="light"] .demo-window__caret { background: #35A160; }
+html[data-theme="light"] .demo-window__chips span {
+  background: #F2F6F4; border: 1px solid var(--ref-card-line); color: var(--ref-body);
+}
+
+/* --- Speaker ---------------------------------------------------- */
+html[data-theme="light"] .speaker-section {
+  color: var(--ref-navy);
+  background: linear-gradient(150deg, #F1F6F9, #F7FAFB);
+}
+/* screen blending only lifts a dark ground; on light it washes out */
+html[data-theme="light"] .speaker-section__circuit { mix-blend-mode: multiply; opacity: 0.14; }
+html[data-theme="light"] .speaker-section__svg { opacity: 0.16; }
+html[data-theme="light"] .speaker-photo {
+  border: 1px solid var(--ref-card-line); background: #FFFFFF;
+  box-shadow: 0 16px 40px rgba(0, 32, 96, 0.10);
+}
+html[data-theme="light"] .speaker-photo__note { color: var(--ref-micro); }
+html[data-theme="light"] .speaker__name { color: var(--ref-navy); }
+html[data-theme="light"] .speaker__role { color: var(--ref-slate); }
+html[data-theme="light"] .speaker__tags { color: var(--ref-micro); }
+html[data-theme="light"] .speaker__bio { color: var(--ref-body); }
+html[data-theme="light"] .speaker__pills span {
+  background: #FFFFFF; border: 1px solid var(--ref-card-line); color: var(--ref-navy);
+}
+
+/* --- Ecosystem hub ---------------------------------------------- */
+/* Stays the emphasised tile among white cards, but as a green tint —
+   white text on the Brand 2 gradient measures under 3:1 at this size. */
+html[data-theme="light"] .eco-hub {
+  background: linear-gradient(150deg, #F2FAF6, #E4F4EA); color: var(--ref-navy);
+  border: 1px solid #B3E6C7;
+}
+html[data-theme="light"] .eco-hub__title { color: var(--ref-navy); }
+html[data-theme="light"] .eco-hub__sub { color: var(--ref-body); }
+
+/* --- Pricing ---------------------------------------------------- */
+html[data-theme="light"] .pricing-card {
+  background: linear-gradient(155deg, #F1F6F9, #EAF2F7); color: var(--ref-navy);
+  border: 1px solid var(--ref-card-line); box-shadow: 0 16px 40px rgba(0, 32, 96, 0.10);
+}
+html[data-theme="light"] .pricing-card__strike { color: var(--ref-micro); }
+html[data-theme="light"] .pricing-card__note { color: var(--ref-body); }
+html[data-theme="light"] .pricing-card__list-item { color: var(--ref-body); }
+html[data-theme="light"] .pricing-card__banner {
+  background: #FFFFFF; border: 1px solid var(--ref-card-line); color: var(--ref-body);
+}
+
+/* --- Final CTA --------------------------------------------------- */
+html[data-theme="light"] .cta-section {
+  color: var(--ref-navy);
+  background: linear-gradient(150deg, #EDEEF3, #F3F6F8 55%, #FBFCFD);
+}
+html[data-theme="light"] .cta-section h2 { color: var(--ref-navy); }
+html[data-theme="light"] .cta-section p { color: var(--ref-body); }
+
+/* ============================================================
+   FOOTER — the deep forest green from the AmBot365 site.
+   Sampled: ground #0E2F1F -> #0A2418, rule #1F5A3C, text #C2C9C5.
+   Applied in both themes, since it is the page's terminal band.
+   ============================================================ */
+.footer {
+  background: linear-gradient(180deg, #0E2F1F 0%, #0B271A 55%, #0A2418 100%);
+  color: #C2C9C5;
+  border-top: 1px solid #1F5A3C;
+}
+.footer a { color: #E7E9E9; }
+.footer a:hover { color: #9FD884; }
+
+/* --- Light theme: accents authored for dark grounds ---------------
+   These greens sit at 1.5-2.2:1 once their panel turns light, so they
+   step down the same scale to stay legible on white.                 */
+html[data-theme="light"] .pricing-card__eyebrow { color: var(--ref-teal-dk); }
+html[data-theme="light"] .agent-panel__status { color: #2B824E; }
+html[data-theme="light"] .agenda-item__num { color: var(--ref-teal-dk); }
+html[data-theme="light"] .testimonial-card__stars { color: #2B824E; }
+html[data-theme="light"] .app-card__points .dot { color: #2B824E; }
+html[data-theme="light"] .flow-step--result .flow-step__num { background: #2B824E; color: #FFFFFF; }
