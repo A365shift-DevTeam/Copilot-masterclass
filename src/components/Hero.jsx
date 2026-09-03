@@ -41,10 +41,10 @@ export default function Hero() {
 
       <div className="hero__grid">
         <div className="hero__col">
-          <div className="hero__badge">
+          {/* <div className="hero__badge">
             <span className="hero__badge-dot" />
             <span className="hero__badge-text">LIVE INTERACTIVE WEBINAR</span>
-          </div>
+          </div> */}
 
           <h1 className="hero__title">
             Master<br />Microsoft 365<br />

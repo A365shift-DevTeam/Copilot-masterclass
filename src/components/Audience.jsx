@@ -85,19 +85,31 @@ const ICONS = {
 
 function AudienceCard({ person, accent }) {
   const ref = useReveal()
+
+  // The reveal hook owns the cell's transform, so the card underneath is free
+  // to run its own, faster hover transition.
+  const track = (e) => {
+    const el = e.currentTarget
+    const r = el.getBoundingClientRect()
+    el.style.setProperty('--mx', (e.clientX - r.left).toFixed(0) + 'px')
+    el.style.setProperty('--my', (e.clientY - r.top).toFixed(0) + 'px')
+  }
+
   return (
-    <div ref={ref} className={`aud-card aud-card--${accent}`}>
-      <span className="aud-card__num">{person.n}</span>
-      <span className="aud-card__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          {ICONS[person.icon]}
-        </svg>
-      </span>
-      <div className="aud-card__body">
+    <div ref={ref} className="aud-cell">
+      <article className={`aud-card aud-card--${accent}`} onMouseEnter={track} onMouseMove={track}>
+        <span className="aud-card__spot" aria-hidden="true" />
+        <span className="aud-card__num" aria-hidden="true">{person.n}</span>
+        <span className="aud-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            {ICONS[person.icon]}
+          </svg>
+          <i className="aud-card__sheen" />
+        </span>
         <h3 className="aud-card__title">{person.t}</h3>
         <p className="aud-card__desc">{person.d}</p>
         <span className="aud-card__bar" />
-      </div>
+      </article>
     </div>
   )
 }
@@ -108,6 +120,7 @@ export default function Audience() {
     <section className="section--subtle" style={{ padding: 'var(--section-pad)' }}>
       <div className="section__inner" style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div ref={headRef} className="section-head" style={{ maxWidth: 700, marginBottom: 44 }}>
+          <div className="eyebrow eyebrow--teal">WHO IT IS FOR</div>
           <h2 className="h2" style={{ marginBottom: 12 }}>Who Should Attend?</h2>
           <p style={{ fontSize: 16 }}>Built for teams who already work in Microsoft 365 and want to work smarter.</p>
         </div>

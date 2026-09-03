@@ -767,42 +767,89 @@ input, select, textarea, button { font-family: var(--font-sans); }
 /* ============================================================
    AUDIENCE
    ============================================================ */
-.audience-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
-@media (max-width: 760px) {
-  .audience-grid { grid-template-columns: 1fr; }
-}
+/* Four across at 1100px, reflowing to one. 11 cards leave a short last row,
+   which reads as intentional against the ragged-right heading above. */
+.audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 18px; }
+.aud-cell { display: flex; }
+
 .aud-card {
-  position: relative; display: flex; align-items: center; gap: 18px;
-  padding: 34px 22px 24px; border-radius: 10px;
-  background: #FFFFFF; border: 1px solid var(--ref-card-line); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: transform 220ms var(--ease), box-shadow 220ms;
+  position: relative; overflow: hidden; flex: 1;
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 26px 22px 22px; border-radius: 14px;
+  background: #FFFFFF; border: 1px solid var(--ref-card-line);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 260ms var(--ease), box-shadow 260ms, border-color 260ms;
 }
-.aud-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(26, 62, 76, 0.12); }
+.aud-card:hover {
+  transform: translateY(-6px); border-color: var(--aud-accent);
+  box-shadow: 0 18px 40px rgba(26, 62, 76, 0.14);
+}
+
+/* Pointer-tracked wash. --mx/--my are written by the component on mousemove. */
+.aud-card__spot {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  opacity: 0; transition: opacity 260ms;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--aud-spot), transparent 68%);
+}
+.aud-card:hover .aud-card__spot { opacity: 1; }
+
+.aud-card__title, .aud-card__desc, .aud-card__bar { position: relative; z-index: 1; }
+.aud-card__num, .aud-card__icon { z-index: 1; }
+
 .aud-card__num {
-  position: absolute; top: 0; left: 16px; padding: 4px 18px 5px 11px;
-  font-family: var(--font-display); font-weight: 800; font-size: 13px; color: #FFFFFF;
-  clip-path: polygon(0 0, 100% 0, calc(100% - 11px) 100%, 0 100%);
-  border-radius: 0 0 0 4px;
+  position: absolute; top: 16px; right: 18px;
+  font-family: var(--font-display); font-size: 26px; font-weight: 800; line-height: 1;
+  letter-spacing: -0.02em; color: var(--aud-accent); opacity: 0.18;
+  transition: opacity 260ms, transform 260ms var(--ease);
 }
+.aud-card:hover .aud-card__num { opacity: 0.4; transform: translateY(-2px); }
+
 .aud-card__icon {
-  flex: 0 0 auto; width: 64px; height: 64px; border-radius: 50%;
+  position: relative; overflow: hidden;
+  width: 52px; height: 52px; border-radius: 15px; margin-bottom: 16px;
   display: grid; place-items: center;
+  background: var(--aud-tint); color: var(--aud-accent-dk);
+  transition: color 300ms, transform 300ms var(--ease), box-shadow 300ms;
 }
-.aud-card__icon svg { width: 30px; height: 30px; display: block; }
-.aud-card__body { min-width: 0; }
-.aud-card__title { margin: 0 0 6px; font-family: var(--font-display); font-size: 17px; font-weight: 700; }
-.aud-card__desc { margin: 0 0 10px; font-size: 13.5px; line-height: 1.55; color: var(--fg-secondary); }
-.aud-card__bar { display: block; width: 34px; height: 3px; border-radius: 2px; }
+.aud-card__icon::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  background-image: var(--aud-grad); opacity: 0; transition: opacity 300ms;
+}
+.aud-card:hover .aud-card__icon {
+  color: #FFFFFF; transform: translateY(-3px) rotate(-5deg);
+  box-shadow: 0 10px 22px rgba(26, 62, 76, 0.18);
+}
+.aud-card:hover .aud-card__icon::before { opacity: 1; }
+.aud-card__icon svg { position: relative; z-index: 1; width: 26px; height: 26px; display: block; }
+.aud-card__sheen {
+  position: absolute; top: 0; left: 0; z-index: 2; width: 46%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transform: translateX(-130%) skewX(-18deg); opacity: 0;
+}
+.aud-card:hover .aud-card__sheen { opacity: 1; animation: om-shine 900ms ease-out; }
 
-.aud-card--green .aud-card__num { background: #3FC073; }
-.aud-card--green .aud-card__icon { background: #E9F7EE; color: #35A160; }
-.aud-card--green .aud-card__title { color: #35A160; }
-.aud-card--green .aud-card__bar { background: #3FC073; }
+.aud-card__title {
+  margin: 0 0 7px; font-family: var(--font-display);
+  font-size: 16px; font-weight: 700; color: #002060; line-height: 1.3;
+}
+.aud-card__desc { margin: 0 0 18px; font-size: 13.5px; line-height: 1.6; color: var(--fg-secondary); }
+.aud-card__bar {
+  margin-top: auto; display: block; height: 3px; width: 28px; border-radius: 2px;
+  background-image: var(--aud-grad); transition: width 380ms var(--ease);
+}
+.aud-card:hover .aud-card__bar { width: 68px; }
 
-.aud-card--blue .aud-card__num { background: #308BAF; }
-.aud-card--blue .aud-card__icon { background: #E8F3F8; color: #308BAF; }
-.aud-card--blue .aud-card__title { color: #308BAF; }
-.aud-card--blue .aud-card__bar { background: #308BAF; }
+/* Accents are variables so the two themes restate four values, not four rules. */
+.aud-card--green {
+  --aud-accent: #3FC073; --aud-accent-dk: #35A160; --aud-tint: #E9F7EE;
+  --aud-spot: rgba(63, 192, 115, 0.16);
+  --aud-grad: linear-gradient(140deg, #3FC073, #308BAF);
+}
+.aud-card--blue {
+  --aud-accent: #308BAF; --aud-accent-dk: #256C88; --aud-tint: #E8F3F8;
+  --aud-spot: rgba(48, 139, 175, 0.16);
+  --aud-grad: linear-gradient(140deg, #308BAF, #3FC073);
+}
 
 /* ============================================================
    USE CASES
@@ -1356,10 +1403,16 @@ html[data-theme="dark"] .benefit-card__icon {
 }
 
 /* Audience cards */
-html[data-theme="dark"] .aud-card--green .aud-card__icon { background: rgba(63, 192, 115, 0.15); color: #6BD194; }
-html[data-theme="dark"] .aud-card--green .aud-card__title { color: #6BD194; }
-html[data-theme="dark"] .aud-card--blue .aud-card__icon { background: rgba(48, 139, 175, 0.20); color: #9FD1E5; }
-html[data-theme="dark"] .aud-card--blue .aud-card__title { color: #9FD1E5; }
+html[data-theme="dark"] .aud-card--green {
+  --aud-accent-dk: #6BD194; --aud-tint: rgba(63, 192, 115, 0.15);
+  --aud-spot: rgba(63, 192, 115, 0.20);
+}
+html[data-theme="dark"] .aud-card--blue {
+  --aud-accent-dk: #9FD1E5; --aud-tint: rgba(48, 139, 175, 0.20);
+  --aud-spot: rgba(48, 139, 175, 0.22);
+}
+html[data-theme="dark"] .aud-card__title { color: #FFFFFF; }
+html[data-theme="dark"] .aud-card:hover { box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45); }
 
 /* Agenda */
 html[data-theme="dark"] .agenda-panel {
