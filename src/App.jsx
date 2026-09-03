@@ -31,15 +31,15 @@ export default function App() {
         <CopilotStudio />
         <Agenda />
         <Audience />
-        <UseCases />
-        <LiveDemo />
+        {/* <UseCases /> */}
+        {/* <LiveDemo /> */}
         <Benefits />
         <Speaker />
-        <Ecosystem />
+        {/* <Ecosystem /> */}
         <Testimonials />
         <Register />
         <Faq />
-        <FinalCta />
+        {/* <FinalCta /> */}
       </div>
 
       <StickyRevealFooter>

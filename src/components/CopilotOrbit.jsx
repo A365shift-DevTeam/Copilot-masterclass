@@ -48,6 +48,7 @@ class OrbitEngine {
     this.ringAngles = [0, 0, 0]
     this.offsets = {}
     this.els = {}
+    this.hits = {}
     this.pos = {}
     this.hover = null
     this.mouse = { x: 0, y: 0 }
@@ -84,6 +85,7 @@ class OrbitEngine {
       const fb = el.querySelector('[data-app-fallback]')
       if (img) this.loadIcon(img, app.file, () => { if (fb) fb.style.display = 'flex' })
       const hit = el.querySelector('[data-app-hit]')
+      this.hits[app.id] = hit
       const show = () => this.showTip(app)
       const hide = () => { this.hover = null; if (this.tip) this.tip.style.opacity = '0' }
       hit.addEventListener('mouseenter', show)
@@ -199,7 +201,7 @@ class OrbitEngine {
       }
       const img = el.querySelector('[data-app-icon]')
       const fb = el.querySelector('[data-app-fallback]')
-      const isz = Math.max(28, Math.min(46, 0.062 * size))
+      const isz = Math.round(Math.max(28, Math.min(46, 0.062 * size)))
       if (img) { img.style.width = isz + 'px'; img.style.height = isz + 'px' }
       if (fb) { fb.style.width = isz + 'px'; fb.style.height = isz + 'px' }
     })
@@ -268,7 +270,13 @@ class OrbitEngine {
       const depth = (p.zn + 1) / 2
       const base = 0.76 + depth * 0.42
       const s = base * (this.hover === app.id ? 1.15 : 1)
-      el.style.transform = `translate3d(${p.x.toFixed(1)}px,${p.y.toFixed(1)}px,0) scale(${s.toFixed(3)})`
+      // .orbit-app is a composited layer (translate3d + will-change), so
+      // scaling it upsampled one raster and softened the larger icons.
+      // Translation stays on the layer; the scale moves to the un-promoted
+      // child, which repaints at its true size every frame.
+      el.style.transform = `translate3d(${p.x.toFixed(1)}px,${p.y.toFixed(1)}px,0)`
+      const hit = this.hits[app.id]
+      if (hit) hit.style.transform = `translate(-50%, -50%) scale(${s.toFixed(3)})`
       el.style.zIndex = String(Math.round(10 + depth * 40))
       const appIn = this.ramp(700 + n * 70, 520)
       n += 1
