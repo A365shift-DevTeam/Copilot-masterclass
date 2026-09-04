@@ -196,7 +196,22 @@ input, select, textarea, button { font-family: var(--font-sans); }
   display: flex; align-items: center; justify-content: space-between; gap: 24px;
   padding: 18px clamp(20px, 4vw, 56px);
   background: transparent; border-bottom: 1px solid transparent;
-  transition: background 320ms var(--ease), border-color 320ms, padding 320ms, box-shadow 320ms;
+  transition: background 320ms var(--ease), border-color 320ms, padding 320ms, box-shadow 320ms,
+    transform 380ms var(--ease), opacity 240ms var(--ease);
+}
+
+/* The seat-scroll section retracts the navbar while its sticky stage owns the
+   full viewport, then hands it straight back. Toggled from
+   SeatScrollExperience.jsx. */
+.nav-hidden .nav,
+.nav-hidden .menu-panel {
+  transform: translateY(-105%);
+  opacity: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-hidden .nav,
+  .nav-hidden .menu-panel { transition-duration: 0ms; }
 }
 .nav.solid {
   --nav-fg: var(--ref-navlink);
@@ -279,6 +294,7 @@ input, select, textarea, button { font-family: var(--font-sans); }
   backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.10);
   box-shadow: 0 18px 44px rgba(7, 18, 21, 0.4);
+  transition: transform 380ms var(--ease), opacity 240ms var(--ease);
 }
 .menu-panel.open { display: flex; }
 .menu-panel a {
@@ -1896,3 +1912,432 @@ html[data-theme="dark"] .cf__meta-row dd { color: #FFFFFF; }
 @keyframes curtain-up {
   to { transform: translateY(-101%); }
 }
+
+/* ============================================================
+   LENIS SMOOTH SCROLLING
+   ============================================================ */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* ============================================================
+   SEAT SCROLL EXPERIENCE (Auditorium Zoom Animation)
+   ============================================================ */
+.seat-scroll-section {
+  position: relative;
+  width: 100%;
+  height: 250vh;
+  background: #060d11;
+}
+
+.seat-scroll-sticky {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  /* lvh, not dvh: dvh changes as the mobile URL bar collapses, resizing the
+     sticky viewport mid-scroll and forcing a canvas realloc. lvh is stable and
+     still covers the visual viewport (svh would leave a band at the bottom). */
+  height: 100lvh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #02070a;
+}
+
+.seat-scroll-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+}
+
+/* Fills the contain-fit letterbox margin. Equivalent to the Tailwind snippet
+   [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)] --
+   written as plain CSS because this project has no Tailwind build. */
+.seat-scroll-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(125% 125% at 50% 10%, #000 40%, #63e 100%);
+}
+
+/* Gravity stars field, drifting over the backdrop gradient */
+.gravity-stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.gravity-stars__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Seamless blend vignettes */
+/* Kept shallow and soft: now that the frame is shown whole, these sit over real
+   content (the M365 badge up top, the app-icon row below) rather than over crop. */
+.seat-scroll-vignette {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 96px;
+  pointer-events: none;
+  z-index: 3;
+}
+.seat-scroll-vignette--top {
+  top: 0;
+  background: linear-gradient(180deg, rgba(6, 13, 17, 0.7) 0%, rgba(6, 13, 17, 0) 100%);
+}
+.seat-scroll-vignette--bottom {
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(6, 13, 17, 0.7) 0%, rgba(6, 13, 17, 0) 100%);
+}
+
+/* Subtle top tag */
+.seat-scroll-top-tag {
+  position: absolute;
+  top: clamp(16px, 3vh, 32px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(8, 20, 26, 0.7);
+  border: 1px solid rgba(63, 192, 115, 0.3);
+  backdrop-filter: blur(10px);
+  color: #a3e6be;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.seat-scroll-top-tag__pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3fc073;
+  box-shadow: 0 0 8px #3fc073;
+  animation: tag-pulse 2s infinite ease-in-out;
+}
+
+@keyframes tag-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* Prompt to scroll (visible at beginning) */
+.seat-scroll-prompt {
+  position: absolute;
+  bottom: clamp(24px, 5vh, 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: rgba(13, 28, 35, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(14px);
+  color: #d2dae4;
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  transition: opacity 350ms ease, transform 350ms ease, border-color 200ms;
+}
+
+.seat-scroll-prompt:hover {
+  border-color: rgba(63, 192, 115, 0.5);
+  color: #ffffff;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.seat-scroll-prompt--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.seat-scroll-prompt--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(14px);
+}
+
+.seat-scroll-prompt__mouse {
+  width: 18px;
+  height: 28px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.seat-scroll-prompt__wheel {
+  width: 3px;
+  height: 6px;
+  background: #3fc073;
+  border-radius: 2px;
+  margin-top: 4px;
+  animation: mouse-wheel 1.5s infinite ease-in-out;
+}
+
+@keyframes mouse-wheel {
+  0% { transform: translateY(0); opacity: 1; }
+  60% { transform: translateY(8px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+.seat-scroll-prompt__arrow {
+  color: #6bd194;
+  animation: prompt-bounce 1.5s infinite ease-in-out;
+}
+
+@keyframes prompt-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+/* Interactive Hotspot over the video's BOOK NOW button */
+.seat-scroll-hotspot {
+  position: absolute;
+  right: clamp(40px, 12vw, 160px);
+  top: clamp(52%, 58%, 66%);
+  z-index: 5;
+  transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1), transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.seat-scroll-hotspot--visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.seat-scroll-hotspot--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px) scale(0.95);
+}
+
+.seat-scroll-hotspot__btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 999px;
+  outline: none;
+}
+
+.seat-scroll-hotspot__glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(63, 192, 115, 0.5) 0%, rgba(63, 192, 115, 0) 70%);
+  animation: hotspot-glow 2s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes hotspot-glow {
+  0%, 100% { transform: scale(0.95); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+.seat-scroll-hotspot__text {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0b1f28;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 24px rgba(63, 192, 115, 0.6);
+  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, color 200ms ease;
+}
+
+.seat-scroll-hotspot__btn:hover .seat-scroll-hotspot__text {
+  transform: scale(1.05);
+  background: #3fc073;
+  color: #ffffff;
+  box-shadow: 0 16px 40px rgba(63, 192, 115, 0.6);
+}
+
+.seat-scroll-hotspot__icon {
+  color: #3fc073;
+  transition: color 200ms ease;
+}
+
+.seat-scroll-hotspot__btn:hover .seat-scroll-hotspot__icon {
+  color: #ffffff;
+}
+
+/* Floating Bottom Callout (Active on mobile/tablets or bottom anchor) */
+.seat-scroll-bottom-cta {
+  position: absolute;
+  bottom: clamp(24px, 4vh, 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  width: 90%;
+  max-width: 480px;
+  transition: opacity 400ms ease, transform 400ms ease;
+  display: none; /* hidden on wide desktop, shown on mobile */
+}
+
+@media (max-width: 900px) {
+  .seat-scroll-hotspot {
+    display: none;
+  }
+  .seat-scroll-bottom-cta {
+    display: block;
+  }
+}
+
+.seat-scroll-bottom-cta--visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.seat-scroll-bottom-cta--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(20px);
+}
+
+.seat-scroll-bottom-cta__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: rgba(11, 25, 32, 0.94);
+  border: 1px solid rgba(63, 192, 115, 0.45);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+.seat-scroll-bottom-cta__tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #6bd194;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.seat-scroll-bottom-cta__price {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: #ffffff;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.seat-scroll-bottom-cta__price strong {
+  color: #3fc073;
+  font-size: 24px;
+}
+
+.seat-scroll-bottom-cta__price del {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.seat-scroll-bottom-cta__btn {
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Progress Tracker Bar */
+.seat-scroll-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 6;
+}
+
+.seat-scroll-progress-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #3fc073, #64b7d8);
+  /* Driven by transform rather than width so it stays on the compositor and
+     never triggers layout on a scroll frame */
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+  box-shadow: 0 0 10px rgba(63, 192, 115, 0.8);
+}
+
+/* Preloader indicator */
+.seat-scroll-loader {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+}
+
+.seat-scroll-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #3fc073;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+

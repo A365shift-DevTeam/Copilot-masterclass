@@ -16,10 +16,14 @@ import FinalCta from './components/FinalCta.jsx'
 import Footer from './components/Footer.jsx'
 import PageCurtains from './components/ui/PageCurtains.jsx'
 import StickyRevealFooter from './components/ui/StickyRevealFooter.jsx'
+import SeatScrollExperience from './components/SeatScrollExperience.jsx'
+import useLenis from './hooks/useLenis.js'
 
 export default function App() {
+  useLenis()
+
   return (
-    <div style={{ overflow: 'hidden' }}>
+    <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
       <PageCurtains />
       <Navbar />
 
@@ -29,6 +33,7 @@ export default function App() {
         <Hero />
         <Overview />
         <CopilotStudio />
+        <SeatScrollExperience />
         <Agenda />
         <Audience />
         {/* <UseCases /> */}
