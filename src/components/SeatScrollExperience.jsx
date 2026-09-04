@@ -5,20 +5,21 @@ import GravityStarsBackground from './ui/GravityStarsBackground.jsx'
 
 const TOTAL_FRAMES = 192
 const FRAME_BASE = '/frames/seat-scroll/frame_'
-const PRELOAD_CONCURRENCY = 6
-// How far ahead of the section reaching the top edge the navbar starts to
-// retract, so it is already gone by the time the stage takes over the screen.
-const NAV_HIDE_LEAD = 160
+const PRELOAD_CONCURRENCY = 8
+// How far ahead of the section reaching the top edge the navbar starts fading
+// to its transparent state, so the change is settled by the time the stage
+// takes over the screen.
+const NAV_STAGE_LEAD = 160
 
 function getFrameUrl(index) {
   const pad = String(index + 1).padStart(4, '0')
   return `${FRAME_BASE}${pad}.webp`
 }
 
-// The navbar retracts while this section owns the whole viewport, so nothing
-// floats over the auditorium. Styled in .nav-hidden (styles.css).
-function setNavHidden(hidden) {
-  document.body.classList.toggle('nav-hidden', hidden)
+// While this section owns the viewport the navbar stays visible but drops its
+// solid white plate, so it floats on the stage. Styled in .nav-over-stage.
+function setNavOverStage(over) {
+  document.body.classList.toggle('nav-over-stage', over)
 }
 
 export default function SeatScrollExperience() {
@@ -170,19 +171,40 @@ export default function SeatScrollExperience() {
         })
       })
 
-    // First frame on its own so the section paints immediately, then the rest
     let next = 1
     const worker = async () => {
       while (active && next < TOTAL_FRAMES) {
         await load(next++)
       }
     }
+
+    // Pull the whole set down in the background while the visitor is still up
+    // the page, so the scrub is fully cached before they ever reach it. Held
+    // until after load (and then an idle slot) so 192 requests never compete
+    // with the hero, fonts and first-screen images for bandwidth.
+    const startBulkPreload = () => {
+      if (!active) return
+      const go = () => {
+        if (!active) return
+        for (let i = 0; i < PRELOAD_CONCURRENCY; i++) worker()
+      }
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(go, { timeout: 2500 })
+      } else {
+        setTimeout(go, 400)
+      }
+    }
+
+    // The first frame is the exception: fetch it straight away so the section
+    // has something to paint the moment it scrolls into view.
     load(0).then(() => {
-      for (let i = 0; i < PRELOAD_CONCURRENCY; i++) worker()
+      if (document.readyState === 'complete') startBulkPreload()
+      else window.addEventListener('load', startBulkPreload, { once: true })
     })
 
     return () => {
       active = false
+      window.removeEventListener('load', startBulkPreload)
     }
   }, [measure, renderFrame])
 
@@ -196,12 +218,12 @@ export default function SeatScrollExperience() {
     let rafId = 0
     let running = false
     let lastPhase = { isStart: true, isEnding: false }
-    let navHidden = false
+    let navOverStage = false
 
-    const applyNav = (hidden) => {
-      if (hidden === navHidden) return
-      navHidden = hidden
-      setNavHidden(hidden)
+    const applyNav = (over) => {
+      if (over === navOverStage) return
+      navOverStage = over
+      setNavOverStage(over)
     }
 
     const tick = () => {
@@ -211,9 +233,9 @@ export default function SeatScrollExperience() {
       const rect = section.getBoundingClientRect()
       const viewportH = window.innerHeight
 
-      // Retract the navbar a little before the section reaches the top edge, and
-      // bring it back once the section's bottom clears the viewport.
-      applyNav(rect.top <= NAV_HIDE_LEAD && rect.bottom >= viewportH)
+      // Go transparent a little before the section reaches the top edge, and
+      // back to solid once the section's bottom clears the viewport.
+      applyNav(rect.top <= NAV_STAGE_LEAD && rect.bottom >= viewportH)
 
       const totalScrollable = rect.height - viewportH
       if (totalScrollable <= 0) return
@@ -250,8 +272,8 @@ export default function SeatScrollExperience() {
     const stop = () => {
       running = false
       cancelAnimationFrame(rafId)
-      // The loop is the only thing that can restore the navbar, so never leave
-      // it hidden when we stop ticking.
+      // The loop is the only thing that can restore the navbar's solid plate,
+      // so never leave it transparent when we stop ticking.
       applyNav(false)
     }
 

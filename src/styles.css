@@ -200,18 +200,35 @@ input, select, textarea, button { font-family: var(--font-sans); }
     transform 380ms var(--ease), opacity 240ms var(--ease);
 }
 
-/* The seat-scroll section retracts the navbar while its sticky stage owns the
-   full viewport, then hands it straight back. Toggled from
-   SeatScrollExperience.jsx. */
-.nav-hidden .nav,
-.nav-hidden .menu-panel {
-  transform: translateY(-105%);
-  opacity: 0;
-  pointer-events: none;
+/* Over the seat-scroll stage the navbar stays put but drops its solid plate, so
+   it floats on the auditorium instead of sitting on a white bar. Toggled from
+   SeatScrollExperience.jsx. The light-on-dark treatment is forced regardless of
+   theme, because the stage is dark in both. */
+/* Both themes spelled out deliberately: the per-theme `html[data-theme=...]
+   .nav.solid` rules further down outrank a bare `.nav-over-stage .nav.solid`,
+   so without matching their specificity the dark theme would keep its opaque
+   bar here. The stage is dark in both themes, hence one light-on-dark result. */
+html[data-theme="dark"] .nav-over-stage .nav.solid,
+html[data-theme="light"] .nav-over-stage .nav.solid {
+  --nav-fg: rgba(255, 255, 255, 0.92);
+  background: transparent;
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
-@media (prefers-reduced-motion: reduce) {
-  .nav-hidden .nav,
-  .nav-hidden .menu-panel { transition-duration: 0ms; }
+/* Keep the logo on its white plate here - the mark is dark-inked and would
+   disappear straight into the auditorium without it. */
+html[data-theme="dark"] .nav-over-stage .nav.solid .nav__logo-plate,
+html[data-theme="light"] .nav-over-stage .nav.solid .nav__logo-plate {
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  padding: 7px 12px;
+}
+html[data-theme="dark"] .nav-over-stage .nav.solid .theme-toggle,
+html[data-theme="light"] .nav-over-stage .nav.solid .theme-toggle {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.1);
 }
 .nav.solid {
   --nav-fg: var(--ref-navlink);
