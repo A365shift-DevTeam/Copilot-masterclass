@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { Sparkles, ArrowDown, ChevronRight, CheckCircle2 } from 'lucide-react'
+import { ArrowDown } from 'lucide-react'
 import { scrollToTarget } from '../hooks/useLenis.js'
 import GravityStarsBackground from './ui/GravityStarsBackground.jsx'
+import SeatReveal from './SeatReveal.jsx'
 
-const TOTAL_FRAMES = 192
+const TOTAL_FRAMES = 118
 const FRAME_BASE = '/frames/seat-scroll/frame_'
 const PRELOAD_CONCURRENCY = 8
 // How far ahead of the section reaching the top edge the navbar starts fading
@@ -16,16 +17,22 @@ function getFrameUrl(index) {
   return `${FRAME_BASE}${pad}.webp`
 }
 
+/** Normalised 0-1 position of `p` inside [a, b]. */
+const span = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)))
+/** Ease-out cubic, so each beat arrives quickly then settles. */
+const ease = (t) => (1 - Math.pow(1 - t, 3)).toFixed(4)
+
 // While this section owns the viewport the navbar stays visible but drops its
 // solid white plate, so it floats on the stage. Styled in .nav-over-stage.
 function setNavOverStage(over) {
   document.body.classList.toggle('nav-over-stage', over)
 }
 
-export default function SeatScrollExperience() {
+export default function SeatScrollExperience({ onBook }) {
   const sectionRef = useRef(null)
   const canvasRef = useRef(null)
   const ctxRef = useRef(null)
+  const stickyRef = useRef(null)
   const progressFillRef = useRef(null)
   const framesRef = useRef([])
   const currentFrameRef = useRef(-1)
@@ -70,6 +77,17 @@ export default function SeatScrollExperience() {
     // frame lands small, wants full device resolution.
     const drawnHcss = cssW / cssH > imgRatio ? cssH : cssW / imgRatio
     const scale = Math.min(dpr, Math.max(1, ih / drawnHcss))
+
+    // The contain fit leaves a margin either side, so publish the frame's own
+    // inset. The copy block anchors to the frame's edge rather than the
+    // viewport's, which is what keeps it over the seats as in the reference.
+    // Written on resize only, never per frame.
+    const sticky = stickyRef.current
+    if (sticky) {
+      const drawnWcss = drawnHcss * imgRatio
+      sticky.style.setProperty('--frame-inset-x', `${Math.max(0, (cssW - drawnWcss) / 2)}px`)
+      sticky.style.setProperty('--frame-inset-y', `${Math.max(0, (cssH - drawnHcss) / 2)}px`)
+    }
 
     const bufW = Math.round(cssW * scale)
     const bufH = Math.round(cssH * scale)
@@ -256,8 +274,20 @@ export default function SeatScrollExperience() {
         progressFillRef.current.style.transform = `scaleX(${clamped})`
       }
 
+      // Reveal beats for the copy block, staggered so the headline lands, then
+      // the price, then the CTA. Written straight to CSS vars on the sticky
+      // element: no React render per frame, and every var feeds only an
+      // opacity or a transform.
+      const sticky = stickyRef.current
+      if (sticky) {
+        sticky.style.setProperty('--connector', ease(span(clamped, 0.62, 0.76)))
+        sticky.style.setProperty('--wait', ease(span(clamped, 0.66, 0.8)))
+        sticky.style.setProperty('--price', ease(span(clamped, 0.79, 0.9)))
+        sticky.style.setProperty('--cta', ease(span(clamped, 0.88, 0.97)))
+      }
+
       const isStart = clamped < 0.22
-      const isEnding = clamped > 0.82
+      const isEnding = clamped > 0.9
       if (isStart !== lastPhase.isStart || isEnding !== lastPhase.isEnding) {
         lastPhase = { isStart, isEnding }
         setPhase(lastPhase)
@@ -300,10 +330,6 @@ export default function SeatScrollExperience() {
     }
   }, [measure, renderFrame])
 
-  const handleBookNow = () => {
-    scrollToTarget('#register', -20)
-  }
-
   const { isStart, isEnding } = phase
 
   return (
@@ -313,7 +339,7 @@ export default function SeatScrollExperience() {
       id="seat-experience"
       aria-label="Interactive Seat Reservation Experience"
     >
-      <div className="seat-scroll-sticky">
+      <div ref={stickyRef} className="seat-scroll-sticky">
         {/* Backdrop filling the letterbox margin: radial gradient with the
             gravity star field drifting over it, both behind the frame canvas */}
         <div className="seat-scroll-backdrop" aria-hidden="true">
@@ -334,17 +360,6 @@ export default function SeatScrollExperience() {
         <div className="seat-scroll-vignette seat-scroll-vignette--top" />
         <div className="seat-scroll-vignette seat-scroll-vignette--bottom" />
 
-        {/* Top Header Tag */}
-        <div className="seat-scroll-top-header">
-          <div className="seat-scroll-badge">
-            <Sparkles className="seat-scroll-badge__icon" size={15} />
-            <span>Interactive Auditorium Preview</span>
-          </div>
-          <h3 className="seat-scroll-headline">
-            Step Into Your Copilot Masterclass
-          </h3>
-        </div>
-
         {/* Scroll down prompt (Active during initial phase) */}
         {/* <div
           className={`seat-scroll-prompt ${isStart ? 'seat-scroll-prompt--visible' : 'seat-scroll-prompt--hidden'}`}
@@ -364,37 +379,10 @@ export default function SeatScrollExperience() {
           <ArrowDown size={15} className="seat-scroll-prompt__arrow" />
         </div> */}
 
-        {/* Climax Call-To-Action Overlay (Active when zoom finishes) */}
-        <div
-          className={`seat-scroll-cta-card ${isEnding ? 'seat-scroll-cta-card--visible' : 'seat-scroll-cta-card--hidden'}`}
-        >
-          <div className="seat-scroll-cta-card__glass">
-            <div className="seat-scroll-cta-badge">
-              <CheckCircle2 size={16} className="seat-scroll-cta-badge__icon" />
-              <span>Seat Reserved For You</span>
-            </div>
-            <h4 className="seat-scroll-cta-title">YOUR SEAT IS WAITING</h4>
-            <p className="seat-scroll-cta-desc">
-              Join live to master Copilot Studio, prompt engineering &amp; AI agents.
-            </p>
-            <div className="seat-scroll-cta-price-row">
-              <span className="seat-scroll-cta-price">₹499</span>
-              <span className="seat-scroll-cta-original">₹2,499</span>
-              <span className="seat-scroll-cta-pill">80% OFF</span>
-            </div>
-            <button
-              onClick={handleBookNow}
-              className="btn btn--primary seat-scroll-cta-btn"
-              aria-label="Book your seat now for ₹499"
-            >
-              <span>CLAIM YOUR SEAT NOW</span>
-              <ChevronRight size={18} />
-            </button>
-            <div className="seat-scroll-cta-guarantee">
-              Limited seats in the room • Instant access link sent upon booking
-            </div>
-          </div>
-        </div>
+        {/* The copy that used to be baked into the frames, now real DOM.
+            `isEnding` only gates focusability, so the button is never a tab
+            stop while it is still invisible. */}
+        <SeatReveal onBook={onBook} tabbable={isEnding} />
 
         {/* Progress tracker bar */}
         <div className="seat-scroll-progress-bar" aria-hidden="true">

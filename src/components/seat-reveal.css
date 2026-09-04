@@ -1,0 +1,177 @@
+/* ============================================================
+   SEAT REVEAL — the copy that used to be burned into the video frames.
+   Typography, radii and easing all come from the design tokens in styles.css:
+   Poppins via --font-display at --font-weight-semibold, --radius-full, a green
+   gradient ramp on the CTA and --color-primary-400 for focus.
+
+   Only opacity and transform are animated, so none of this costs a layout
+   pass while the frame scrub is running.
+   ============================================================ */
+
+.seat-reveal {
+  position: absolute;
+  z-index: 6;
+  /* Anchored to the frame's edge, not the viewport's: --frame-inset-x is the
+     contain-fit letterbox margin, published by SeatScrollExperience on resize.
+     Without it the copy would drift out into the margin on wide screens. */
+  right: calc(var(--frame-inset-x, 0px) + clamp(12px, 2.4vw, 52px));
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.4vw, 22px);
+  pointer-events: none;
+}
+/* Only the button takes pointer input; the copy stays out of the way. */
+.seat-reveal__cta { pointer-events: auto; }
+
+/* ---------- Dotted leader --------------------------------------- */
+
+.seat-reveal__connector {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  margin-top: clamp(28px, 5vh, 62px);
+  opacity: var(--connector, 0);
+}
+.seat-reveal__connector-line {
+  width: clamp(22px, 4.5vw, 76px);
+  height: 0;
+  border-top: 2px dotted rgba(255, 255, 255, 0.8);
+}
+.seat-reveal__connector-dot {
+  width: 8px;
+  height: 8px;
+  margin-left: 4px;
+  border-radius: var(--radius-full);
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Copy column ----------------------------------------- */
+
+.seat-reveal__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(6px, 1.1vh, 14px);
+}
+
+.seat-reveal__headline {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--color-neutral-50);
+  font-family: var(--font-display);
+  font-size: clamp(26px, 4.4vw, 66px);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.06;
+  letter-spacing: -0.005em;
+  text-shadow: 0 4px 26px rgba(0, 0, 0, 0.7);
+  opacity: var(--wait, 0);
+  transform:
+    translate3d(0, calc((1 - var(--wait, 0)) * 30px), 0)
+    scale(calc(0.95 + var(--wait, 0) * 0.05));
+}
+
+.seat-reveal__price {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: clamp(6px, 0.8vw, 12px);
+  color: var(--color-neutral-50);
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 60px);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
+  opacity: var(--price, 0);
+  transform: translate3d(0, calc((1 - var(--price, 0)) * 24px), 0);
+}
+
+/* ---------- CTA -------------------------------------------------- */
+
+/* Scoped to this button rather than overriding --gradient-primary, so the nav
+   and register CTAs keep the existing Brand 2 ramp untouched. No hover state:
+   the button carries the site's .btn-shine sweep instead, which runs on its own
+   rather than waiting for a pointer (and so also reads on touch). */
+.seat-reveal__cta {
+  --cta-gradient: linear-gradient(to right, #4D9A9C, #64A75C);
+  --cta-glow-rgb: 88, 161, 124;
+
+  position: relative;
+  /* Clips the .btn-shine sweep to the pill */
+  overflow: hidden;
+  margin-top: clamp(6px, 1.4vh, 18px);
+  padding: clamp(12px, 1.5vh, 19px) clamp(26px, 3.2vw, 50px);
+  border: 0;
+  border-radius: var(--radius-full);
+  background-image: var(--cta-gradient);
+  color: var(--color-neutral-50);
+  font-family: var(--font-display);
+  font-size: clamp(14px, 1.5vw, 25px);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.45),
+    0 8px 22px rgba(var(--cta-glow-rgb), 0.32);
+  opacity: var(--cta, 0);
+  /* No transition on transform: this property is written every frame by the
+     scroll reveal, and easing it would make the button lag the scrubber. */
+  transform: translate3d(0, calc((1 - var(--cta, 0)) * 20px), 0);
+}
+/* The label sits above the sweep */
+.seat-reveal__cta > span:not(.btn-shine) { position: relative; z-index: 1; }
+
+.seat-reveal__cta:active {
+  transform:
+    translate3d(0, calc((1 - var(--cta, 0)) * 20px), 0)
+    scale(0.985);
+}
+.seat-reveal__cta:focus-visible {
+  outline: 3px solid var(--color-primary-400);
+  outline-offset: 4px;
+}
+
+/* ============================================================
+   RESPONSIVE — restaged, not scaled. Below the tablet break the copy
+   stacks under the chair and the leader runs vertically.
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .seat-reveal {
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: calc(var(--frame-inset-y, 0px) + clamp(20px, 5vh, 60px));
+    transform: translateX(-50%);
+    flex-direction: column;
+    align-items: center;
+    width: min(92vw, 460px);
+  }
+  .seat-reveal__copy { align-items: center; text-align: center; }
+  .seat-reveal__headline { font-size: clamp(26px, 8.2vw, 44px); align-items: center; }
+  .seat-reveal__price { font-size: clamp(24px, 7.4vw, 40px); }
+
+  .seat-reveal__connector {
+    flex-direction: column-reverse;
+    align-self: center;
+    margin: 0 0 clamp(6px, 1.5vh, 14px);
+  }
+  .seat-reveal__connector-line {
+    width: 0;
+    height: clamp(18px, 3.5vh, 34px);
+    border-top: 0;
+    border-left: 2px dotted rgba(255, 255, 255, 0.8);
+  }
+  .seat-reveal__connector-dot { margin: 0 0 4px; }
+
+  .seat-reveal__cta { width: min(78vw, 320px); padding: 15px 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seat-reveal__cta .btn-shine { animation: none; opacity: 0; }
+}
