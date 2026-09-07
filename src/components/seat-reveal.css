@@ -137,41 +137,84 @@
 }
 
 /* ============================================================
-   RESPONSIVE — restaged, not scaled. Below the tablet break the copy
-   stacks under the chair and the leader runs vertically.
+   RESPONSIVE — Below the tablet break (portrait) or on small screens,
+   the copy stacks in the dedicated letterbox area below the chair.
+   On wide / landscape viewports, it remains positioned to the right.
    ============================================================ */
 
-@media (max-width: 900px) {
+@media (max-width: 900px) and (orientation: portrait), (max-width: 640px) {
   .seat-reveal {
     right: auto;
     left: 50%;
-    top: auto;
-    bottom: calc(var(--frame-inset-y, 0px) + clamp(20px, 5vh, 60px));
+    top: calc(100% - var(--frame-inset-y, 0px));
+    bottom: 0;
     transform: translateX(-50%);
     flex-direction: column;
     align-items: center;
-    width: min(92vw, 460px);
+    justify-content: center;
+    width: min(92vw, 420px);
+    padding: clamp(6px, 1.2vh, 16px) 16px;
+    box-sizing: border-box;
   }
-  .seat-reveal__copy { align-items: center; text-align: center; }
-  .seat-reveal__headline { font-size: clamp(26px, 8.2vw, 44px); align-items: center; }
-  .seat-reveal__price { font-size: clamp(24px, 7.4vw, 40px); }
 
+  /* The video frame already contains the down arrow and 'Just Scroll Down / Yes, It's Waiting!'
+     baked into the bottom of the frame pointing downwards, so hiding the redundant connector
+     leader on mobile prevents awkward floating dots and gives maximum breathing space to the CTA. */
   .seat-reveal__connector {
-    flex-direction: column-reverse;
-    align-self: center;
-    margin: 0 0 clamp(6px, 1.5vh, 14px);
+    display: none;
+  }
+
+  .seat-reveal__copy {
+    align-items: center;
+    text-align: center;
+    gap: clamp(4px, 1vh, 10px);
+  }
+
+  .seat-reveal__headline {
+    font-size: clamp(22px, 6vw, 34px);
+    line-height: 1.1;
+    align-items: center;
+    text-align: center;
+  }
+
+  .seat-reveal__price {
+    font-size: clamp(20px, 5.2vw, 30px);
+    line-height: 1.1;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .seat-reveal__cta {
+    width: min(85vw, 300px);
+    padding: clamp(11px, 1.4vh, 15px) 24px;
+    font-size: clamp(13px, 3.8vw, 16px);
+    margin-top: clamp(6px, 1vh, 12px);
+  }
+}
+
+/* Landscape orientation on mobile/tablet viewports */
+@media (max-width: 900px) and (orientation: landscape) {
+  .seat-reveal {
+    right: calc(var(--frame-inset-x, 0px) + 12px);
+    gap: 10px;
+  }
+  .seat-reveal__headline {
+    font-size: clamp(16px, 3vw, 24px);
+  }
+  .seat-reveal__price {
+    font-size: clamp(16px, 2.8vw, 22px);
+  }
+  .seat-reveal__cta {
+    padding: 8px 18px;
+    font-size: 13px;
+    margin-top: 6px;
   }
   .seat-reveal__connector-line {
-    width: 0;
-    height: clamp(18px, 3.5vh, 34px);
-    border-top: 0;
-    border-left: 2px dotted rgba(255, 255, 255, 0.8);
+    width: 20px;
   }
-  .seat-reveal__connector-dot { margin: 0 0 4px; }
-
-  .seat-reveal__cta { width: min(78vw, 320px); padding: 15px 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .seat-reveal__cta .btn-shine { animation: none; opacity: 0; }
 }
+
