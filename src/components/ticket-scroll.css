@@ -165,53 +165,119 @@ html[data-theme="dark"] .ticket-scroll-sticky {
 }
 
 /* End stage reveal card / CTA */
+/* The copy that lands in the empty stage to the right of the torn pass --
+   the light-stage counterpart to .seat-reveal. Dark ink and no text-shadow:
+   this stage is a white studio shot in both themes, where the seat section is
+   a dark auditorium.
+
+   Each beat is driven by --pass-wait / --pass-price / --pass-cta, written once
+   per frame by TicketScrollExperience from the single scroll progress value,
+   and each one only feeds an opacity and a transform -- so none of this costs
+   a layout pass while the frame scrub is running. */
 .ticket-scroll-reveal {
   position: absolute;
-  bottom: clamp(30px, 6vh, 65px);
-  right: clamp(16px, 4vw, 60px);
   z-index: 6;
+  top: 50%;
+  /* The frame is scaled to fill the width, so its internal layout is identical
+     at every viewport width and a proportional anchor keeps the copy in the
+     stage clear of the pass rather than drifting onto it. */
+  right: clamp(20px, 7vw, 150px);
+  max-width: min(30vw, 460px);
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
+  align-items: flex-start;
+  gap: clamp(2px, 0.6vh, 10px);
   pointer-events: none;
-  opacity: var(--reveal-opacity, 0);
-  transform: translate3d(0, calc((1 - var(--reveal-opacity, 0)) * 20px), 0);
-  transition: opacity 0.25s ease-out;
 }
 
-.ticket-scroll-reveal--active {
+/* Only the button takes pointer input; the copy stays out of the way. */
+.ticket-scroll-reveal--active .ticket-scroll-cta {
   pointer-events: auto;
 }
 
-.ticket-scroll-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 13px 26px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #1d492f 0%, #2b824e 50%, #3fc073 100%);
-  color: #ffffff;
+.ticket-scroll-reveal__headline {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--ref-navy, #002060);
   font-family: var(--font-display, 'Poppins', sans-serif);
-  font-size: 14px;
+  font-size: clamp(17px, 2.6vw, 46px);
   font-weight: 700;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 10px 30px rgba(43, 130, 78, 0.4), 0 2px 6px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  line-height: 1.06;
+  letter-spacing: -0.005em;
+  opacity: var(--pass-wait, 0);
+  transform:
+    translate3d(0, calc((1 - var(--pass-wait, 0)) * 26px), 0)
+    scale(calc(0.96 + var(--pass-wait, 0) * 0.04));
 }
 
+.ticket-scroll-reveal__price {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: clamp(5px, 0.7vw, 11px);
+  color: var(--ref-navy, #002060);
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-size: clamp(16px, 2.4vw, 42px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  opacity: var(--pass-price, 0);
+  transform: translate3d(0, calc((1 - var(--pass-price, 0)) * 22px), 0);
+}
+
+/* Same teal-to-green ramp and uppercase sweep as the seat section's BOOK NOW,
+   so the two reveals read as one pair. */
+.ticket-scroll-cta {
+  position: relative;
+  /* Clips the .btn-shine sweep to the pill */
+  overflow: hidden;
+  margin-top: clamp(6px, 1.2vh, 16px);
+  display: inline-flex;
+  align-items: center;
+  padding: clamp(10px, 1.3vh, 16px) clamp(20px, 2.6vw, 42px);
+  border: 0;
+  border-radius: 999px;
+  background-image: linear-gradient(to right, #4d9a9c, #64a75c);
+  color: #ffffff;
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-size: clamp(12px, 1.3vw, 21px);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), 0 8px 20px rgba(88, 161, 124, 0.3);
+  opacity: var(--pass-cta, 0);
+  /* No transition on transform: it is written every frame by the scroll
+     reveal, and easing it would make the button lag the scrubber. */
+  transform: translate3d(0, calc((1 - var(--pass-cta, 0)) * 18px), 0);
+}
+
+/* The label sits above the sweep */
+.ticket-scroll-cta > span:not(.btn-shine) {
+  position: relative;
+  z-index: 1;
+}
+
+/* No hover state: the pill is an <a>, so the global a:hover would tint the
+   label green. The .btn-shine sweep runs on its own instead, which also means
+   it reads on touch. */
 .ticket-scroll-cta:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 14px 36px rgba(43, 130, 78, 0.55), 0 3px 8px rgba(0, 0, 0, 0.2);
+  color: #ffffff;
 }
 
 .ticket-scroll-cta:active {
-  transform: translateY(0) scale(0.99);
+  transform:
+    translate3d(0, calc((1 - var(--pass-cta, 0)) * 18px), 0)
+    scale(0.985);
+}
+
+.ticket-scroll-cta:focus-visible {
+  outline: 3px solid var(--color-primary-400, #6bd194);
+  outline-offset: 4px;
 }
 
 /* Subtle loader */
@@ -245,18 +311,30 @@ html[data-theme="dark"] .ticket-scroll-sticky {
 }
 
 @media (max-width: 640px) {
+  /* The stage to the right of the pass is only ~28% of the frame width, which
+     is too narrow to set this copy on a phone. The frame is letterboxed here
+     though (it fills the width, so a portrait viewport leaves a deep band
+     above and below it), so the copy moves down into that band instead. */
   .ticket-scroll-reveal {
+    top: auto;
+    bottom: clamp(40px, 11vh, 130px);
     right: 50%;
-    transform: translate3d(50%, calc((1 - var(--reveal-opacity, 0)) * 20px), 0);
-    align-items: center;
-    bottom: 24px;
     width: 90%;
-    max-width: 320px;
+    max-width: 340px;
+    transform: translateX(50%);
+    align-items: center;
+    text-align: center;
+  }
+  .ticket-scroll-reveal__headline {
+    font-size: clamp(26px, 8vw, 40px);
+  }
+  .ticket-scroll-reveal__price {
+    font-size: clamp(24px, 7.2vw, 36px);
   }
   .ticket-scroll-cta {
     width: 100%;
     justify-content: center;
-    font-size: 13px;
-    padding: 12px 20px;
+    font-size: 14px;
+    padding: 13px 22px;
   }
 }

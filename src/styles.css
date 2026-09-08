@@ -394,6 +394,13 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 .hero {
   position: relative; overflow: hidden; color: #FFFFFF;
   background: linear-gradient(155deg, #112831 0%, #1A3E4C 46%, #1D5368 100%);
+  /* Own the whole fold, so the light section stacked below it never shows as a
+     band under the hero on short viewports. lvh, not vh or dvh: it matches the
+     scroll stages and does not resize as the mobile URL bar collapses. */
+  min-height: 100vh;
+  min-height: 100lvh;
+  display: flex;
+  align-items: center;
 }
 .hero__dots {
   position: absolute; inset: 0; pointer-events: none;
@@ -413,7 +420,8 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   grid-template-columns: repeat(auto-fit, minmax(min(430px, 100%), 1fr));
   gap: clamp(20px, 3vw, 44px); align-items: center;
   padding: clamp(88px, 11vh, 128px) clamp(18px, 4vw, 56px) clamp(44px, 7vh, 88px);
-  max-width: 1320px; margin: 0 auto; text-align: left;
+  /* Flex child now, so it needs an explicit width for margin:auto to centre it. */
+  width: 100%; max-width: 1320px; margin: 0 auto; text-align: left;
 }
 .hero__grid > * { min-width: 0; }
 .hero__col { display: flex; flex-direction: column; gap: 24px; }
@@ -696,7 +704,11 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   width: 46px; height: 46px; border-radius: 13px;
   background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
-  animation: agent-float 5s ease-in-out infinite;
+  /* Not agent-float: its keyframes set transform outright, which would replace
+     the translate(-50%, -50%) above and drop every chip half its own size down
+     and right of the track end it is supposed to sit on. This variant carries
+     the centring through the float. */
+  animation: agent-float-chip 5s ease-in-out infinite;
 }
 .agent-anim__app img { width: 26px; height: 26px; display: block; }
 .agent-anim__mono {
@@ -717,6 +729,10 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 @keyframes agent-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes agent-float-chip {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, calc(-50% - 5px)); }
+}
 @keyframes agent-breathe { 0%, 100% { opacity: .7; } 50% { opacity: 1; } }
 @keyframes agent-ping { 0% { transform: scale(1); opacity: .85; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
 

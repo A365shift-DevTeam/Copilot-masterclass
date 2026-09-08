@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { ArrowRight } from 'lucide-react'
 import { scrollToTarget } from '../hooks/useLenis.js'
 import './ticket-scroll.css'
 
@@ -10,6 +9,13 @@ const PRELOAD_CONCURRENCY = 8
 // to its transparent state, so the change is settled by the time the pass
 // takes over the screen.
 const NAV_STAGE_LEAD = 160
+// Ticket price shown on the reveal, matching the Register section.
+const PASS_PRICE = 499
+
+/** Normalised 0-1 position of `p` inside [a, b]. */
+const span = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)))
+/** Ease-out cubic, so each beat arrives quickly then settles. */
+const ease = (t) => (1 - Math.pow(1 - t, 3)).toFixed(4)
 
 function getFrameUrl(index) {
   const pad = String(index + 1).padStart(4, '0')
@@ -228,9 +234,12 @@ export default function TicketScrollExperience() {
       }
 
       if (stickyRef.current) {
-        // Fade in reveal CTA as stub finishes curling (between 75% and 95%)
-        const revealProgress = Math.min(1, Math.max(0, (clamped - 0.72) / 0.22))
-        stickyRef.current.style.setProperty('--reveal-opacity', revealProgress.toFixed(3))
+        // The copy lands beat by beat as the stub finishes curling, so the
+        // headline, price and CTA arrive in reading order rather than together.
+        const sticky = stickyRef.current
+        sticky.style.setProperty('--pass-wait', ease(span(clamped, 0.6, 0.75)))
+        sticky.style.setProperty('--pass-price', ease(span(clamped, 0.7, 0.85)))
+        sticky.style.setProperty('--pass-cta', ease(span(clamped, 0.8, 0.94)))
       }
 
       const scrolled = clamped > 0.06
@@ -312,18 +321,30 @@ export default function TicketScrollExperience() {
           <span>Scroll to tear off pass</span>
         </div>
 
-        {/* Interactive CTA reveal on stub tear */}
+        {/* Copy landing in the empty stage to the right of the torn pass, as
+            the seat section does once its scrub reaches the end. */}
         <div className={`ticket-scroll-reveal ${isEnding ? 'ticket-scroll-reveal--active' : ''}`}>
+          <h3 className="ticket-scroll-reveal__headline">
+            <span>Your Seat</span>
+            <span>Is Waiting</span>
+          </h3>
+
+          <p className="ticket-scroll-reveal__price">
+            <span className="ticket-scroll-reveal__amount">&#8377;{PASS_PRICE}</span>
+            <span className="ticket-scroll-reveal__only">Only</span>
+          </p>
+
           <a
             href="#register"
             className="ticket-scroll-cta"
+            tabIndex={isEnding ? 0 : -1}
+            aria-label={`Book now — reserve your seat for ₹${PASS_PRICE}`}
             onClick={(e) => {
               e.preventDefault()
               scrollToTarget('#register', -20)
             }}
           >
-            <span>Reserve Your Seat</span>
-            <ArrowRight size={16} />
+            <span>Book Now</span>
             <span className="btn-shine" aria-hidden="true" />
           </a>
         </div>
