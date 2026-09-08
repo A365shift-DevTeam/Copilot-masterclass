@@ -375,36 +375,58 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   to { transform: rotate(360deg); }
 }
 
-@media (max-width: 640px) {
+/* Aspect ratio, not width: this has to fire on exactly the viewports where
+   fitFrame() takes its portrait branch, or the copy would be laid out for a
+   band that is not where the frame actually is. 6/5 is PORTRAIT_BELOW_RATIO
+   (1.2) -- keep the two in step. */
+@media (max-aspect-ratio: 6/5) {
   /* The stage to the right of the pass is only ~28% of the frame width, which
-     is too narrow to set this copy on a phone. The frame is letterboxed here
-     though (it fills the width, so a portrait viewport leaves a deep band
-     above and below it), so the copy moves down into that band instead. */
+     is too narrow to set this copy on a phone. The frame rides high here (see
+     PORTRAIT_ANCHOR), which gathers the leftover height into one block beneath
+     it -- so the copy stacks directly under the band, as a caption to it,
+     rather than floating in a dead half. --pass-frame-bottom is published by
+     measure() and is the band's lower edge in CSS px. */
+  /* Centred in the block under the band, not pinned to its underside: what is
+     left over then reads as balanced margin above and below the copy instead
+     of collecting into one dead gap at the bottom of the screen. 100% here is
+     the sticky viewport, so this is the midpoint of band-bottom to floor. */
   .ticket-scroll-reveal {
-    top: auto;
-    bottom: clamp(40px, 11vh, 130px);
+    top: calc(var(--pass-frame-bottom, 55%) + (100% - var(--pass-frame-bottom, 55%)) / 2);
+    bottom: auto;
     right: 50%;
     width: 90%;
-    max-width: 340px;
-    transform: translateX(50%);
+    max-width: 360px;
+    transform: translate(50%, -50%);
     align-items: center;
     text-align: center;
+  }
+  /* Sits in the same place, so the block under the pass is occupied from the
+     first paint. It is gone by the time the copy arrives. */
+  .ticket-scroll-prompt {
+    top: calc(var(--pass-frame-bottom, 55%) + (100% - var(--pass-frame-bottom, 55%)) / 2);
+    bottom: auto;
+    transform: translate(-50%, -50%);
+  }
+  .ticket-scroll-prompt--hidden {
+    transform: translate(-50%, calc(-50% + 12px));
   }
   /* The leader points back at a stub that is no longer to the left of the copy
      once the block moves below the frame. */
   .ticket-scroll-reveal__perf {
     display: none;
   }
+  /* Set larger than the desktop clamps would give at this width: the copy is
+     carrying the lower half of the screen on its own here. */
   .ticket-scroll-reveal__headline {
-    font-size: clamp(26px, 8vw, 40px);
+    font-size: clamp(30px, 9.5vw, 46px);
   }
   .ticket-scroll-reveal__price {
-    font-size: clamp(24px, 7.2vw, 36px);
+    font-size: clamp(27px, 8.6vw, 42px);
   }
   .ticket-scroll-cta {
     width: 100%;
     justify-content: center;
-    font-size: 14px;
-    padding: 13px 22px;
+    font-size: 15px;
+    padding: 15px 24px;
   }
 }

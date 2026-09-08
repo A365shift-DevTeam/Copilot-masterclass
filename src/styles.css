@@ -319,12 +319,17 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
    gap so the row fits; the white plate itself has to stay for the logo to
    read against the dark hero. */
 @media (max-width: 480px) {
-  .nav { padding-left: 16px; padding-right: 16px; }
+  /* The toggle and the CTA were both under the 44px touch minimum here (38px
+     and ~36px tall). Growing the toggle costs 6px of row width, which this row
+     does not have -- so it is paid for out of the 24px logo-to-controls gap,
+     leaving the row 2px narrower than before rather than wider. The CTA gains
+     height only, which is free: the burger already sets the row height. */
+  .nav { padding-left: 16px; padding-right: 16px; gap: 16px; }
   .nav__logo-plate { padding: 4px 8px; }
   .nav__logo-plate img { height: 22px; }
   .nav__right { gap: 10px; }
-  .nav__cta { padding: 10px 14px; font-size: 12px; }
-  .theme-toggle { width: 38px; height: 38px; }
+  .nav__cta { padding: 10px 14px; font-size: 12px; min-height: 44px; }
+  .theme-toggle { width: 44px; height: 44px; }
 }
 
 /* Below ~380px even the tightened row overflows, so the nav CTA gives way
@@ -862,7 +867,9 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
    ============================================================ */
 /* Four across at 1100px, reflowing to one. 11 cards leave a short last row,
    which reads as intentional against the ragged-right heading above. */
-.audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 18px; }
+/* min() guard as on every other grid here: without it a container narrower
+   than 232px cannot collapse to one column and overflows instead. */
+.audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(232px, 100%), 1fr)); gap: 18px; }
 .aud-cell { display: flex; }
 
 .aud-card {
@@ -1335,6 +1342,12 @@ html[data-theme="dark"] .fpm__item.is-open .fpm__icon { color: #FFFFFF; }
   transition: background 200ms var(--ease), border-color 200ms var(--ease);
 }
 .footer__social a:hover { background: rgba(159, 216, 132, 0.16); border-color: #9FD884; }
+/* 34px is fine for a cursor but under the 44px touch minimum. Raised only at
+   phone and small-tablet widths, so the desktop footer keeps its proportions. */
+@media (max-width: 820px) {
+  .footer__social { gap: 8px; }
+  .footer__social a { width: 44px; height: 44px; border-radius: 11px; }
+}
 
 /* Placeholder hrefs still read as links; dim them so it is obvious which
    ones are not wired up yet. Remove once the real URLs land. */

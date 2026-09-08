@@ -9,6 +9,64 @@ const PRELOAD_CONCURRENCY = 8
 // to its transparent state, so the change is settled by the time the pass
 // takes over the screen.
 const NAV_STAGE_LEAD = 160
+
+/*
+ * Portrait fit. A 16:9 frame scaled to a phone's width is only ~0.56 of that
+ * width tall, which leaves most of the screen empty above and below it. Two
+ * things close that gap:
+ *
+ *  - zoom past the width fit, cropping the frame's own empty side margins. The
+ *    artwork spans x 0.113-0.859 of the frame across all 107 frames, so 1/0.774
+ *    = 1.29x is the most that can be taken before the pass itself is clipped;
+ *    1.25 keeps a margin.
+ *  - sit the band high rather than centred, so the space that is left lands in
+ *    one block underneath, where the reveal copy goes -- instead of being split
+ *    into two dead halves.
+ */
+const PORTRAIT_BELOW_RATIO = 1.2
+const PORTRAIT_ZOOM = 1.27
+const PORTRAIT_ANCHOR = 0.16
+// Floor on the gap above the band, as a fraction of height rather than px:
+// fitFrame runs in CSS px for measure() and device px for renderFrame(), so a
+// pixel constant would mean two different things there. Keeps the band clear
+// of the fixed navbar.
+const PORTRAIT_TOP_MIN = 0.09
+
+/*
+ * Reveal beats, as fractions of the section scroll. Portrait runs far earlier:
+ * there the copy is what fills the block under the band, and holding it until
+ * the tear would play most of the scroll out against an empty half. Landscape
+ * keeps the original timing, where the copy lands as the stub finishes curling.
+ */
+const BEATS = {
+  landscape: { perf: [0.58, 0.72], flip: [0.58, 0.82], price: [0.78, 0.89], cta: [0.85, 0.96] },
+  portrait: { perf: [0.12, 0.26], flip: [0.12, 0.44], price: [0.48, 0.64], cta: [0.66, 0.82] },
+}
+
+/**
+ * Where the frame lands inside a box, in that box's units. Landscape fills the
+ * width exactly; portrait fills it zoomed and rides high. Shared by measure()
+ * (CSS px, to publish the band) and renderFrame() (device px), so the two can
+ * never disagree about where the frame is.
+ */
+function fitFrame(boxW, boxH, iw, ih) {
+  const portrait = boxW / boxH < PORTRAIT_BELOW_RATIO
+  const scale = (boxW / iw) * (portrait ? PORTRAIT_ZOOM : 1)
+  const dw = iw * scale
+  const dh = ih * scale
+  const free = boxH - dh
+  return {
+    dw,
+    dh,
+    dx: (boxW - dw) / 2,
+    // Only ride high when there is slack to ride in; a negative `free` means
+    // the frame overflows and must stay centred or it would crop lopsidedly.
+    dy:
+      portrait && free > 0
+        ? Math.min(Math.max(free * PORTRAIT_ANCHOR, boxH * PORTRAIT_TOP_MIN), free / 2)
+        : free / 2,
+  }
+}
 // Ticket price shown on the reveal, matching the Register section.
 const PASS_PRICE = 499
 
@@ -58,6 +116,9 @@ export default function TicketScrollExperience() {
   const [isReady, setIsReady] = useState(false)
   const [hasScrolled, setHasScrolled] = useState(false)
   const [isEnding, setIsEnding] = useState(false)
+  // Which beat table the scroll ticker reads. A ref, not state: it is written
+  // from measure() and read every frame, and neither wants a re-render.
+  const portraitRef = useRef(false)
 
   // Nearest already-decoded frame fallback for smooth scrubbing
   const resolveFrame = useCallback((index) => {
@@ -79,6 +140,19 @@ export default function TicketScrollExperience() {
     const cssH = rect.height
     if (cssW === 0 || cssH === 0) return
 
+    // Publish the frame's drawn band in CSS px so the copy and the scroll
+    // prompt can sit directly under it on portrait rather than floating in the
+    // empty half. Resize-time only: the band does not change per frame.
+    portraitRef.current = cssW / cssH < PORTRAIT_BELOW_RATIO
+
+    const img = resolveFrame(0)
+    const sticky = stickyRef.current
+    if (sticky) {
+      const band = fitFrame(cssW, cssH, img ? img.naturalWidth : 1920, img ? img.naturalHeight : 1080)
+      sticky.style.setProperty('--pass-frame-top', `${Math.round(band.dy)}px`)
+      sticky.style.setProperty('--pass-frame-bottom', `${Math.round(band.dy + band.dh)}px`)
+    }
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     const bufW = Math.round(cssW * dpr)
     const bufH = Math.round(cssH * dpr)
@@ -90,13 +164,10 @@ export default function TicketScrollExperience() {
       canvas.height = bufH
       drawnFrameRef.current = -1
     }
-  }, [])
+  }, [resolveFrame])
 
-  // Draw target frame scaled to fill the viewport width. On viewports wider
-  // than the 16:9 source that is a cover fit -- no letterbox band, the frame
-  // runs edge to edge and overflows top and bottom. On narrower (portrait)
-  // ones the same width-driven scale is the contain fit, so the pass is never
-  // cropped horizontally down to a vertical slice.
+  // Draw the target frame into the band fitFrame picks: full-bleed across the
+  // width on landscape, zoomed and riding high on portrait.
   const renderFrame = useCallback((frameIndex) => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -114,11 +185,7 @@ export default function TicketScrollExperience() {
 
     const iw = img.naturalWidth || 1920
     const ih = img.naturalHeight || 1080
-    const scale = bufW / iw
-    const dw = bufW
-    const dh = ih * scale
-    const dx = (bufW - dw) / 2
-    const dy = (bufH - dh) / 2
+    const { dw, dh, dx, dy } = fitFrame(bufW, bufH, iw, ih)
 
     // Studio tone behind the frame. Only visible on portrait viewports, where
     // filling the width leaves a band above and below the frame.
@@ -251,17 +318,20 @@ export default function TicketScrollExperience() {
         // The copy lands beat by beat as the stub finishes curling, so the
         // headline, price and CTA arrive in reading order rather than together.
         const sticky = stickyRef.current
-        sticky.style.setProperty('--pass-wait', ease(span(clamped, 0.58, 0.72)))
+        const b = portraitRef.current ? BEATS.portrait : BEATS.landscape
+        sticky.style.setProperty('--pass-wait', ease(span(clamped, b.perf[0], b.perf[1])))
         // Linear, not eased: the per-character stagger supplies its own shape,
         // and an eased driver on top would rush the last few flaps.
-        sticky.style.setProperty('--pass-flip', span(clamped, 0.58, 0.82).toFixed(4))
-        sticky.style.setProperty('--pass-price', ease(span(clamped, 0.78, 0.89)))
-        sticky.style.setProperty('--pass-cta', ease(span(clamped, 0.85, 0.96)))
+        sticky.style.setProperty('--pass-flip', span(clamped, b.flip[0], b.flip[1]).toFixed(4))
+        sticky.style.setProperty('--pass-price', ease(span(clamped, b.price[0], b.price[1])))
+        sticky.style.setProperty('--pass-cta', ease(span(clamped, b.cta[0], b.cta[1])))
       }
 
       const scrolled = clamped > 0.06
       setHasScrolled(scrolled)
-      setIsEnding(clamped > 0.85)
+      // Live as soon as the button starts arriving, which portrait reaches much
+      // sooner than landscape.
+      setIsEnding(clamped > (portraitRef.current ? BEATS.portrait : BEATS.landscape).cta[0])
     }
 
     const start = () => {
