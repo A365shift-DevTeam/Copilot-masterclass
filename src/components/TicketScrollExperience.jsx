@@ -6,10 +6,22 @@ import './ticket-scroll.css'
 const TOTAL_FRAMES = 107
 const FRAME_BASE = '/frames/ticket-scroll/frame_'
 const PRELOAD_CONCURRENCY = 8
+// How far ahead of the section reaching the top edge the navbar starts fading
+// to its transparent state, so the change is settled by the time the pass
+// takes over the screen.
+const NAV_STAGE_LEAD = 160
 
 function getFrameUrl(index) {
   const pad = String(index + 1).padStart(4, '0')
   return `${FRAME_BASE}${pad}.webp`
+}
+
+// While this section owns the viewport the navbar stays visible but drops its
+// solid plate, so it floats on the pass instead of sitting on an opaque bar.
+// Styled in .nav-over-pass, the light-stage counterpart to the seat section's
+// .nav-over-stage.
+function setNavOverPass(over) {
+  document.body.classList.toggle('nav-over-pass', over)
 }
 
 export default function TicketScrollExperience() {
@@ -60,7 +72,11 @@ export default function TicketScrollExperience() {
     }
   }, [])
 
-  // Draw target frame with contain fit
+  // Draw target frame scaled to fill the viewport width. On viewports wider
+  // than the 16:9 source that is a cover fit -- no letterbox band, the frame
+  // runs edge to edge and overflows top and bottom. On narrower (portrait)
+  // ones the same width-driven scale is the contain fit, so the pass is never
+  // cropped horizontally down to a vertical slice.
   const renderFrame = useCallback((frameIndex) => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -78,23 +94,14 @@ export default function TicketScrollExperience() {
 
     const iw = img.naturalWidth || 1920
     const ih = img.naturalHeight || 1080
-    const imgRatio = iw / ih
-    const canvasRatio = bufW / bufH
+    const scale = bufW / iw
+    const dw = bufW
+    const dh = ih * scale
+    const dx = (bufW - dw) / 2
+    const dy = (bufH - dh) / 2
 
-    let dw, dh, dx, dy
-    if (canvasRatio > imgRatio) {
-      dh = bufH
-      dw = bufH * imgRatio
-      dx = (bufW - dw) / 2
-      dy = 0
-    } else {
-      dw = bufW
-      dh = bufW / imgRatio
-      dx = 0
-      dy = (bufH - dh) / 2
-    }
-
-    // Fill backdrop canvas with matching studio tone
+    // Studio tone behind the frame. Only visible on portrait viewports, where
+    // filling the width leaves a band above and below the frame.
     ctx.fillStyle = '#eff1ee'
     ctx.fillRect(0, 0, bufW, bufH)
     ctx.drawImage(img, dx, dy, dw, dh)
@@ -184,6 +191,13 @@ export default function TicketScrollExperience() {
 
     let rafId = 0
     let running = false
+    let navOverPass = false
+
+    const applyNav = (over) => {
+      if (over === navOverPass) return
+      navOverPass = over
+      setNavOverPass(over)
+    }
 
     const tick = () => {
       if (!running) return
@@ -191,6 +205,10 @@ export default function TicketScrollExperience() {
 
       const rect = section.getBoundingClientRect()
       const viewportH = window.innerHeight
+
+      // Go transparent a little before the section reaches the top edge, and
+      // back to solid once the section's bottom clears the viewport.
+      applyNav(rect.top <= NAV_STAGE_LEAD && rect.bottom >= viewportH)
 
       const totalScrollable = rect.height - viewportH
       if (totalScrollable <= 0) return
@@ -229,6 +247,9 @@ export default function TicketScrollExperience() {
     const stop = () => {
       running = false
       cancelAnimationFrame(rafId)
+      // The loop is the only thing that can restore the navbar's solid plate,
+      // so never leave it transparent when we stop ticking.
+      applyNav(false)
     }
 
     const observer = new IntersectionObserver(
@@ -271,10 +292,6 @@ export default function TicketScrollExperience() {
       <div ref={stickyRef} className="ticket-scroll-sticky">
         {/* Canvas viewport */}
         <canvas ref={canvasRef} className="ticket-scroll-canvas" />
-
-        {/* Seamless blend vignettes */}
-        <div className="ticket-scroll-vignette ticket-scroll-vignette--top" />
-        <div className="ticket-scroll-vignette ticket-scroll-vignette--bottom" />
 
         {/* Top badge */}
         {/* <div className="ticket-scroll-badge">

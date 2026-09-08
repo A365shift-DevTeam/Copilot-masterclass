@@ -230,6 +230,36 @@ html[data-theme="light"] .nav-over-stage .nav.solid .theme-toggle {
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.1);
 }
+/* Over the ticket pass the navbar likewise drops its solid plate, so it floats
+   on the stage instead of sitting on a hard-edged bar. Toggled from
+   TicketScrollExperience.jsx. This is the light-stage twin of .nav-over-stage:
+   the pass is a white studio shot in both themes and the section carries no
+   vignette behind the navbar, so dark-on-transparent is forced regardless of
+   theme -- same doubled-selector trick, same specificity reason. */
+html[data-theme="dark"] .nav-over-pass .nav.solid,
+html[data-theme="light"] .nav-over-pass .nav.solid {
+  --nav-fg: var(--ref-navlink);
+  background: transparent;
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+/* Plate dropped entirely, unlike over the auditorium: the mark is dark-inked
+   and reads straight off the white stage. */
+html[data-theme="dark"] .nav-over-pass .nav.solid .nav__logo-plate,
+html[data-theme="light"] .nav-over-pass .nav.solid .nav__logo-plate {
+  background: transparent;
+  box-shadow: none;
+  padding: 2px 0;
+}
+html[data-theme="dark"] .nav-over-pass .nav.solid .nav__menu-btn,
+html[data-theme="light"] .nav-over-pass .nav.solid .nav__menu-btn,
+html[data-theme="dark"] .nav-over-pass .nav.solid .theme-toggle,
+html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
+  border-color: rgba(0, 32, 96, 0.20);
+  background: rgba(0, 32, 96, 0.04);
+}
 .nav.solid {
   --nav-fg: var(--ref-navlink);
   background: rgba(255, 255, 255, 0.92);
@@ -1909,26 +1939,6 @@ html[data-theme="dark"] .cf__meta-row dd { color: #FFFFFF; }
 }
 /* Transparent, so the pinned footer shows through exactly here. */
 .sticky-reveal__spacer { background: transparent; }
-
-/* ============================================================
-   PAGE CURTAINS — src/components/ui/PageCurtains.jsx
-   ============================================================ */
-.curtains {
-  position: fixed; inset: 0; z-index: 999;
-  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
-  /* Never swallow a click, even mid-sweep. */
-  pointer-events: none;
-}
-.curtains span {
-  background-image: var(--gradient-primary);
-  transform: translateY(0);
-  animation-name: curtain-up;
-  animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-  animation-fill-mode: forwards;
-}
-@keyframes curtain-up {
-  to { transform: translateY(-101%); }
-}
 
 /* ============================================================
    LENIS SMOOTH SCROLLING

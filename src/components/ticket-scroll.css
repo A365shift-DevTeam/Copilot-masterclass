@@ -43,34 +43,6 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   z-index: 1;
 }
 
-/* Seamless blend vignettes to neighbor sections */
-.ticket-scroll-vignette {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 110px;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.ticket-scroll-vignette--top {
-  top: 0;
-  background: linear-gradient(180deg, var(--page-bg, #04090c) 0%, rgba(4, 9, 12, 0.4) 45%, transparent 100%);
-}
-
-html[data-theme="light"] .ticket-scroll-vignette--top {
-  background: linear-gradient(180deg, var(--page-bg, #ffffff) 0%, rgba(255, 255, 255, 0.4) 45%, transparent 100%);
-}
-
-.ticket-scroll-vignette--bottom {
-  bottom: 0;
-  background: linear-gradient(0deg, var(--page-bg, #04090c) 0%, rgba(4, 9, 12, 0.4) 45%, transparent 100%);
-}
-
-html[data-theme="light"] .ticket-scroll-vignette--bottom {
-  background: linear-gradient(0deg, var(--page-bg, #ffffff) 0%, rgba(255, 255, 255, 0.4) 45%, transparent 100%);
-}
-
 /* Subtle top status badge */
 .ticket-scroll-badge {
   position: absolute;

@@ -14,7 +14,6 @@ import Register from './components/Register.jsx'
 import Faq from './components/Faq.jsx'
 import FinalCta from './components/FinalCta.jsx'
 import Footer from './components/Footer.jsx'
-import PageCurtains from './components/ui/PageCurtains.jsx'
 import StickyRevealFooter from './components/ui/StickyRevealFooter.jsx'
 import SeatScrollExperience from './components/SeatScrollExperience.jsx'
 import TicketScrollExperience from './components/TicketScrollExperience.jsx'
@@ -25,7 +24,6 @@ export default function App() {
 
   return (
     <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
-      <PageCurtains />
       <Navbar />
 
       {/* Opaque and stacked above the footer, which is pinned behind it —
