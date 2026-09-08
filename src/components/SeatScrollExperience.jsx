@@ -70,18 +70,18 @@ export default function SeatScrollExperience({ onBook }) {
     const ih = img ? img.naturalHeight : 720
     const imgRatio = iw / ih
     const dpr = Math.min(window.devicePixelRatio || 1, 3)
-    // Match the backing store to the detail the source actually holds. Under a
-    // contain fit the drawn height is what matters, so compare source height to
-    // the height the frame will occupy: a wide desktop needs no more than 1x
-    // (720p has nothing to put in extra pixels), while a narrow phone, where the
-    // frame lands small, wants full device resolution.
-    const drawnHcss = cssW / cssH > imgRatio ? cssH : cssW / imgRatio
+    // Match the backing store to the detail the source actually holds. The
+    // frame is scaled to fill the width, so the drawn height follows from that
+    // alone: a wide desktop needs no more than 1x (720p has nothing to put in
+    // extra pixels), while a narrow phone, where the frame lands small, wants
+    // full device resolution.
+    const drawnHcss = cssW / imgRatio
     const scale = Math.min(dpr, Math.max(1, ih / drawnHcss))
 
-    // The contain fit leaves a margin either side, so publish the frame's own
-    // inset. The copy block anchors to the frame's edge rather than the
-    // viewport's, which is what keeps it over the seats as in the reference.
-    // Written on resize only, never per frame.
+    // Publish the frame's own inset, which the copy block anchors to rather
+    // than the viewport's edge. Filling the width makes the x inset 0 on every
+    // viewport; the y inset is still real on portrait ones, where the frame is
+    // letterboxed top and bottom. Written on resize only, never per frame.
     const sticky = stickyRef.current
     if (sticky) {
       const drawnWcss = drawnHcss * imgRatio
@@ -120,25 +120,19 @@ export default function SeatScrollExperience({ onBook }) {
 
     const iw = img.naturalWidth
     const ih = img.naturalHeight
-    const imgRatio = iw / ih
-    const canvasRatio = bufW / bufH
 
-    // Contain fit, computed in device pixels so nothing gets scaled twice. The
-    // frames carry content right up to every edge (the M365 badge, the app-icon
-    // row, the scroll prompt), so a cover crop would eat it - the whole frame
-    // has to be on screen. .seat-scroll-backdrop fills the leftover margin.
-    let dw, dh, dx, dy
-    if (canvasRatio > imgRatio) {
-      dh = bufH
-      dw = bufH * imgRatio
-      dx = (bufW - dw) / 2
-      dy = 0
-    } else {
-      dw = bufW
-      dh = bufW / imgRatio
-      dx = 0
-      dy = (bufH - dh) / 2
-    }
+    // Scaled to fill the viewport width, in device pixels so nothing gets
+    // scaled twice -- the same fit the ticket stage uses. On viewports wider
+    // than the 16:9 source this is a cover fit: no letterbox band, and the
+    // frame overflows top and bottom. Note these frames carry content close to
+    // every edge (the M365 badge sits 22px from the top, the scroll-prompt
+    // caption 10px from the bottom, in source pixels), so on a short viewport
+    // that overflow does trim them.
+    const scale = bufW / iw
+    const dw = bufW
+    const dh = ih * scale
+    const dx = 0
+    const dy = (bufH - dh) / 2
 
     ctx.clearRect(0, 0, bufW, bufH)
     ctx.drawImage(img, dx, dy, dw, dh)
