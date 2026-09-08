@@ -2,10 +2,26 @@ import { useEffect, useRef } from 'react'
 
 const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
 
+/*
+ * Ring geometry. Each ring projects to an ellipse with semi-axes (R, R·cos ax)
+ * rotated in-plane by az, so what keeps two rings apart is the gap between
+ * those ellipses -- not their radii alone.
+ *
+ * The previous numbers had ax rising with R (62/67/55), which cancelled the
+ * extra radius: rings 0 and 1 came out 85px and 92px tall and the curves ran
+ * 0.1px apart, so icons on neighbouring rings could sit exactly on top of one
+ * another. ax now falls as R grows, giving vertical extents of roughly 100 /
+ * 165 / 228 against horizontal 156 / 222 / 287 -- about 65px of separation on
+ * both axes.
+ *
+ * az is what is left of the original variety. It has to stay narrow: spreading
+ * these apart swings the ellipses into each other and eats the clearance (the
+ * old -8/14/-18 spread cost roughly 25px of it).
+ */
 const RINGS = [
-  { R: 150, ax: 62, az: -8, dur: 20, dir: 1 },
-  { R: 215, ax: 67, az: 14, dur: 29, dir: -1 },
-  { R: 280, ax: 55, az: -18, dur: 38, dir: 1 },
+  { R: 156, ax: 50, az: -10, dur: 20, dir: 1 },
+  { R: 222, ax: 42, az: -6, dur: 29, dir: -1 },
+  { R: 287, ax: 37, az: -14, dur: 38, dir: 1 },
 ]
 
 const APPS = [
@@ -160,7 +176,9 @@ class OrbitEngine {
     const size = this.compact
       ? Math.max(300, Math.min(520, w, vh * 0.62))
       : Math.max(260, Math.min(660, w, h * 1.05, vh * 0.74))
-    this.radii = this.compact ? [0.34 * size, 0.44 * size, 0] : [0.30 * size, 0.393 * size, 0.478 * size]
+    // Fractions chosen with the tilts in RINGS so consecutive rings clear each
+    // other by more than an icon width, and ring 0 clears the core badge.
+    this.radii = this.compact ? [0.32 * size, 0.46 * size, 0] : [0.26 * size, 0.37 * size, 0.478 * size]
     this.stage.style.width = size + 'px'
     this.stage.style.height = size + 'px'
 
@@ -178,7 +196,10 @@ class OrbitEngine {
 
     const core = this.q('[data-core]')
     if (core) {
-      const cs = Math.max(86, 0.17 * size)
+      // The floor only bites on small screens, where it is also what squeezes
+      // the innermost ring against the badge -- 0.17 * size does not reach it
+      // until the stage is ~450px. Kept just high enough for the two labels.
+      const cs = Math.max(76, 0.17 * size)
       core.style.width = cs + 'px'
       core.style.height = cs + 'px'
       const ci = core.querySelector('[data-core-icon]')
