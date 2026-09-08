@@ -67,6 +67,10 @@ class OrbitEngine {
     this.hits = {}
     this.pos = {}
     this.hover = null
+    // Rad/s of user-added rotation left over from a fling, decaying back into
+    // the idle drift. null drag means nothing is being held.
+    this.spin = 0
+    this.drag = null
     this.mouse = { x: 0, y: 0 }
     this.tilt = { x: 0, y: 0 }
     this.visible = true
@@ -108,7 +112,19 @@ class OrbitEngine {
       hit.addEventListener('mouseleave', hide)
       hit.addEventListener('focus', show)
       hit.addEventListener('blur', hide)
-      hit.addEventListener('click', (e) => { e.preventDefault(); this.hover === app.id ? hide() : show() })
+      hit.addEventListener('click', (e) => {
+        e.preventDefault()
+        // A fling ends in a click event too; ignore that one so dragging the
+        // system round does not also pin a tooltip.
+        if (this.suppressClick) return
+        this.hover === app.id ? hide() : show()
+        // Clicking an app runs it: the core beams out with the action it
+        // performs there. The idle timer restarts so the two never overlap.
+        const link = LINKS.find((l) => l.id === app.id)
+        this.fireBeam(app.id, link ? link.text : app.tip.split('•')[0].trim())
+        clearTimeout(this.linkTimer)
+        this.scheduleLink()
+      })
     })
 
     this.layout()
@@ -125,6 +141,54 @@ class OrbitEngine {
       this.roT = setTimeout(() => this.layout(), 90)
     }
     window.addEventListener('resize', this.onWinResize, { passive: true })
+
+    /*
+     * Drag to spin. The whole system is grabbable, not just the icons: a drag
+     * adds to every ring angle at once, and letting go hands the leftover
+     * velocity to this.spin, which decays back into the idle drift rather than
+     * stopping dead. Outer rings take slightly less of it, so the depth still
+     * reads while everything moves together.
+     */
+    this.onDown = (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return
+      this.drag = { id: e.pointerId, x: e.clientX, t: performance.now(), moved: 0, v: 0 }
+      this.spin = 0
+      this.root.classList.add('is-grabbing')
+    }
+    this.onDragMove = (e) => {
+      const d = this.drag
+      if (!d || e.pointerId !== d.id) return
+      const dx = e.clientX - d.x
+      if (!dx) return
+      d.x = e.clientX
+      d.moved += Math.abs(dx)
+      const now = performance.now()
+      // Floor the interval: two moves in the same millisecond would otherwise
+      // divide by ~0 and fling the system off at an absurd rate.
+      const dt = Math.max(8, now - d.t) / 1000
+      d.t = now
+      // A drag the width of the stage is about one full turn.
+      const rad = (dx * Math.PI * 2) / Math.max(320, this.stageSize || 600)
+      d.v = rad / dt
+      this.addSpin(rad)
+      // Under reduced motion the loop is not running, so repaint by hand.
+      if (!this.raf) this.frame(0)
+    }
+    this.onUp = (e) => {
+      const d = this.drag
+      if (!d || (e && e.pointerId !== d.id)) return
+      this.drag = null
+      this.root.classList.remove('is-grabbing')
+      if (d.moved <= 6) return
+      this.suppressClick = true
+      setTimeout(() => { this.suppressClick = false }, 0)
+      // No inertia under reduced motion: the drag stays 1:1 and stops on release.
+      if (!this.reduced) this.spin = Math.max(-7, Math.min(7, d.v))
+    }
+    this.root.addEventListener('pointerdown', this.onDown)
+    window.addEventListener('pointermove', this.onDragMove, { passive: true })
+    window.addEventListener('pointerup', this.onUp)
+    window.addEventListener('pointercancel', this.onUp)
 
     this.onMove = (e) => {
       const r = this.root.getBoundingClientRect()
@@ -150,12 +214,27 @@ class OrbitEngine {
     cancelAnimationFrame(this.raf)
     clearInterval(this.timer)
     clearTimeout(this.linkTimer)
+    clearTimeout(this.beamOffTimer)
     clearTimeout(this.introTimer)
     clearTimeout(this.roT)
     if (this.io) this.io.disconnect()
     if (this.ro) this.ro.disconnect()
     if (this.onMove) window.removeEventListener('mousemove', this.onMove)
+    if (this.onDown) this.root.removeEventListener('pointerdown', this.onDown)
+    if (this.onDragMove) window.removeEventListener('pointermove', this.onDragMove)
+    if (this.onUp) {
+      window.removeEventListener('pointerup', this.onUp)
+      window.removeEventListener('pointercancel', this.onUp)
+    }
     if (this.onWinResize) window.removeEventListener('resize', this.onWinResize)
+  }
+
+  /**
+   * Add `rad` of user rotation to every ring. Kept free of any repaint so it
+   * is safe to call from inside frame(); callers outside the loop repaint.
+   */
+  addSpin(rad) {
+    ;[0, 1, 2].forEach((i) => { this.ringAngles[i] += rad * (1 - i * 0.16) })
   }
 
   ringTransform(i, scale) {
@@ -179,6 +258,7 @@ class OrbitEngine {
     // Fractions chosen with the tilts in RINGS so consecutive rings clear each
     // other by more than an icon width, and ring 0 clears the core badge.
     this.radii = this.compact ? [0.32 * size, 0.46 * size, 0] : [0.26 * size, 0.37 * size, 0.478 * size]
+    this.stageSize = size
     this.stage.style.width = size + 'px'
     this.stage.style.height = size + 'px'
 
@@ -280,6 +360,13 @@ class OrbitEngine {
         const slow = hoverRing === i ? 0.22 : 1
         this.ringAngles[i] += RINGS[i].dir * slow * ((Math.PI * 2) / RINGS[i].dur) * dt
       })
+      // A fling coasts on top of the idle drift and fades into it. ~94% of the
+      // velocity is shed per second, so it settles in a little over a second.
+      if (this.spin) {
+        this.addSpin(this.spin * dt)
+        this.spin *= Math.pow(0.06, dt)
+        if (Math.abs(this.spin) < 0.02) this.spin = 0
+      }
     }
     let n = 0
     APPS.forEach((app) => {
@@ -355,12 +442,23 @@ class OrbitEngine {
   }
 
   fireLink() {
-    if (!this.visible || !this.beamLine) return
     const pool = LINKS.filter((l) => this.els[l.id] && this.els[l.id].style.display !== 'none')
     if (!pool.length) return
     this.linkIdx = ((this.linkIdx || 0) + 1) % pool.length
     const link = pool[this.linkIdx]
-    const p = this.pos[link.id]
+    this.fireBeam(link.id, link.text)
+  }
+
+  /**
+   * Run one app: a beam from the core out to it, three photons along the same
+   * line and the action it performs there. Fired on a timer while the orbit
+   * idles, and on demand when someone clicks an icon.
+   */
+  fireBeam(id, text) {
+    if (!this.visible || !this.beamLine) return
+    const el = this.els[id]
+    if (!el || el.style.display === 'none') return
+    const p = this.pos[id]
     if (!p) return
     const dist = Math.hypot(p.x, p.y)
     const ang = (Math.atan2(p.y, p.x) * 180) / Math.PI
@@ -385,13 +483,24 @@ class OrbitEngine {
         setTimeout(() => { dot.style.opacity = '0' }, 780)
       }, 90 + i * 190)
     })
+    // Restart cleanly if a click lands mid-beam.
+    clearTimeout(this.beamOffTimer)
+
+    const core = this.q('[data-core]')
+    if (core) {
+      core.classList.remove('is-hit')
+      // Force a reflow so the class re-add restarts the animation.
+      void core.offsetWidth
+      core.classList.add('is-hit')
+    }
+
     if (this.beamLabel) {
-      this.beamLabel.textContent = link.text
+      this.beamLabel.textContent = text
       this.beamLabel.style.left = (p.x * 0.52).toFixed(1) + 'px'
       this.beamLabel.style.top = (p.y * 0.52 - 14).toFixed(1) + 'px'
       this.beamLabel.style.opacity = '1'
     }
-    setTimeout(() => {
+    this.beamOffTimer = setTimeout(() => {
       line.style.opacity = '0'
       if (this.beamLabel) this.beamLabel.style.opacity = '0'
     }, 1750)

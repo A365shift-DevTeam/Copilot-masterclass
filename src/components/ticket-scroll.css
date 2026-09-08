@@ -196,6 +196,31 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   pointer-events: auto;
 }
 
+/* Perforated leader back towards the torn stub, drawn from the copy outwards.
+   Echoes .seat-reveal__connector, in the pass's own dashed-tear language. */
+.ticket-scroll-reveal__perf {
+  position: absolute;
+  right: 100%;
+  top: clamp(18px, 3vh, 40px);
+  margin-right: clamp(10px, 1.6vw, 26px);
+  width: clamp(26px, 5vw, 110px);
+  height: 0;
+  border-top: 2px dashed rgba(0, 32, 96, 0.32);
+  transform-origin: right center;
+  transform: scaleX(var(--pass-wait, 0));
+  opacity: var(--pass-wait, 0);
+}
+.ticket-scroll-reveal__perf::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: -4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ref-navy, #002060);
+}
+
 .ticket-scroll-reveal__headline {
   margin: 0;
   display: flex;
@@ -206,13 +231,33 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   font-weight: 700;
   line-height: 1.06;
   letter-spacing: -0.005em;
-  opacity: var(--pass-wait, 0);
-  transform:
-    translate3d(0, calc((1 - var(--pass-wait, 0)) * 26px), 0)
-    scale(calc(0.96 + var(--pass-wait, 0) * 0.04));
 }
 
+/*
+ * Split-flap headline. Each character takes its own slice of --pass-flip: it
+ * starts 0.035 later than the one before it and takes 0.3 to turn, so with 19
+ * characters the last flap lands at 0.93 -- inside the beat, with room to
+ * spare before the price stamps.
+ *
+ * --pass-flip is the scroll position itself, so this scrubs: reverse the
+ * scroll and the flaps turn back. Only opacity and transform, both on the
+ * character, so a 19-element line still costs no layout.
+ */
+.ticket-scroll-reveal__ch {
+  display: inline-block;
+  --p: clamp(0, calc((var(--pass-flip, 0) - var(--i) * 0.035) / 0.3), 1);
+  opacity: var(--p);
+  transform-origin: 50% 88%;
+  transform:
+    perspective(420px)
+    rotateX(calc((1 - var(--p)) * -96deg))
+    translateY(calc((1 - var(--p)) * 0.3em));
+}
+
+/* The price is stamped on rather than faded in: it arrives oversized and cocked
+   a few degrees, then lands square as the beat closes. */
 .ticket-scroll-reveal__price {
+  position: relative;
   margin: 0;
   display: flex;
   align-items: baseline;
@@ -224,7 +269,27 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   line-height: 1.1;
   letter-spacing: -0.005em;
   opacity: var(--pass-price, 0);
-  transform: translate3d(0, calc((1 - var(--pass-price, 0)) * 22px), 0);
+  transform-origin: 12% 60%;
+  transform:
+    rotate(calc((1 - var(--pass-price, 0)) * -7deg))
+    scale(calc(1 + (1 - var(--pass-price, 0)) * 0.5));
+}
+
+/* The ink ring the stamp leaves: it rushes out as the price lands and is gone
+   by the time the beat ends. min()/max() of the same progress makes a triangle
+   -- in over the first third, out over the rest -- from one linear driver. */
+.ticket-scroll-reveal__price::after {
+  content: '';
+  position: absolute;
+  left: -0.35em;
+  right: -0.35em;
+  top: -0.22em;
+  bottom: -0.18em;
+  border: 2px solid rgba(0, 32, 96, 0.45);
+  border-radius: 0.28em;
+  pointer-events: none;
+  opacity: calc(min(var(--pass-price, 0) * 2.6, max(0, (1 - var(--pass-price, 0)) * 2.2)));
+  transform: scale(calc(0.82 + var(--pass-price, 0) * 0.34));
 }
 
 /* Same teal-to-green ramp and uppercase sweep as the seat section's BOOK NOW,
@@ -324,6 +389,11 @@ html[data-theme="dark"] .ticket-scroll-sticky {
     transform: translateX(50%);
     align-items: center;
     text-align: center;
+  }
+  /* The leader points back at a stub that is no longer to the left of the copy
+     once the block moves below the frame. */
+  .ticket-scroll-reveal__perf {
+    display: none;
   }
   .ticket-scroll-reveal__headline {
     font-size: clamp(26px, 8vw, 40px);

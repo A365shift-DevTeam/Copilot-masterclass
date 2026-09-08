@@ -12,6 +12,20 @@ const NAV_STAGE_LEAD = 160
 // Ticket price shown on the reveal, matching the Register section.
 const PASS_PRICE = 499
 
+/*
+ * The headline is split per character so each one can turn on its own beat,
+ * like the flaps on a departure board. Indices run across both lines rather
+ * than restarting, so the flip reads as one continuous sweep. Built once at
+ * module scope: the text never changes, and rebuilding it per render would
+ * hand React a fresh array on every scroll tick.
+ */
+const HEADLINE_LINES = ['Your Seat', 'Is Waiting']
+const HEADLINE_TEXT = HEADLINE_LINES.join(' ')
+let charIndex = 0
+const HEADLINE_CHARS = HEADLINE_LINES.map((line) =>
+  [...line].map((ch) => ({ ch: ch === ' ' ? '\u00A0' : ch, i: charIndex++ }))
+)
+
 /** Normalised 0-1 position of `p` inside [a, b]. */
 const span = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)))
 /** Ease-out cubic, so each beat arrives quickly then settles. */
@@ -237,9 +251,12 @@ export default function TicketScrollExperience() {
         // The copy lands beat by beat as the stub finishes curling, so the
         // headline, price and CTA arrive in reading order rather than together.
         const sticky = stickyRef.current
-        sticky.style.setProperty('--pass-wait', ease(span(clamped, 0.6, 0.75)))
-        sticky.style.setProperty('--pass-price', ease(span(clamped, 0.7, 0.85)))
-        sticky.style.setProperty('--pass-cta', ease(span(clamped, 0.8, 0.94)))
+        sticky.style.setProperty('--pass-wait', ease(span(clamped, 0.58, 0.72)))
+        // Linear, not eased: the per-character stagger supplies its own shape,
+        // and an eased driver on top would rush the last few flaps.
+        sticky.style.setProperty('--pass-flip', span(clamped, 0.58, 0.82).toFixed(4))
+        sticky.style.setProperty('--pass-price', ease(span(clamped, 0.78, 0.89)))
+        sticky.style.setProperty('--pass-cta', ease(span(clamped, 0.85, 0.96)))
       }
 
       const scrolled = clamped > 0.06
@@ -324,9 +341,21 @@ export default function TicketScrollExperience() {
         {/* Copy landing in the empty stage to the right of the torn pass, as
             the seat section does once its scrub reaches the end. */}
         <div className={`ticket-scroll-reveal ${isEnding ? 'ticket-scroll-reveal--active' : ''}`}>
-          <h3 className="ticket-scroll-reveal__headline">
-            <span>Your Seat</span>
-            <span>Is Waiting</span>
+          {/* Perforated leader running back to the torn stub */}
+          <span className="ticket-scroll-reveal__perf" aria-hidden="true" />
+
+          {/* Split per character for the flip, so the visible spans are hidden
+              from assistive tech and the whole line is read off aria-label. */}
+          <h3 className="ticket-scroll-reveal__headline" aria-label={HEADLINE_TEXT}>
+            {HEADLINE_CHARS.map((line, li) => (
+              <span className="ticket-scroll-reveal__line" key={li} aria-hidden="true">
+                {line.map(({ ch, i }) => (
+                  <span className="ticket-scroll-reveal__ch" key={i} style={{ '--i': String(i) }}>
+                    {ch}
+                  </span>
+                ))}
+              </span>
+            ))}
           </h3>
 
           <p className="ticket-scroll-reveal__price">
