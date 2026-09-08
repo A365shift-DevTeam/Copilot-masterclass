@@ -17,6 +17,7 @@ import Footer from './components/Footer.jsx'
 import PageCurtains from './components/ui/PageCurtains.jsx'
 import StickyRevealFooter from './components/ui/StickyRevealFooter.jsx'
 import SeatScrollExperience from './components/SeatScrollExperience.jsx'
+import TicketScrollExperience from './components/TicketScrollExperience.jsx'
 import useLenis from './hooks/useLenis.js'
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
           without both, the footer would show through the whole page. */}
       <div className="page-stack">
         <Hero />
+        <TicketScrollExperience />
         <Overview />
         <CopilotStudio />
         <SeatScrollExperience />
