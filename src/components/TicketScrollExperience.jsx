@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { scrollToTarget } from '../hooks/useLenis.js'
 import './ticket-scroll.css'
 
-const TOTAL_FRAMES = 107
-const FRAME_BASE = '/frames/ticket-scroll/frame_'
+export const TOTAL_FRAMES = 107
+export const FRAME_BASE = '/frames/ticket-scroll/frame_'
 const PRELOAD_CONCURRENCY = 8
 // How far ahead of the section reaching the top edge the navbar starts fading
 // to its transparent state, so the change is settled by the time the pass

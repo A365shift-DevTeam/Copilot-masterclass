@@ -17,13 +17,19 @@ import Footer from './components/Footer.jsx'
 import StickyRevealFooter from './components/ui/StickyRevealFooter.jsx'
 import SeatScrollExperience from './components/SeatScrollExperience.jsx'
 import TicketScrollExperience from './components/TicketScrollExperience.jsx'
+import Preloader from './components/Preloader.jsx'
 import useLenis from './hooks/useLenis.js'
+import useSitePreload from './hooks/useSitePreload.js'
 
 export default function App() {
+  // Order matters: useLenis creates the instance that useSitePreload stops
+  // while it holds the page, and hooks in one component run in call order.
   useLenis()
+  const { progress, done } = useSitePreload()
 
   return (
     <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
+      <Preloader progress={progress} done={done} />
       <Navbar />
 
       {/* Opaque and stacked above the footer, which is pinned behind it —

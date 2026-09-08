@@ -11,17 +11,41 @@ export function getLenis() {
 }
 
 /**
- * Smoothly scrolls to a selector or pixel offset using Lenis.
+ * How far above a target to stop so the fixed navbar does not cover it.
+ *
+ * Measured rather than hard-coded: the bar is 80px tall at the top of the page
+ * and 68px once it goes solid, and it tightens again on phones. Returns a
+ * negative number, which is the direction Lenis offsets in.
  */
-export function scrollToTarget(target, offset = 0) {
+function navOffset() {
+  const nav = document.querySelector('.nav')
+  const h = nav ? nav.getBoundingClientRect().height : 80
+  return -(h + 12)
+}
+
+/**
+ * Smoothly scrolls to a selector, element, or absolute pixel position.
+ *
+ * Selector and element targets clear the fixed navbar automatically; a numeric
+ * target is an absolute scroll position the scroll stages work out themselves,
+ * and shifting that by the navbar height would land them in the wrong frame.
+ * `extra` is applied on top of whichever applies.
+ */
+export function scrollToTarget(target, extra = 0) {
+  const offset = typeof target === 'number' ? extra : navOffset() + extra
   if (globalLenis) {
     globalLenis.scrollTo(target, { offset, duration: 1.4 })
-  } else {
-    const el = typeof target === 'string' ? document.querySelector(target) : target
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
-    }
+    return
   }
+  // No Lenis yet: scroll natively, still clearing the bar.
+  if (typeof target === 'number') {
+    window.scrollTo({ top: target + offset, behavior: 'smooth' })
+    return
+  }
+  const el = typeof target === 'string' ? document.querySelector(target) : target
+  if (!el) return
+  const top = el.getBoundingClientRect().top + window.scrollY + offset
+  window.scrollTo({ top, behavior: 'smooth' })
 }
 
 /**
@@ -50,8 +74,43 @@ export default function useLenis() {
     }
     rafId = requestAnimationFrame(raf)
 
+    /*
+     * In-page links are plain <a href="#..."> in the navbar, the mobile drawer
+     * and the footer, which the browser jumps to natively -- landing the target
+     * flush with the viewport top, under the fixed bar. Handled once here
+     * rather than wiring an onClick onto every one of them.
+     *
+     * Skipped when the event is already handled (the CTAs that call
+     * scrollToTarget themselves preventDefault first) and when a modifier is
+     * held, so open-in-new-tab and friends still work.
+     */
+    const onAnchorClick = (e) => {
+      if (e.defaultPrevented || e.button !== 0) return
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      const link = e.target.closest && e.target.closest('a[href^="#"]')
+      if (!link) return
+      const href = link.getAttribute('href')
+      if (!href || href === '#') return
+      let el = null
+      try {
+        el = document.querySelector(href)
+      } catch {
+        return // not a usable selector
+      }
+      if (!el) return
+      e.preventDefault()
+      scrollToTarget(el)
+      // Keep the URL in step, without the jump history.pushState would avoid
+      // but replaceState does not trigger.
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', href)
+      }
+    }
+    document.addEventListener('click', onAnchorClick)
+
     return () => {
       cancelAnimationFrame(rafId)
+      document.removeEventListener('click', onAnchorClick)
       lenis.destroy()
       if (globalLenis === lenis) {
         globalLenis = null

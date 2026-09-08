@@ -1,0 +1,113 @@
+/* ============================================================
+   MORPH LOADING — src/components/ui/MorphLoading.jsx
+
+   Ported from the shadcn/Tailwind drop-in. This project has no Tailwind,
+   so the utility classes it used are written out here:
+     w-16/24/32 h-*   -> the --sm/--md/--lg container sizes
+     absolute inset-0 -> .morph-loading__field
+     w-4 h-4          -> .morph-loading__cell
+     bg-black dark:bg-white -> the two theme rules below
+
+   The keyframes are the drop-in's own, unchanged. They translate up to
+   40px, so the cells deliberately travel outside the container box --
+   nothing here may clip it.
+   ============================================================ */
+
+.morph-loading { position: relative; }
+.morph-loading--sm { width: 64px; height: 64px; }
+.morph-loading--md { width: 96px; height: 96px; }
+.morph-loading--lg { width: 128px; height: 128px; }
+
+.morph-loading__field {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.morph-loading__cell {
+  position: absolute;
+  width: 16px; height: 16px;
+  background: #0a0a0a;
+}
+
+/* Dark is this project's default theme, so the light rule is the opt-in. */
+html[data-theme="dark"] .morph-loading__cell { background: #ffffff; }
+
+@keyframes morph-0 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    border-radius: 0%;
+  }
+  25% {
+    transform: translate(20px, -20px) scale(1.2);
+    border-radius: 50%;
+  }
+  50% {
+    transform: translate(40px, 0) scale(0.8);
+    border-radius: 25%;
+  }
+  75% {
+    transform: translate(20px, 20px) scale(1.1);
+    border-radius: 75%;
+  }
+}
+
+@keyframes morph-1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    border-radius: 0%;
+  }
+  25% {
+    transform: translate(-20px, -20px) scale(1.3) rotate(90deg);
+    border-radius: 50%;
+  }
+  50% {
+    transform: translate(-40px, 0) scale(0.7) rotate(180deg);
+    border-radius: 25%;
+  }
+  75% {
+    transform: translate(-20px, 20px) scale(1.2) rotate(270deg);
+    border-radius: 75%;
+  }
+}
+
+@keyframes morph-2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    border-radius: 0%;
+  }
+  25% {
+    transform: translate(-20px, 20px) scale(0.9);
+    border-radius: 100%;
+  }
+  50% {
+    transform: translate(0, 40px) scale(1.4);
+    border-radius: 0%;
+  }
+  75% {
+    transform: translate(20px, 20px) scale(0.8);
+    border-radius: 50%;
+  }
+}
+
+@keyframes morph-3 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    border-radius: 0%;
+  }
+  25% {
+    transform: translate(20px, 20px) scale(1.1) rotate(-90deg);
+    border-radius: 25%;
+  }
+  50% {
+    transform: translate(0, -40px) scale(1.3) rotate(-180deg);
+    border-radius: 100%;
+  }
+  75% {
+    transform: translate(-20px, -20px) scale(0.9) rotate(-270deg);
+    border-radius: 75%;
+  }
+}
