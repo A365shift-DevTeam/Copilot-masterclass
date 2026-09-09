@@ -1,9 +1,18 @@
 import { useEffect, useRef } from 'react'
 import CopilotOrbit from './CopilotOrbit.jsx'
 import { HERO_CHECKS } from '../data/content.js'
+import useTypewriter from '../hooks/useTypewriter.js'
 
 export default function Hero() {
   const scaleRef = useRef(null)
+  const { displayedText } = useTypewriter({
+    text: 'Someone using AI will.”',
+    typingSpeed: 75,
+    deletingSpeed: 35,
+    pauseDuration: 2400,
+    deletePauseDuration: 600,
+    loop: true,
+  })
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -46,24 +55,32 @@ export default function Hero() {
             <span className="hero__badge-text">LIVE INTERACTIVE WEBINAR</span>
           </div> */}
 
+          <p className="hero__quote" aria-label="“AI won’t replace you. Someone using AI will.”">
+            <span className="hero__quote-line">“AI won’t replace you.</span>
+            <span className="hero__quote-line hero__quote-line--typed">
+              <span className="hero__quote-gradient">{displayedText}</span>
+              <span className="hero__cursor" aria-hidden="true" />
+            </span>
+          </p>
+
           <h1 className="hero__title">
-            Master<br />Microsoft 365<br />
-            <span className="hero__title-gradient">Copilot &amp; AI</span>
+            Master Microsoft Copilot<br />
+            <span className="hero__title-gradient">AI &amp; Agents</span>
           </h1>
 
-          <p className="hero__subtitle">Transform the way you work with Microsoft 365 + AI</p>
+          <p className="hero__subtitle">2-Day Live Online Program</p>
 
-          <p className="hero__desc">
+          {/* <p className="hero__desc">
             Discover how Microsoft Copilot, Microsoft 365 and intelligent automation help professionals
             automate repetitive work, analyse information faster, create content and improve everyday productivity.
-          </p>
+          </p> */}
 
           <div className="hero__ctas">
             <a href="#register" className="btn-primary">
-              Reserve My Seat
+              “Reserve your seat for just <span className="btn-price-highlight"> ₹499</span>”
               <span className="btn-shine" />
             </a>
-            <a href="#agenda" className="btn-outline">View Webinar Agenda</a>
+            {/* <a href="#agenda" className="btn-outline">View Webinar Agenda</a> */}
           </div>
 
           <div className="hero__checks">
