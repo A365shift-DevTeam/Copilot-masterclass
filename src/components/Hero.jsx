@@ -43,6 +43,17 @@ export default function Hero() {
     }
   }, [])
 
+  const handleBtnClick = (e) => {
+    const btn = e.currentTarget
+    const rect = btn.getBoundingClientRect()
+    const ripple = document.createElement('span')
+    ripple.className = 'btn-ripple'
+    ripple.style.left = `${e.clientX - rect.left}px`
+    ripple.style.top = `${e.clientY - rect.top}px`
+    btn.appendChild(ripple)
+    setTimeout(() => ripple.remove(), 700)
+  }
+
   return (
     <section id="top" className="hero">
       <div className="hero__dots" />
@@ -76,8 +87,8 @@ export default function Hero() {
           </p> */}
 
           <div className="hero__ctas">
-            <a href="#register" className="btn-primary">
-              “Reserve your seat for just ₹499”
+            <a href="#register" className="btn-primary" onClick={handleBtnClick}>
+              “Reserve your seat for just{' '}<span className="btn-price-highlight">₹499</span>”
               <span className="btn-shine" />
             </a>
             {/* <a href="#agenda" className="btn-outline">View Webinar Agenda</a> */}
