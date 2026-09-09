@@ -1,10 +1,20 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { scrollToTarget } from '../hooks/useLenis.js'
+import { scrollToTarget, getLenis } from '../hooks/useLenis.js'
 import './ticket-scroll.css'
+import {
+  TOTAL_TICKET_FRAMES,
+  TICKET_FRAME_BASE,
+  ticketFrames,
+  loadFrame,
+  resolveCachedFrame,
+  preloadAround,
+  startBulkPreload,
+  subscribeFrames,
+} from '../utils/frameCache.js'
 
-export const TOTAL_FRAMES = 107
-export const FRAME_BASE = '/frames/ticket-scroll/frame_'
-const PRELOAD_CONCURRENCY = 8
+export const TOTAL_FRAMES = TOTAL_TICKET_FRAMES
+export const FRAME_BASE = TICKET_FRAME_BASE
+
 // How far ahead of the section reaching the top edge the navbar starts fading
 // to its transparent state, so the change is settled by the time the pass
 // takes over the screen.
@@ -12,43 +22,18 @@ const NAV_STAGE_LEAD = 160
 
 /*
  * Portrait fit. A 16:9 frame scaled to a phone's width is only ~0.56 of that
- * width tall, which leaves most of the screen empty above and below it. Two
- * things close that gap:
- *
- *  - zoom past the width fit, cropping the frame's own empty side margins. The
- *    artwork spans x 0.113-0.859 of the frame across all 107 frames, so 1/0.774
- *    = 1.29x is the most that can be taken before the pass itself is clipped;
- *    1.25 keeps a margin.
- *  - sit the band high rather than centred, so the space that is left lands in
- *    one block underneath, where the reveal copy goes -- instead of being split
- *    into two dead halves.
+ * width tall, which leaves most of the screen empty above and below it.
  */
 const PORTRAIT_BELOW_RATIO = 1.2
 const PORTRAIT_ZOOM = 1.27
 const PORTRAIT_ANCHOR = 0.16
-// Floor on the gap above the band, as a fraction of height rather than px:
-// fitFrame runs in CSS px for measure() and device px for renderFrame(), so a
-// pixel constant would mean two different things there. Keeps the band clear
-// of the fixed navbar.
 const PORTRAIT_TOP_MIN = 0.09
 
-/*
- * Reveal beats, as fractions of the section scroll. Portrait runs far earlier:
- * there the copy is what fills the block under the band, and holding it until
- * the tear would play most of the scroll out against an empty half. Landscape
- * keeps the original timing, where the copy lands as the stub finishes curling.
- */
 const BEATS = {
   landscape: { perf: [0.58, 0.72], flip: [0.58, 0.82], price: [0.78, 0.89], cta: [0.85, 0.96] },
   portrait: { perf: [0.12, 0.26], flip: [0.12, 0.44], price: [0.48, 0.64], cta: [0.66, 0.82] },
 }
 
-/**
- * Where the frame lands inside a box, in that box's units. Landscape fills the
- * width exactly; portrait fills it zoomed and rides high. Shared by measure()
- * (CSS px, to publish the band) and renderFrame() (device px), so the two can
- * never disagree about where the frame is.
- */
 function fitFrame(boxW, boxH, iw, ih) {
   const portrait = boxW / boxH < PORTRAIT_BELOW_RATIO
   const scale = (boxW / iw) * (portrait ? PORTRAIT_ZOOM : 1)
@@ -59,24 +44,15 @@ function fitFrame(boxW, boxH, iw, ih) {
     dw,
     dh,
     dx: (boxW - dw) / 2,
-    // Only ride high when there is slack to ride in; a negative `free` means
-    // the frame overflows and must stay centred or it would crop lopsidedly.
     dy:
       portrait && free > 0
         ? Math.min(Math.max(free * PORTRAIT_ANCHOR, boxH * PORTRAIT_TOP_MIN), free / 2)
         : free / 2,
   }
 }
-// Ticket price shown on the reveal, matching the Register section.
+
 const PASS_PRICE = 499
 
-/*
- * The headline is split per character so each one can turn on its own beat,
- * like the flaps on a departure board. Indices run across both lines rather
- * than restarting, so the flip reads as one continuous sweep. Built once at
- * module scope: the text never changes, and rebuilding it per render would
- * hand React a fresh array on every scroll tick.
- */
 const HEADLINE_LINES = ['Your Seat', 'Is Waiting']
 const HEADLINE_TEXT = HEADLINE_LINES.join(' ')
 let charIndex = 0
@@ -84,20 +60,9 @@ const HEADLINE_CHARS = HEADLINE_LINES.map((line) =>
   [...line].map((ch) => ({ ch: ch === ' ' ? '\u00A0' : ch, i: charIndex++ }))
 )
 
-/** Normalised 0-1 position of `p` inside [a, b]. */
 const span = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)))
-/** Ease-out cubic, so each beat arrives quickly then settles. */
 const ease = (t) => (1 - Math.pow(1 - t, 3)).toFixed(4)
 
-function getFrameUrl(index) {
-  const pad = String(index + 1).padStart(4, '0')
-  return `${FRAME_BASE}${pad}.webp`
-}
-
-// While this section owns the viewport the navbar stays visible but drops its
-// solid plate, so it floats on the pass instead of sitting on an opaque bar.
-// Styled in .nav-over-pass, the light-stage counterpart to the seat section's
-// .nav-over-stage.
 function setNavOverPass(over) {
   document.body.classList.toggle('nav-over-pass', over)
 }
@@ -108,28 +73,15 @@ export default function TicketScrollExperience() {
   const ctxRef = useRef(null)
   const stickyRef = useRef(null)
   const progressFillRef = useRef(null)
-  const framesRef = useRef([])
-  const currentFrameRef = useRef(-1)
+  const currentFrameRef = useRef(0)
   const drawnFrameRef = useRef(-1)
+  const drawnIsExactRef = useRef(false)
   const sizeRef = useRef({ bufW: 0, bufH: 0 })
   const [loadedPercent, setLoadedPercent] = useState(0)
   const [isReady, setIsReady] = useState(false)
   const [hasScrolled, setHasScrolled] = useState(false)
   const [isEnding, setIsEnding] = useState(false)
-  // Which beat table the scroll ticker reads. A ref, not state: it is written
-  // from measure() and read every frame, and neither wants a re-render.
   const portraitRef = useRef(false)
-
-  // Nearest already-decoded frame fallback for smooth scrubbing
-  const resolveFrame = useCallback((index) => {
-    const frames = framesRef.current
-    if (frames[index]) return frames[index]
-    for (let step = 1; step < TOTAL_FRAMES; step++) {
-      if (frames[index - step]) return frames[index - step]
-      if (frames[index + step]) return frames[index + step]
-    }
-    return null
-  }, [])
 
   // Responsive measure backing-store size
   const measure = useCallback(() => {
@@ -140,12 +92,10 @@ export default function TicketScrollExperience() {
     const cssH = rect.height
     if (cssW === 0 || cssH === 0) return
 
-    // Publish the frame's drawn band in CSS px so the copy and the scroll
-    // prompt can sit directly under it on portrait rather than floating in the
-    // empty half. Resize-time only: the band does not change per frame.
     portraitRef.current = cssW / cssH < PORTRAIT_BELOW_RATIO
 
-    const img = resolveFrame(0)
+    const resolved = resolveCachedFrame('ticket', 0)
+    const img = resolved.img
     const sticky = stickyRef.current
     if (sticky) {
       const band = fitFrame(cssW, cssH, img ? img.naturalWidth : 1920, img ? img.naturalHeight : 1080)
@@ -164,14 +114,14 @@ export default function TicketScrollExperience() {
       canvas.height = bufH
       drawnFrameRef.current = -1
     }
-  }, [resolveFrame])
+  }, [])
 
-  // Draw the target frame into the band fitFrame picks: full-bleed across the
-  // width on landscape, zoomed and riding high on portrait.
+  // Draw the target frame into the canvas
   const renderFrame = useCallback((frameIndex) => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const img = resolveFrame(frameIndex)
+    const resolved = resolveCachedFrame('ticket', frameIndex)
+    const img = resolved.img
     if (!img) return
 
     const { bufW, bufH } = sizeRef.current
@@ -187,87 +137,44 @@ export default function TicketScrollExperience() {
     const ih = img.naturalHeight || 1080
     const { dw, dh, dx, dy } = fitFrame(bufW, bufH, iw, ih)
 
-    // Studio tone behind the frame. Only visible on portrait viewports, where
-    // filling the width leaves a band above and below the frame.
     ctx.fillStyle = '#eff1ee'
     ctx.fillRect(0, 0, bufW, bufH)
     ctx.drawImage(img, dx, dy, dw, dh)
+
     drawnFrameRef.current = frameIndex
-  }, [resolveFrame])
+    drawnIsExactRef.current = resolved.isExact
+  }, [])
 
-  // Preload frames with bounded concurrency
+  // Preload frames with shared cache
   useEffect(() => {
-    let active = true
-    framesRef.current = new Array(TOTAL_FRAMES)
-    let loadedCount = 0
-
-    const load = (index) =>
-      new Promise((resolve) => {
-        const img = new Image()
-        img.decoding = 'async'
-        img.src = getFrameUrl(index)
-
-        const finish = () => {
-          if (active) {
-            loadedCount++
-            setLoadedPercent(Math.round((loadedCount / TOTAL_FRAMES) * 100))
-          }
-          resolve()
-        }
-
-        const ready = () => {
-          if (!active) return resolve()
-          framesRef.current[index] = img
-          if (index === 0) {
-            setIsReady(true)
-            measure()
-            renderFrame(0)
-          } else if (index === currentFrameRef.current) {
-            renderFrame(index)
-          }
-          finish()
-        }
-
-        const decoded = typeof img.decode === 'function' ? img.decode() : Promise.reject()
-        decoded.then(ready, () => {
-          if (img.complete && img.naturalWidth > 0) {
-            ready()
-          } else {
-            img.onload = ready
-            img.onerror = finish
-          }
-        })
-      })
-
-    let next = 1
-    const worker = async () => {
-      while (active && next < TOTAL_FRAMES) {
-        await load(next++)
+    // 1. First frame painted immediately
+    loadFrame('ticket', 0).then((img) => {
+      if (img) {
+        setIsReady(true)
+        measure()
+        renderFrame(0)
       }
-    }
+    })
 
-    const startBulkPreload = () => {
-      if (!active) return
-      const go = () => {
-        if (!active) return
-        for (let i = 0; i < PRELOAD_CONCURRENCY; i++) worker()
-      }
-      if (typeof requestIdleCallback === 'function') {
-        requestIdleCallback(go, { timeout: 1500 })
-      } else {
-        setTimeout(go, 200)
-      }
-    }
+    // 2. Start background preload
+    const stopBulk = startBulkPreload('ticket', 8)
 
-    // Immediately load first frame to paint without delay
-    load(0).then(() => {
-      if (document.readyState === 'complete') startBulkPreload()
-      else window.addEventListener('load', startBulkPreload, { once: true })
+    // 3. Listen for loaded frames
+    const unsubscribe = subscribeFrames('ticket', (loadedIndex) => {
+      let count = 0
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        if (ticketFrames[i]) count++
+      }
+      setLoadedPercent(Math.round((count / TOTAL_FRAMES) * 100))
+
+      if (!drawnIsExactRef.current || loadedIndex === currentFrameRef.current) {
+        renderFrame(Math.max(0, currentFrameRef.current))
+      }
     })
 
     return () => {
-      active = false
-      window.removeEventListener('load', startBulkPreload)
+      stopBulk()
+      unsubscribe()
     }
   }, [measure, renderFrame])
 
@@ -287,14 +194,9 @@ export default function TicketScrollExperience() {
     }
 
     const tick = () => {
-      if (!running) return
-      rafId = requestAnimationFrame(tick)
-
       const rect = section.getBoundingClientRect()
       const viewportH = window.innerHeight
 
-      // Go transparent a little before the section reaches the top edge, and
-      // back to solid once the section's bottom clears the viewport.
       applyNav(rect.top <= NAV_STAGE_LEAD && rect.bottom >= viewportH)
 
       const totalScrollable = rect.height - viewportH
@@ -305,7 +207,9 @@ export default function TicketScrollExperience() {
 
       if (!sizeRef.current.bufW) measure()
 
-      if (targetIndex !== drawnFrameRef.current) {
+      preloadAround('ticket', targetIndex, 8)
+
+      if (targetIndex !== currentFrameRef.current || !drawnIsExactRef.current) {
         currentFrameRef.current = targetIndex
         renderFrame(targetIndex)
       }
@@ -315,13 +219,9 @@ export default function TicketScrollExperience() {
       }
 
       if (stickyRef.current) {
-        // The copy lands beat by beat as the stub finishes curling, so the
-        // headline, price and CTA arrive in reading order rather than together.
         const sticky = stickyRef.current
         const b = portraitRef.current ? BEATS.portrait : BEATS.landscape
         sticky.style.setProperty('--pass-wait', ease(span(clamped, b.perf[0], b.perf[1])))
-        // Linear, not eased: the per-character stagger supplies its own shape,
-        // and an eased driver on top would rush the last few flaps.
         sticky.style.setProperty('--pass-flip', span(clamped, b.flip[0], b.flip[1]).toFixed(4))
         sticky.style.setProperty('--pass-price', ease(span(clamped, b.price[0], b.price[1])))
         sticky.style.setProperty('--pass-cta', ease(span(clamped, b.cta[0], b.cta[1])))
@@ -329,9 +229,11 @@ export default function TicketScrollExperience() {
 
       const scrolled = clamped > 0.06
       setHasScrolled(scrolled)
-      // Live as soon as the button starts arriving, which portrait reaches much
-      // sooner than landscape.
       setIsEnding(clamped > (portraitRef.current ? BEATS.portrait : BEATS.landscape).cta[0])
+
+      if (running) {
+        rafId = requestAnimationFrame(tick)
+      }
     }
 
     const start = () => {
@@ -343,16 +245,44 @@ export default function TicketScrollExperience() {
     const stop = () => {
       running = false
       cancelAnimationFrame(rafId)
-      // The loop is the only thing that can restore the navbar's solid plate,
-      // so never leave it transparent when we stop ticking.
       applyNav(false)
     }
 
+    const isNearViewport = () => {
+      const rect = section.getBoundingClientRect()
+      const vh = window.innerHeight
+      return rect.top <= vh + 350 && rect.bottom >= -350
+    }
+
+    const handleScroll = () => {
+      if (isNearViewport()) {
+        if (!running) start()
+        else tick()
+      } else if (running) {
+        stop()
+      }
+    }
+
     const observer = new IntersectionObserver(
-      ([entry]) => (entry.isIntersecting ? start() : stop()),
-      { rootMargin: '200px 0px' }
+      ([entry]) => {
+        if (entry.isIntersecting) start()
+        else stop()
+      },
+      { rootMargin: '300px 0px' }
     )
     observer.observe(section)
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    const lenis = getLenis()
+    if (lenis) lenis.on('scroll', handleScroll)
+
+    const handleVisibility = () => {
+      if (!document.hidden && isNearViewport()) {
+        start()
+        tick()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
 
     const handleResize = () => {
       measure()

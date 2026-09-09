@@ -169,7 +169,7 @@ body {
 }
 
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   scrollbar-width: none;
   -ms-overflow-style: none;
   font-family: var(--font-sans);
@@ -988,7 +988,6 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 .btn-price-highlight {
-  /* 🎯 CHANGE PRICE COLOR HERE (Single line): */
   --price-color: #FFB000;
 
   font-size: 1.12em;

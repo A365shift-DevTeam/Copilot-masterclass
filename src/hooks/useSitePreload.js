@@ -1,22 +1,19 @@
 import { useEffect, useState } from 'react'
 import { getLenis } from './useLenis.js'
 import {
-  TOTAL_FRAMES as TICKET_FRAMES,
-  FRAME_BASE as TICKET_BASE,
-} from '../components/TicketScrollExperience.jsx'
-import {
-  TOTAL_FRAMES as SEAT_FRAMES,
-  FRAME_BASE as SEAT_BASE,
-} from '../components/SeatScrollExperience.jsx'
+  TOTAL_TICKET_FRAMES,
+  TOTAL_SEAT_FRAMES,
+  loadFrame,
+} from '../utils/frameCache.js'
 
 // Both scroll stages scrub a decoded frame sequence, so a frame that has not
 // arrived is a visibly stuck animation. They are the whole reason for holding
 // the page: 225 frames, ~15MB together.
-const IMAGES = [
-  ...Array.from({ length: TICKET_FRAMES }, (_, i) => frameUrl(TICKET_BASE, i)),
-  ...Array.from({ length: SEAT_FRAMES }, (_, i) => frameUrl(SEAT_BASE, i)),
-  '/assets/logo-horizontal.png',
-  '/assets/illustration-circuit-large.png',
+const TASKS = [
+  ...Array.from({ length: TOTAL_TICKET_FRAMES }, (_, index) => ({ type: 'ticket', index })),
+  ...Array.from({ length: TOTAL_SEAT_FRAMES }, (_, index) => ({ type: 'seat', index })),
+  { type: 'static', url: '/assets/logo-horizontal.png' },
+  { type: 'static', url: '/assets/illustration-circuit-large.png' },
 ]
 
 // Enough parallelism to saturate a connection without starving the main thread
@@ -25,11 +22,7 @@ const CONCURRENCY = 10
 
 // Nothing may trap the viewer. If an asset hangs past this the page is released
 // regardless and the sections fall back to their own progressive loading.
-const MAX_WAIT_MS = 30000
-
-function frameUrl(base, index) {
-  return `${base}${String(index + 1).padStart(4, '0')}.webp`
-}
+const MAX_WAIT_MS = 25000
 
 /** Resolves on load or error alike: one bad asset must not hold the site. */
 function loadImage(url) {
@@ -87,7 +80,7 @@ export default function useSitePreload() {
 
     // Two extra units so the bar does not sit at 100% while fonts and the
     // document's own load event are still outstanding.
-    const total = IMAGES.length + 2
+    const total = TASKS.length + 2
     let loaded = 0
     const step = () => {
       if (!active) return
@@ -97,9 +90,18 @@ export default function useSitePreload() {
 
     let cursor = 0
     const worker = async () => {
-      while (active && cursor < IMAGES.length) {
-        const url = IMAGES[cursor++]
-        await loadImage(url)
+      while (active && cursor < TASKS.length) {
+        const task = TASKS[cursor++]
+        if (!task) break
+        try {
+          if (task.type === 'static') {
+            await loadImage(task.url)
+          } else {
+            await loadFrame(task.type, task.index)
+          }
+        } catch {
+          // Continue on error
+        }
         step()
       }
     }

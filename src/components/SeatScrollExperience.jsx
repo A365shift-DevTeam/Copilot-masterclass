@@ -1,21 +1,26 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { ArrowDown } from 'lucide-react'
-import { scrollToTarget } from '../hooks/useLenis.js'
+import { scrollToTarget, getLenis } from '../hooks/useLenis.js'
 import GravityStarsBackground from './ui/GravityStarsBackground.jsx'
 import SeatReveal from './SeatReveal.jsx'
+import {
+  TOTAL_SEAT_FRAMES,
+  SEAT_FRAME_BASE,
+  seatFrames,
+  loadFrame,
+  resolveCachedFrame,
+  preloadAround,
+  startBulkPreload,
+  subscribeFrames,
+} from '../utils/frameCache.js'
 
-export const TOTAL_FRAMES = 118
-export const FRAME_BASE = '/frames/seat-scroll/frame_'
-const PRELOAD_CONCURRENCY = 8
+export const TOTAL_FRAMES = TOTAL_SEAT_FRAMES
+export const FRAME_BASE = SEAT_FRAME_BASE
+
 // How far ahead of the section reaching the top edge the navbar starts fading
 // to its transparent state, so the change is settled by the time the stage
 // takes over the screen.
 const NAV_STAGE_LEAD = 160
-
-function getFrameUrl(index) {
-  const pad = String(index + 1).padStart(4, '0')
-  return `${FRAME_BASE}${pad}.webp`
-}
 
 /** Normalised 0-1 position of `p` inside [a, b]. */
 const span = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)))
@@ -34,29 +39,16 @@ export default function SeatScrollExperience({ onBook }) {
   const ctxRef = useRef(null)
   const stickyRef = useRef(null)
   const progressFillRef = useRef(null)
-  const framesRef = useRef([])
-  const currentFrameRef = useRef(-1)
+  const currentFrameRef = useRef(0)
   const drawnFrameRef = useRef(-1)
+  const drawnIsExactRef = useRef(false)
   // Cached canvas geometry so the render loop never forces a layout read
   const sizeRef = useRef({ bufW: 0, bufH: 0 })
   const [loadedPercent, setLoadedPercent] = useState(0)
   const [isReady, setIsReady] = useState(false)
   const [phase, setPhase] = useState({ isStart: true, isEnding: false })
 
-  // Nearest already-decoded frame, so a not-yet-loaded index never stalls the draw
-  const resolveFrame = useCallback((index) => {
-    const frames = framesRef.current
-    if (frames[index]) return frames[index]
-    for (let step = 1; step < TOTAL_FRAMES; step++) {
-      if (frames[index - step]) return frames[index - step]
-      if (frames[index + step]) return frames[index + step]
-    }
-    return null
-  }, [])
-
-  // Recompute the backing-store size. Integer sizes only: `canvas.width` truncates
-  // to an int, so a fractional target would never compare equal and would
-  // reallocate + clear the whole buffer on every single draw.
+  // Recompute the backing-store size.
   const measure = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -65,23 +57,16 @@ export default function SeatScrollExperience({ onBook }) {
     const cssH = rect.height
     if (cssW === 0 || cssH === 0) return
 
-    const img = resolveFrame(0)
+    const resolved = resolveCachedFrame('seat', 0)
+    const img = resolved.img
     const iw = img ? img.naturalWidth : 1280
     const ih = img ? img.naturalHeight : 720
     const imgRatio = iw / ih
     const dpr = Math.min(window.devicePixelRatio || 1, 3)
-    // Match the backing store to the detail the source actually holds. The
-    // frame is scaled to fill the width, so the drawn height follows from that
-    // alone: a wide desktop needs no more than 1x (720p has nothing to put in
-    // extra pixels), while a narrow phone, where the frame lands small, wants
-    // full device resolution.
+
     const drawnHcss = cssW / imgRatio
     const scale = Math.min(dpr, Math.max(1, ih / drawnHcss))
 
-    // Publish the frame's own inset, which the copy block anchors to rather
-    // than the viewport's edge. Filling the width makes the x inset 0 on every
-    // viewport; the y inset is still real on portrait ones, where the frame is
-    // letterboxed top and bottom. Written on resize only, never per frame.
     const sticky = stickyRef.current
     if (sticky) {
       const drawnWcss = drawnHcss * imgRatio
@@ -98,36 +83,27 @@ export default function SeatScrollExperience({ onBook }) {
       canvas.height = bufH
       drawnFrameRef.current = -1
     }
-  }, [resolveFrame])
+  }, [])
 
   const renderFrame = useCallback((frameIndex) => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const img = resolveFrame(frameIndex)
+    const resolved = resolveCachedFrame('seat', frameIndex)
+    const img = resolved.img
     if (!img) return
 
     const { bufW, bufH } = sizeRef.current
     if (!bufW || !bufH) return
 
-    // Context attributes are fixed at first acquisition and getContext returns
-    // the same object forever after, so cache both rather than re-requesting
-    // (and risking a mismatched alpha) on every frame.
     if (!ctxRef.current) ctxRef.current = canvas.getContext('2d')
     const ctx = ctxRef.current
     if (!ctx) return
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = 'high'
 
-    const iw = img.naturalWidth
-    const ih = img.naturalHeight
+    const iw = img.naturalWidth || 1280
+    const ih = img.naturalHeight || 720
 
-    // Scaled to fill the viewport width, in device pixels so nothing gets
-    // scaled twice -- the same fit the ticket stage uses. On viewports wider
-    // than the 16:9 source this is a cover fit: no letterbox band, and the
-    // frame overflows top and bottom. Note these frames carry content close to
-    // every edge (the M365 badge sits 22px from the top, the scroll-prompt
-    // caption 10px from the bottom, in source pixels), so on a short viewport
-    // that overflow does trim them.
     const scale = bufW / iw
     const dw = bufW
     const dh = ih * scale
@@ -136,93 +112,45 @@ export default function SeatScrollExperience({ onBook }) {
 
     ctx.clearRect(0, 0, bufW, bufH)
     ctx.drawImage(img, dx, dy, dw, dh)
+
     drawnFrameRef.current = frameIndex
-  }, [resolveFrame])
+    drawnIsExactRef.current = resolved.isExact
+  }, [])
 
-  // Preload with bounded concurrency and an explicit decode, so the first
-  // drawImage of a frame never triggers a synchronous decode mid-scroll.
+  // Preload and frame synchronization
   useEffect(() => {
-    let active = true
-    framesRef.current = new Array(TOTAL_FRAMES)
-    let loadedCount = 0
-
-    const load = (index) =>
-      new Promise((resolve) => {
-        const img = new Image()
-        img.decoding = 'async'
-        img.src = getFrameUrl(index)
-
-        const finish = () => {
-          if (active) {
-            loadedCount++
-            setLoadedPercent(Math.round((loadedCount / TOTAL_FRAMES) * 100))
-          }
-          resolve()
-        }
-        const ready = () => {
-          if (!active) return resolve()
-          framesRef.current[index] = img
-          if (index === 0) {
-            setIsReady(true)
-            measure()
-            renderFrame(0)
-          } else if (index === currentFrameRef.current) {
-            renderFrame(index)
-          }
-          finish()
-        }
-
-        const decoded = typeof img.decode === 'function' ? img.decode() : Promise.reject()
-        decoded.then(ready, () => {
-          if (img.complete && img.naturalWidth > 0) {
-            ready()
-          } else {
-            img.onload = ready
-            img.onerror = finish
-          }
-        })
-      })
-
-    let next = 1
-    const worker = async () => {
-      while (active && next < TOTAL_FRAMES) {
-        await load(next++)
+    // 1. Immediately ensure first frame is loaded & painted
+    loadFrame('seat', 0).then((img) => {
+      if (img) {
+        setIsReady(true)
+        measure()
+        renderFrame(0)
       }
-    }
+    })
 
-    // Pull the whole set down in the background while the visitor is still up
-    // the page, so the scrub is fully cached before they ever reach it. Held
-    // until after load (and then an idle slot) so 192 requests never compete
-    // with the hero, fonts and first-screen images for bandwidth.
-    const startBulkPreload = () => {
-      if (!active) return
-      const go = () => {
-        if (!active) return
-        for (let i = 0; i < PRELOAD_CONCURRENCY; i++) worker()
-      }
-      if (typeof requestIdleCallback === 'function') {
-        requestIdleCallback(go, { timeout: 2500 })
-      } else {
-        setTimeout(go, 400)
-      }
-    }
+    // 2. Start bulk background loader
+    const stopBulk = startBulkPreload('seat', 8)
 
-    // The first frame is the exception: fetch it straight away so the section
-    // has something to paint the moment it scrolls into view.
-    load(0).then(() => {
-      if (document.readyState === 'complete') startBulkPreload()
-      else window.addEventListener('load', startBulkPreload, { once: true })
+    // 3. Subscribe to newly arrived frames: update progress and re-render if current frame was using a fallback
+    const unsubscribe = subscribeFrames('seat', (loadedIndex) => {
+      let count = 0
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        if (seatFrames[i]) count++
+      }
+      setLoadedPercent(Math.round((count / TOTAL_FRAMES) * 100))
+
+      if (!drawnIsExactRef.current || loadedIndex === currentFrameRef.current) {
+        renderFrame(Math.max(0, currentFrameRef.current))
+      }
     })
 
     return () => {
-      active = false
-      window.removeEventListener('load', startBulkPreload)
+      stopBulk()
+      unsubscribe()
     }
   }, [measure, renderFrame])
 
-  // One rAF loop, gated to when the section is on screen. Reading scroll
-  // position here (rather than in a scroll handler) keeps us off Lenis's write
-  // path and avoids a React re-render on every scroll tick.
+  // Scroll ticker with multi-channel wake-up
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
@@ -239,14 +167,9 @@ export default function SeatScrollExperience({ onBook }) {
     }
 
     const tick = () => {
-      if (!running) return
-      rafId = requestAnimationFrame(tick)
-
       const rect = section.getBoundingClientRect()
       const viewportH = window.innerHeight
 
-      // Go transparent a little before the section reaches the top edge, and
-      // back to solid once the section's bottom clears the viewport.
       applyNav(rect.top <= NAV_STAGE_LEAD && rect.bottom >= viewportH)
 
       const totalScrollable = rect.height - viewportH
@@ -255,11 +178,12 @@ export default function SeatScrollExperience({ onBook }) {
       const clamped = Math.min(1, Math.max(0, -rect.top / totalScrollable))
       const targetIndex = Math.round(clamped * (TOTAL_FRAMES - 1))
 
-      // Insurance: if the mount-time measure() saw a zero-size rect, the canvas
-      // would otherwise stay blank forever.
       if (!sizeRef.current.bufW) measure()
 
-      if (targetIndex !== drawnFrameRef.current) {
+      // Dynamically prioritize loading frames around current scroll position
+      preloadAround('seat', targetIndex, 8)
+
+      if (targetIndex !== currentFrameRef.current || !drawnIsExactRef.current) {
         currentFrameRef.current = targetIndex
         renderFrame(targetIndex)
       }
@@ -268,10 +192,6 @@ export default function SeatScrollExperience({ onBook }) {
         progressFillRef.current.style.transform = `scaleX(${clamped})`
       }
 
-      // Reveal beats for the copy block, staggered so the headline lands, then
-      // the price, then the CTA. Written straight to CSS vars on the sticky
-      // element: no React render per frame, and every var feeds only an
-      // opacity or a transform.
       const sticky = stickyRef.current
       if (sticky) {
         sticky.style.setProperty('--connector', ease(span(clamped, 0.62, 0.76)))
@@ -286,6 +206,10 @@ export default function SeatScrollExperience({ onBook }) {
         lastPhase = { isStart, isEnding }
         setPhase(lastPhase)
       }
+
+      if (running) {
+        rafId = requestAnimationFrame(tick)
+      }
     }
 
     const start = () => {
@@ -293,19 +217,48 @@ export default function SeatScrollExperience({ onBook }) {
       running = true
       rafId = requestAnimationFrame(tick)
     }
+
     const stop = () => {
       running = false
       cancelAnimationFrame(rafId)
-      // The loop is the only thing that can restore the navbar's solid plate,
-      // so never leave it transparent when we stop ticking.
       applyNav(false)
     }
 
+    const isNearViewport = () => {
+      const rect = section.getBoundingClientRect()
+      const vh = window.innerHeight
+      return rect.top <= vh + 350 && rect.bottom >= -350
+    }
+
+    const handleScroll = () => {
+      if (isNearViewport()) {
+        if (!running) start()
+        else tick()
+      } else if (running) {
+        stop()
+      }
+    }
+
     const observer = new IntersectionObserver(
-      ([entry]) => (entry.isIntersecting ? start() : stop()),
-      { rootMargin: '200px 0px' }
+      ([entry]) => {
+        if (entry.isIntersecting) start()
+        else stop()
+      },
+      { rootMargin: '300px 0px' }
     )
     observer.observe(section)
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    const lenis = getLenis()
+    if (lenis) lenis.on('scroll', handleScroll)
+
+    const handleVisibility = () => {
+      if (!document.hidden && isNearViewport()) {
+        start()
+        tick()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
 
     const handleResize = () => {
       measure()
@@ -319,6 +272,9 @@ export default function SeatScrollExperience({ onBook }) {
     return () => {
       observer.disconnect()
       stop()
+      window.removeEventListener('scroll', handleScroll)
+      if (lenis) lenis.off('scroll', handleScroll)
+      document.removeEventListener('visibilitychange', handleVisibility)
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('orientationchange', handleResize)
     }
