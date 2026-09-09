@@ -58,7 +58,7 @@ export default function Hero() {
           <p className="hero__quote" aria-label="“AI won’t replace you. Someone using AI will.”">
             <span className="hero__quote-line">“AI won’t replace you.</span>
             <span className="hero__quote-line hero__quote-line--typed">
-              <span className="hero__quote-gradient">{displayedText}</span>
+              <span className="hero__quote-gradient">{displayedText || '\u200B'}</span>
               <span className="hero__cursor" aria-hidden="true" />
             </span>
           </p>
@@ -77,7 +77,7 @@ export default function Hero() {
 
           <div className="hero__ctas">
             <a href="#register" className="btn-primary">
-              “Reserve your seat for just <span className="btn-price-highlight"> ₹499</span>”
+              “Reserve your seat for just ₹499”
               <span className="btn-shine" />
             </a>
             {/* <a href="#agenda" className="btn-outline">View Webinar Agenda</a> */}
