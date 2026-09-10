@@ -30,8 +30,9 @@ const RISE = 170
 const CHECKPOINTS = [0.22, 0.44, 0.66, 0.86]
 const STEP_START = [0.06, 0.28, 0.5, 0.72]
 const STEP_WINDOW = 0.16
-// Alternate short and long stems so neighbouring labels sit in different bands.
-const STEM = [26, 42, 26, 42]
+// Stems grow left to right. Each label's neighbour sits one rise-step further
+// out along the ribbon, so a longer stem keeps every label in its own band.
+const STEM = [20, 32, 44, 56]
 
 const px = (v) => `${(v / 10).toFixed(2)}%`
 const py = (v) => `${((v / 520) * 100).toFixed(2)}%`

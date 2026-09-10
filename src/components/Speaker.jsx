@@ -7,7 +7,6 @@ export default function Speaker() {
 
   return (
     <section id="speaker" className="speaker-section">
-      <img className="speaker-section__circuit" src="/assets/illustration-circuit-large.png" alt="" aria-hidden="true" />
       <svg className="speaker-section__svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
         <g stroke="#308BAF" strokeWidth="1" fill="none" strokeOpacity="0.55">
           <path d="M40 340 H180 V220 H320 V120 H520 V240 H700" />

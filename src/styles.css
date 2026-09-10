@@ -1385,7 +1385,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   white-space: nowrap;
 }
 .fork__axis--start { right: calc(92% + 14px); }
-.fork__axis--end { left: calc(90% + 14px); }
+.fork__axis--end { right: 0; text-align: right; }
 .fork__origin {
   position: absolute; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%);
   background: var(--fork-card); border: 2.5px solid var(--fork-ink-3);
@@ -1398,8 +1398,8 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 /* Checkpoints: a node on the ribbon, a label held off it by a stem whose
-   length alternates (see STEM in Benefits.jsx) so neighbours never share a
-   band. Labels sit on the outer side of each ribbon; travellers ride the inner. */
+   length grows along the ribbon (see STEM in Benefits.jsx) so neighbours
+   never share a band. Labels sit on the outer side of each ribbon; travellers ride the inner. */
 .fork__step {
   --on: clamp(0, (var(--p) - var(--start)) / var(--window), 1);
   position: absolute; width: 0; height: 0; z-index: 2;
@@ -1515,10 +1515,6 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   position: relative; overflow: hidden; color: #fff;
   background: linear-gradient(150deg, #1A3E4C, #112831);
   padding: var(--section-pad);
-}
-.speaker-section__circuit {
-  position: absolute; right: -4%; bottom: -8%; width: min(620px, 58%);
-  opacity: 0.22; pointer-events: none; mix-blend-mode: screen;
 }
 .speaker-section__svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .28; pointer-events: none; }
 .speaker-grid {
@@ -2272,7 +2268,6 @@ html[data-theme="light"] .speaker-section {
   background: linear-gradient(150deg, #F1F6F9, #F7FAFB);
 }
 /* screen blending only lifts a dark ground; on light it washes out */
-html[data-theme="light"] .speaker-section__circuit { mix-blend-mode: multiply; opacity: 0.14; }
 html[data-theme="light"] .speaker-section__svg { opacity: 0.16; }
 html[data-theme="light"] .speaker-photo {
   border: 1px solid var(--ref-card-line); background: #FFFFFF;

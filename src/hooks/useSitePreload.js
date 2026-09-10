@@ -16,7 +16,6 @@ const IMAGES = [
   ...Array.from({ length: TICKET_FRAMES }, (_, i) => frameUrl(TICKET_BASE, i)),
   ...Array.from({ length: SEAT_FRAMES }, (_, i) => frameUrl(SEAT_BASE, i)),
   '/assets/logo-horizontal.png',
-  '/assets/illustration-circuit-large.png',
 ]
 
 // Enough parallelism to saturate a connection without starving the main thread
