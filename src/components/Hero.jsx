@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import CopilotOrbit from './CopilotOrbit.jsx'
+import ReserveSeatLabel from './ReserveSeatLabel.jsx'
 import { HERO_CHECKS, HERO_TITLE_PHRASES } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 
@@ -90,7 +91,7 @@ export default function Hero() {
 
           <div className="hero__ctas">
             <a href="#register" className="btn-primary" onClick={handleBtnClick}>
-              “Reserve your seat for just{' '}<span className="btn-price-highlight">₹499</span>”
+              <ReserveSeatLabel />
               <span className="btn-shine" />
             </a>
             {/* <a href="#agenda" className="btn-outline">View Webinar Agenda</a> */}

@@ -1,4 +1,5 @@
 import { scrollToTarget } from '../hooks/useLenis.js'
+import ReserveSeatLabel from './ReserveSeatLabel.jsx'
 import './seat-reveal.css'
 
 /**
@@ -6,7 +7,7 @@ import './seat-reveal.css'
  * the end: "YOUR SEAT IS WAITING", the price, and the real CTA.
  *
  * These used to be baked into the video frames. They are now real DOM, so the
- * headline is selectable, the price is readable by a screen reader and BOOK NOW
+ * headline is selectable, the price is readable by a screen reader and the CTA
  * is a genuine focusable <button>.
  *
  * Reveal timing is driven by --wait / --price / --cta / --connector, written
@@ -46,9 +47,9 @@ export default function SeatReveal({ onBook, tabbable = false, amount = 499 }) {
           className="seat-reveal__cta"
           onClick={openBookingModal}
           tabIndex={tabbable ? 0 : -1}
-          aria-label={`Book now — reserve your seat for ₹${amount}`}
+          aria-label={`Reserve your seat for just ₹${amount}`}
         >
-          <span>Book Now</span>
+          <span><ReserveSeatLabel amount={amount} /></span>
           {/* The site's existing sweep, same as the hero's "Reserve My Seat" */}
           <span className="btn-shine" aria-hidden="true" />
         </button>

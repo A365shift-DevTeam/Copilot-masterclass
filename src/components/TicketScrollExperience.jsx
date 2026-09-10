@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { scrollToTarget, getLenis } from '../hooks/useLenis.js'
 import useTypewriter from '../hooks/useTypewriter.js'
+import ReserveSeatLabel from './ReserveSeatLabel.jsx'
 import './ticket-scroll.css'
 import {
   TOTAL_TICKET_FRAMES,
@@ -420,13 +421,13 @@ export default function TicketScrollExperience() {
             href="#register"
             className="ticket-scroll-cta"
             tabIndex={isEnding ? 0 : -1}
-            aria-label={`Book now — reserve your seat for ₹${PASS_PRICE}`}
+            aria-label={`Reserve your seat for just ₹${PASS_PRICE}`}
             onClick={(e) => {
               e.preventDefault()
               scrollToTarget('#register', -20)
             }}
           >
-            <span>Book Now</span>
+            <span><ReserveSeatLabel amount={PASS_PRICE} /></span>
             <span className="btn-shine" aria-hidden="true" />
           </a>
         </div>

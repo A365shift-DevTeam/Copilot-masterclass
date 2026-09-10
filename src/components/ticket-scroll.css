@@ -263,10 +263,12 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   z-index: 6;
   top: 50%;
   /* The frame is scaled to fill the width, so its internal layout is identical
-     at every viewport width and a proportional anchor keeps the copy in the
-     stage clear of the pass rather than drifting onto it. */
-  right: clamp(20px, 7vw, 150px);
-  max-width: min(30vw, 460px);
+     at every viewport width. The pass and its torn roll end at ~73% of that
+     width, so the column is bounded on both sides: anchoring it only to the
+     right gutter let a wide CTA grow back leftwards over the roll. */
+  left: 74%;
+  right: clamp(16px, 2.4vw, 48px);
+  --pass-copy-indent: clamp(18px, 2.8vw, 56px);
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
@@ -305,8 +307,10 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   background: var(--ref-navy, #002060);
 }
 
+/* Indented off the column's left edge, which the CTA pill below still keeps, so
+   the copy clears the dotted leader's dot and sits inboard of the pill. */
 .ticket-scroll-reveal__headline {
-  margin: 0;
+  margin: 0 0 0 var(--pass-copy-indent);
   display: flex;
   flex-direction: column;
   color: var(--ref-navy, #002060);
@@ -342,7 +346,7 @@ html[data-theme="dark"] .ticket-scroll-sticky {
    a few degrees, then lands square as the beat closes. */
 .ticket-scroll-reveal__price {
   position: relative;
-  margin: 0;
+  margin: 0 0 0 var(--pass-copy-indent);
   display: flex;
   align-items: baseline;
   gap: clamp(5px, 0.7vw, 11px);
@@ -376,8 +380,9 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   transform: scale(calc(0.82 + var(--pass-price, 0) * 0.34));
 }
 
-/* Same teal-to-green ramp and uppercase sweep as the seat section's BOOK NOW,
-   so the two reveals read as one pair. */
+/* The hero's "Reserve your seat" pill, wearing this stage's reveal mechanics.
+   Sentence case with no tracking, so it matches the hero and the seat reveal
+   rather than the uppercase BOOK NOW it replaced. */
 .ticket-scroll-cta {
   position: relative;
   /* Clips the .btn-shine sweep to the pill */
@@ -385,16 +390,17 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   margin-top: clamp(6px, 1.2vh, 16px);
   display: inline-flex;
   align-items: center;
-  padding: clamp(10px, 1.3vh, 16px) clamp(20px, 2.6vw, 42px);
+  justify-content: center;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: clamp(10px, 1.3vh, 16px) clamp(16px, 2vw, 34px);
   border: 0;
   border-radius: 999px;
   background-image: linear-gradient(to right, #4d9a9c, #64a75c);
   color: #ffffff;
   font-family: var(--font-display, 'Poppins', sans-serif);
-  font-size: clamp(12px, 1.3vw, 21px);
+  font-size: clamp(11px, 1vw, 16px);
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -477,7 +483,12 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   .ticket-scroll-reveal {
     top: calc(var(--pass-frame-bottom, 55%) + (100% - var(--pass-frame-bottom, 55%)) / 2);
     bottom: auto;
+    /* Released, or it would win over the right/width pair set here and the
+       block would stay pinned to the landscape column. */
+    left: auto;
     right: 50%;
+    /* The block is centred here, so an indent would just knock it off centre. */
+    --pass-copy-indent: 0px;
     width: 90%;
     max-width: 360px;
     transform: translate(50%, -50%);

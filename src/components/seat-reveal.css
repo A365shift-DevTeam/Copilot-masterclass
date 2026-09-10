@@ -110,10 +110,8 @@
   background-image: var(--cta-gradient);
   color: var(--color-neutral-50);
   font-family: var(--font-display);
-  font-size: clamp(14px, 1.5vw, 25px);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: clamp(13px, 1.2vw, 20px);
+  font-weight: var(--font-weight-bold, 700);
   white-space: nowrap;
   cursor: pointer;
   box-shadow: 0 14px 38px rgba(0, 0, 0, 0.45),
@@ -184,10 +182,12 @@
     gap: 6px;
   }
 
+  /* The label is a full sentence rather than the two words it replaced, so it
+     is stepped down to stay on one line inside the fixed pill width. */
   .seat-reveal__cta {
     width: min(85vw, 300px);
-    padding: clamp(11px, 1.4vh, 15px) 24px;
-    font-size: clamp(13px, 3.8vw, 16px);
+    padding: clamp(11px, 1.4vh, 15px) 18px;
+    font-size: clamp(12px, 3.2vw, 14px);
     margin-top: clamp(6px, 1vh, 12px);
   }
 }
