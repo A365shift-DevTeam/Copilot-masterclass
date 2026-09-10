@@ -36,7 +36,6 @@ const SEAT_RUNGS = 16
 const TASKS = [
   ...ladderIndices('ticket', TICKET_RUNGS).map((index) => ({ type: 'ticket', index })),
   { type: 'static', url: '/assets/logo-horizontal.png' },
-  { type: 'static', url: '/assets/illustration-circuit-large.png' },
 ]
 
 // Enough parallelism to saturate a connection without starving the main thread
