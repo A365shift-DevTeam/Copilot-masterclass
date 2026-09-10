@@ -5,7 +5,6 @@ import GravityStarsBackground from './ui/GravityStarsBackground.jsx'
 import SeatReveal from './SeatReveal.jsx'
 import {
   TOTAL_SEAT_FRAMES,
-  SEAT_FRAME_BASE,
   seatFrames,
   loadFrame,
   resolveCachedFrame,
@@ -15,7 +14,6 @@ import {
 } from '../utils/frameCache.js'
 
 export const TOTAL_FRAMES = TOTAL_SEAT_FRAMES
-export const FRAME_BASE = SEAT_FRAME_BASE
 
 // How far ahead of the section reaching the top edge the navbar starts fading
 // to its transparent state, so the change is settled by the time the stage
@@ -128,8 +126,9 @@ export default function SeatScrollExperience({ onBook }) {
       }
     })
 
-    // 2. Start bulk background loader
-    const stopBulk = startBulkPreload('seat', 8)
+    // 2. Bulk loading is deferred until the section nears the viewport; see the
+    //    scroll ticker below. Pulling the whole sequence on mount cost every
+    //    visitor the download whether or not they ever scrolled this far.
 
     // 3. Subscribe to newly arrived frames: update progress and re-render if current frame was using a fallback
     const unsubscribe = subscribeFrames('seat', (loadedIndex) => {
@@ -144,10 +143,7 @@ export default function SeatScrollExperience({ onBook }) {
       }
     })
 
-    return () => {
-      stopBulk()
-      unsubscribe()
-    }
+    return unsubscribe
   }, [measure, renderFrame])
 
   // Scroll ticker with multi-channel wake-up
@@ -159,6 +155,7 @@ export default function SeatScrollExperience({ onBook }) {
     let running = false
     let lastPhase = { isStart: true, isEnding: false }
     let navOverStage = false
+    let stopBulk = null
 
     const applyNav = (over) => {
       if (over === navOverStage) return
@@ -171,6 +168,12 @@ export default function SeatScrollExperience({ onBook }) {
       const viewportH = window.innerHeight
 
       applyNav(rect.top <= NAV_STAGE_LEAD && rect.bottom >= viewportH)
+
+      // Fill the rest of the sequence once the stage is genuinely on screen,
+      // not on the observer's 300px lead. Mirrors the ticket stage.
+      if (!stopBulk && rect.top < viewportH && rect.bottom > 0) {
+        stopBulk = startBulkPreload('seat', 8)
+      }
 
       const totalScrollable = rect.height - viewportH
       if (totalScrollable <= 0) return
@@ -272,6 +275,7 @@ export default function SeatScrollExperience({ onBook }) {
     return () => {
       observer.disconnect()
       stop()
+      if (stopBulk) stopBulk()
       window.removeEventListener('scroll', handleScroll)
       if (lenis) lenis.off('scroll', handleScroll)
       document.removeEventListener('visibilitychange', handleVisibility)

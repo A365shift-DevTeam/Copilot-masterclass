@@ -7,11 +7,23 @@ import {
 } from '../utils/frameCache.js'
 
 // Both scroll stages scrub a decoded frame sequence, so a frame that has not
-// arrived is a visibly stuck animation. They are the whole reason for holding
-// the page: 225 frames, ~15MB together.
+// arrived is a visibly stuck animation. Holding the page on all 225 of them was
+// ~13MB before the viewer saw anything, and on a slow connection that overran
+// MAX_WAIT_MS anyway: the visitor paid the bytes and still got released early.
+//
+// So the hold now covers only the opening frames of each stage. The rest is
+// covered by machinery that already exists: startBulkPreload fires when a
+// section nears the viewport, preloadAround keeps a radius of 8 warm during the
+// scrub, and resolveCachedFrame falls back to the nearest decoded frame so a
+// gap slows the animation rather than blanking it.
+const LEAD_IN_FRAMES = 24
+
+const leadIn = (type, total) =>
+  Array.from({ length: Math.min(LEAD_IN_FRAMES, total) }, (_, index) => ({ type, index }))
+
 const TASKS = [
-  ...Array.from({ length: TOTAL_TICKET_FRAMES }, (_, index) => ({ type: 'ticket', index })),
-  ...Array.from({ length: TOTAL_SEAT_FRAMES }, (_, index) => ({ type: 'seat', index })),
+  ...leadIn('ticket', TOTAL_TICKET_FRAMES),
+  ...leadIn('seat', TOTAL_SEAT_FRAMES),
   { type: 'static', url: '/assets/logo-horizontal.png' },
   { type: 'static', url: '/assets/illustration-circuit-large.png' },
 ]

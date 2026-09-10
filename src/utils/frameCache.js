@@ -4,10 +4,7 @@
  */
 
 export const TOTAL_SEAT_FRAMES = 118
-export const SEAT_FRAME_BASE = '/frames/seat-scroll/frame_'
-
 export const TOTAL_TICKET_FRAMES = 107
-export const TICKET_FRAME_BASE = '/frames/ticket-scroll/frame_'
 
 export const seatFrames = new Array(TOTAL_SEAT_FRAMES)
 export const ticketFrames = new Array(TOTAL_TICKET_FRAMES)
@@ -18,14 +15,47 @@ const ticketPromises = new Map()
 const seatListeners = new Set()
 const ticketListeners = new Set()
 
+/*
+ * Frames are served from Cloudinary so the sequences stay out of the deploy and
+ * come off a CDN edge sized for the device.
+ *
+ * There is no local fallback: public/frames was deleted once the upload was
+ * verified. Re-run `npm run upload:frames` after regenerating frames, and see
+ * scripts/upload-frames-cloudinary.mjs for the public-ID scheme these URLs
+ * assume (folder/frame_0001, no extension, no random suffix).
+ */
+const CLOUD_NAME = import.meta.env?.VITE_CLOUDINARY_CLOUD_NAME || 'dghhdz3et'
+
+export const SEAT_CLOUD_FOLDER = 'seat-frames'
+export const TICKET_CLOUD_FOLDER = 'ticket-frames'
+
+const WIDTH_BUCKETS = [640, 960, 1280, 1600, 1920]
+
+/*
+ * Resolved once, at module load, and never recomputed. A bucket that shifted on
+ * resize would orphan every frame already in the cache and pull the whole
+ * sequence down again at the new width.
+ */
+const FRAME_WIDTH = (() => {
+  if (typeof window === 'undefined') return 1920
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
+  const needed = Math.ceil(window.innerWidth * dpr)
+  return WIDTH_BUCKETS.find((w) => w >= needed) || 1920
+})()
+
+// c_limit never upscales, so a bucket wider than the 1920px source costs nothing.
+const DELIVERY = `f_auto,q_auto:good,c_limit,w_${FRAME_WIDTH}`
+
+function cloudFrameUrl(folder, pad) {
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${DELIVERY}/${folder}/frame_${pad}`
+}
+
 export function getSeatFrameUrl(index) {
-  const pad = String(index + 1).padStart(4, '0')
-  return `${SEAT_FRAME_BASE}${pad}.webp`
+  return cloudFrameUrl(SEAT_CLOUD_FOLDER, String(index + 1).padStart(4, '0'))
 }
 
 export function getTicketFrameUrl(index) {
-  const pad = String(index + 1).padStart(4, '0')
-  return `${TICKET_FRAME_BASE}${pad}.webp`
+  return cloudFrameUrl(TICKET_CLOUD_FOLDER, String(index + 1).padStart(4, '0'))
 }
 
 /**

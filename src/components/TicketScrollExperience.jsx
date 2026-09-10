@@ -3,7 +3,6 @@ import { scrollToTarget, getLenis } from '../hooks/useLenis.js'
 import './ticket-scroll.css'
 import {
   TOTAL_TICKET_FRAMES,
-  TICKET_FRAME_BASE,
   ticketFrames,
   loadFrame,
   resolveCachedFrame,
@@ -13,7 +12,6 @@ import {
 } from '../utils/frameCache.js'
 
 export const TOTAL_FRAMES = TOTAL_TICKET_FRAMES
-export const FRAME_BASE = TICKET_FRAME_BASE
 
 // How far ahead of the section reaching the top edge the navbar starts fading
 // to its transparent state, so the change is settled by the time the pass
@@ -156,8 +154,9 @@ export default function TicketScrollExperience() {
       }
     })
 
-    // 2. Start background preload
-    const stopBulk = startBulkPreload('ticket', 8)
+    // 2. Bulk loading is deferred until the section nears the viewport; see the
+    //    scroll ticker below. Pulling the whole sequence on mount cost every
+    //    visitor the download whether or not they ever scrolled this far.
 
     // 3. Listen for loaded frames
     const unsubscribe = subscribeFrames('ticket', (loadedIndex) => {
@@ -172,10 +171,7 @@ export default function TicketScrollExperience() {
       }
     })
 
-    return () => {
-      stopBulk()
-      unsubscribe()
-    }
+    return unsubscribe
   }, [measure, renderFrame])
 
   // Scroll ticker
@@ -186,6 +182,7 @@ export default function TicketScrollExperience() {
     let rafId = 0
     let running = false
     let navOverPass = false
+    let stopBulk = null
 
     const applyNav = (over) => {
       if (over === navOverPass) return
@@ -198,6 +195,14 @@ export default function TicketScrollExperience() {
       const viewportH = window.innerHeight
 
       applyNav(rect.top <= NAV_STAGE_LEAD && rect.bottom >= viewportH)
+
+      // Fill the rest of the sequence once the stage is genuinely on screen.
+      // The observer starts this ticker 300px early, but the pass sits directly
+      // below the fold, so bulk-loading on that margin would pull all 107
+      // frames before the viewer has scrolled at all.
+      if (!stopBulk && rect.top < viewportH && rect.bottom > 0) {
+        stopBulk = startBulkPreload('ticket', 8)
+      }
 
       const totalScrollable = rect.height - viewportH
       if (totalScrollable <= 0) return
@@ -296,6 +301,7 @@ export default function TicketScrollExperience() {
     return () => {
       observer.disconnect()
       stop()
+      if (stopBulk) stopBulk()
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('orientationchange', handleResize)
     }
