@@ -1,50 +1,74 @@
 /**
- * The Copilot Studio agent card, wired to the Microsoft apps it reads from and
- * acts through.
+ * The Copilot Studio diagram: how an agent gets built, and which Microsoft
+ * apps it reads from and acts through once it is.
  *
- * Ported from the AgentAnimation.tsx drop-in: the source used Tailwind and
- * motion/react, neither of which this project carries, so the float, the
- * breathing glow and the capability ping are CSS keyframes and every colour
- * comes from the design system (green/teal, not the original cyan/purple).
- * Tracks and photons are driven by CSS custom properties so the light theme
- * can restate them without a second copy of the SVG.
+ * The panel walks the four build steps in the design system's green; the
+ * footer timeline fills in as the walkthrough advances. Step N also lights
+ * row N of the circuit (one chip each side, with its track and port), so the
+ * apps walk down in time with the steps. Everything on a row carries
+ * `agent-r{N}` and the block carries `data-step`; the CSS pairs them.
  *
- * Geometry lives in one place. NODES carries viewBox coordinates; the SVG uses
- * them directly and the app chips are positioned by converting the same
- * numbers to percentages, so a track always ends where its icon sits.
+ * Geometry lives in one place. The stage is 62% wide and centred, so each
+ * gutter is 19%; the app chips sit at 7.5% from the outer edge and the tracks
+ * bridge from the chip to the panel. TRACKS is in viewBox units (1000 x 1000
+ * = 100% x 100% of the block) and the chips and port dots are HTML positioned
+ * from the same numbers, so a track always ends where its chip sits.
  */
 import { useEffect, useState } from 'react'
-import { Clock, Database, MessageSquare, Zap } from 'lucide-react'
-import { AGENT_CAPS } from '../../data/content.js'
+import { Clock, Database, FileSliders, UserRoundPlus } from 'lucide-react'
+import { AGENT_APPS, AGENT_HEADER, AGENT_STEPS } from '../../data/content.js'
 
 // Same icon source as the hero orbit, with the same mono-letter fallback.
 const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
 
-const VB = { w: 800, h: 520 }
-
 const ICONS = {
-  data: Database,
-  ask: MessageSquare,
-  act: Zap,
-  always: Clock,
+  create: UserRoundPlus,
+  knowledge: Database,
+  instruct: FileSliders,
+  work: Clock,
 }
 
-/**
- * Left = what the agent reads. Right = how it acts. `track` runs from the chip
- * edge to the panel edge (x 168 / 632 = the 21% gutters set in CSS); photons
- * follow it in path order, so the left three flow inward and the right three
- * flow out.
- */
-const NODES = [
-  { id: 'sharepoint', name: 'SharePoint', mono: 'S', file: 'microsoft-365/sharepoint.svg', side: 'in', x: 52, y: 110, dur: 2.2, track: 'M 84 110 L 120 110 L 120 150 L 164 150' },
-  { id: 'onedrive', name: 'OneDrive', mono: 'D', file: 'microsoft-365/onedrive.svg', side: 'in', x: 52, y: 260, dur: 1.8, track: 'M 84 260 L 164 260' },
-  { id: 'excel', name: 'Excel', mono: 'X', file: 'microsoft-365/excel.svg', side: 'in', x: 52, y: 410, dur: 2.4, track: 'M 84 410 L 120 410 L 120 370 L 164 370' },
-  { id: 'teams', name: 'Teams', mono: 'T', file: 'microsoft-365/teams.svg', side: 'out', x: 748, y: 110, dur: 2.0, track: 'M 636 150 L 680 150 L 680 110 L 716 110' },
-  { id: 'outlook', name: 'Outlook', mono: 'O', file: 'microsoft-365/outlook.svg', side: 'out', x: 748, y: 260, dur: 1.7, track: 'M 636 260 L 716 260' },
-  { id: 'powerautomate', name: 'Power Automate', mono: 'U', file: 'power-platform/power-automate.svg', side: 'out', x: 748, y: 410, dur: 2.3, track: 'M 636 370 L 680 370 L 680 410 L 716 410' },
-]
+// How long each step stays lit. The finished agent holds a beat longer.
+const HOLD = [2400, 2800, 2400, 3400]
 
-const pct = (v, total) => `${((v / total) * 100).toFixed(3)}%`
+/**
+ * Row centres (y) and the short elbowed bridge from chip to panel edge. Outer
+ * rows bend inward so the four tracks fan into the panel instead of hitting
+ * it as a flat comb. Mirrored for the right side.
+ */
+const ROWS = [
+  { y: 160, to: 200 },
+  { y: 387, to: 405 },
+  { y: 613, to: 595 },
+  { y: 840, to: 800 },
+]
+const CHIP_X = 75 // chip centre, 7.5% in from the outer edge
+const CHIP_EDGE = 112 // where the track leaves the chip
+const PANEL_EDGE = 190 // stage starts at 19%
+const ELBOW = 150
+
+const trackFor = (side, row) => {
+  const { y, to } = ROWS[row]
+  if (side === 'in') return `M ${CHIP_EDGE} ${y} L ${ELBOW} ${y} L ${ELBOW} ${to} L ${PANEL_EDGE} ${to}`
+  const m = (x) => 1000 - x
+  return `M ${m(PANEL_EDGE)} ${to} L ${m(ELBOW)} ${to} L ${m(ELBOW)} ${y} L ${m(CHIP_EDGE)} ${y}`
+}
+
+const pct = (v) => `${(v / 10).toFixed(2)}%`
+
+const NODES = AGENT_APPS.map((app) => {
+  const row = AGENT_APPS.filter((a) => a.side === app.side).indexOf(app)
+  const { y, to } = ROWS[row]
+  return {
+    ...app,
+    row: row + 1,
+    x: app.side === 'in' ? CHIP_X : 1000 - CHIP_X,
+    y,
+    track: trackFor(app.side, row),
+    port: { x: app.side === 'in' ? PANEL_EDGE : 1000 - PANEL_EDGE, y: to },
+    dur: [2.2, 1.8, 2.4, 2.0][row] + (app.side === 'out' ? 0.3 : 0),
+  }
+})
 
 function CdnIcon({ file, alt, mono }) {
   const [failed, setFailed] = useState(false)
@@ -55,12 +79,8 @@ function CdnIcon({ file, alt, mono }) {
 function AppChip({ node, index }) {
   return (
     <span
-      className={`agent-anim__app agent-anim__app--${node.side}`}
-      style={{
-        left: pct(node.x, VB.w),
-        top: pct(node.y, VB.h),
-        animationDelay: `${index * 0.45}s`,
-      }}
+      className={`agent-app agent-app--${node.side} agent-r${node.row}`}
+      style={{ '--x': pct(node.x), '--y': pct(node.y), '--delay': `${index * 0.4}s` }}
       title={node.name}
     >
       <CdnIcon file={node.file} alt={node.name} mono={node.mono} />
@@ -68,10 +88,10 @@ function AppChip({ node, index }) {
   )
 }
 
-export default function AgentAnimation({ roleTitle = 'Customer Support Agent', speed = 1 }) {
-  const [activeCap, setActiveCap] = useState(0)
+export default function AgentAnimation({ speed = 1 }) {
+  const [active, setActive] = useState(0)
   // The stylesheet's reduced-motion rule only reaches CSS animations, so the
-  // cycling highlight and the SMIL photons are gated here as well.
+  // step walkthrough and the SMIL photons are gated here as well.
   const [reduced, setReduced] = useState(false)
 
   useEffect(() => {
@@ -84,19 +104,22 @@ export default function AgentAnimation({ roleTitle = 'Customer Support Agent', s
 
   useEffect(() => {
     if (reduced) return
-    const id = setInterval(() => {
-      setActiveCap((prev) => (prev + 1) % AGENT_CAPS.length)
-    }, 2400 / speed)
-    return () => clearInterval(id)
-  }, [speed, reduced])
+    const id = setTimeout(() => {
+      setActive((prev) => (prev + 1) % AGENT_STEPS.length)
+    }, HOLD[active] / speed)
+    return () => clearTimeout(id)
+  }, [active, speed, reduced])
+
+  // 0 lights nothing: the static state when motion is off.
+  const step = reduced ? 0 : active + 1
 
   return (
-    <div className="agent-anim">
+    <div className="agent-anim" data-step={step}>
       <span className="agent-anim__glow" aria-hidden="true" />
 
       <svg
         className="agent-anim__circuit"
-        viewBox={`0 0 ${VB.w} ${VB.h}`}
+        viewBox="0 0 1000 1000"
         preserveAspectRatio="none"
         aria-hidden="true"
         focusable="false"
@@ -114,7 +137,7 @@ export default function AgentAnimation({ roleTitle = 'Customer Support Agent', s
         {NODES.map((n) => (
           <path
             key={n.id}
-            className={`agent-anim__track agent-anim__track--${n.side}`}
+            className={`agent-anim__track agent-anim__track--${n.side} agent-r${n.row}`}
             d={n.track}
             fill="none"
             vectorEffect="non-scaling-stroke"
@@ -124,8 +147,8 @@ export default function AgentAnimation({ roleTitle = 'Customer Support Agent', s
         {!reduced && NODES.map((n) => (
           <circle
             key={`photon-${n.id}`}
-            className={`agent-anim__photon agent-anim__photon--${n.side}`}
-            r="4.5"
+            className={`agent-anim__photon agent-anim__photon--${n.side} agent-r${n.row}`}
+            r="4"
             filter="url(#agentPhotonGlow)"
           >
             <animateMotion dur={`${(n.dur / speed).toFixed(2)}s`} repeatCount="indefinite" path={n.track} />
@@ -133,33 +156,81 @@ export default function AgentAnimation({ roleTitle = 'Customer Support Agent', s
         ))}
       </svg>
 
-      {NODES.map((n, i) => (
-        <AppChip key={n.id} node={n} index={i} />
+      {NODES.map((n) => (
+        <i
+          key={`${n.id}-port`}
+          className={`agent-port agent-port--${n.side} agent-r${n.row}`}
+          style={{ left: pct(n.port.x), top: pct(n.port.y) }}
+          aria-hidden="true"
+        />
       ))}
 
-      <div className="agent-panel">
-        <div className="agent-panel__head">
-          <span className="agent-panel__avatar">
+      <div className="agent-stage">
+        <div className="agent-pill">
+          <span className="agent-pill__avatar">
             <CdnIcon file="copilot/copilot-365.svg" alt="Microsoft Copilot" mono="C" />
           </span>
-          <span className="agent-panel__name">{roleTitle}</span>
+          <span className="agent-pill__text">
+            <span className="agent-pill__name">{AGENT_HEADER.name}</span>
+            <span className="agent-pill__tag">{AGENT_HEADER.tagline}</span>
+          </span>
         </div>
 
-        <div className="agent-panel__caps">
-          {AGENT_CAPS.map((cap, i) => {
-            const Icon = ICONS[cap.icon]
-            const active = activeCap === i
-            return (
-              <div key={cap.t} className={`agent-cap${active ? ' agent-cap--active' : ''}`}>
-                <Icon className="agent-cap__icon" strokeWidth={1.9} aria-hidden="true" />
-                <span className="agent-cap__label">{cap.t}</span>
-                {active && <i className="agent-cap__ping" />}
-              </div>
-            )
-          })}
-        </div>
+        <div className="agent-panel">
+          <h3 className="agent-panel__title">
+            Build Your Copilot Agent <span className="text-gradient">in 4 Steps</span>
+          </h3>
+          <p className="agent-panel__sub">From idea to impact — in minutes</p>
 
-        <div className="agent-anim__ready">Your AI Agent is Ready!</div>
+          <ol className="agent-steps">
+            {AGENT_STEPS.map((step, i) => {
+              const Icon = ICONS[step.icon]
+              const isActive = active === i
+              return (
+                <li
+                  key={step.n}
+                  className={`agent-step${isActive ? ' agent-step--active' : ''}`}
+                  aria-current={isActive ? 'step' : undefined}
+                >
+                  <span className="agent-step__n">{step.n}</span>
+                  <span className="agent-step__icon">
+                    <Icon strokeWidth={1.9} aria-hidden="true" />
+                  </span>
+                  <span className="agent-step__text">
+                    <span className="agent-step__t">{step.t}</span>
+                    <span className="agent-step__d">{step.d}</span>
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
+
+          <div className="agent-timeline" aria-hidden="true">
+            {AGENT_STEPS.map((step, i) => {
+              const Icon = ICONS[step.icon]
+              const state = i < active ? ' agent-tl__node--done' : i === active ? ' agent-tl__node--active' : ''
+              return (
+                <div key={step.n} className="agent-tl__group">
+                  {i > 0 && (
+                    <span className={`agent-tl__link${i <= active ? ' agent-tl__link--done' : ''}`} />
+                  )}
+                  <span className={`agent-tl__node${state}`}>
+                    <span className="agent-tl__ring">
+                      <Icon strokeWidth={1.9} />
+                    </span>
+                    <span className="agent-tl__label">{step.short}</span>
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="agent-apps">
+        {NODES.map((n, i) => (
+          <AppChip key={n.id} node={n} index={i} />
+        ))}
       </div>
     </div>
   )

@@ -705,65 +705,116 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
    ============================================================ */
 .studio-grid {
   max-width: 1240px; margin: 0 auto;
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  display: grid; grid-template-columns: minmax(0, 1fr);
   gap: clamp(28px, 4vw, 56px); align-items: center;
 }
-.studio__title { margin: 0 0 16px; }
-.studio__desc { margin: 0 0 28px; font-size: 16px; line-height: 1.7; color: var(--fg-secondary); max-width: 520px; }
-.studio-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
-.studio-point {
-  display: flex; align-items: center; gap: 11px;
-  font-family: var(--font-display); font-weight: 600; font-size: 15px; color: #002060;
-}
-.studio-point__tick { width: 19px; height: 19px; flex: none; color: #35A160; }
-
-.agent-panel {
-  position: relative; border-radius: 16px; overflow: hidden;
-  background: linear-gradient(158deg, #112831, #1D5368);
-  box-shadow: 0 16px 48px rgba(26, 62, 76, 0.24); padding: 24px;
-}
-.agent-panel__head {
-  display: flex; align-items: center; gap: 13px;
-  padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-}
-.agent-panel__avatar {
-  width: 42px; height: 42px; flex: none; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.14);
-  display: grid; place-items: center;
-  box-shadow: 0 0 18px rgba(63, 192, 115, 0.20);
-}
-.agent-panel__avatar img { width: 23px; height: 23px; display: block; }
-.agent-panel__name { font-family: var(--font-display); font-size: 15.5px; font-weight: 700; color: #fff; }
-.agent-panel__caps { display: flex; flex-direction: column; gap: 10px; padding-top: 18px; }
-.agent-cap {
-  display: flex; align-items: center; gap: 11px; padding: 11px 14px; border-radius: 8px;
-  background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.10);
-  font-size: 14px; color: rgba(255, 255, 255, 0.86);
-  transition: background 250ms, border-color 250ms;
-}
-.agent-cap__icon { width: 16px; height: 16px; flex: none; color: rgba(255, 255, 255, 0.42); transition: color 250ms; }
-.agent-cap__label { flex: 1; }
-.agent-cap--active {
-  background: rgba(63, 192, 115, 0.15); border-color: rgba(63, 192, 115, 0.45); color: #FFFFFF;
-}
-.agent-cap--active .agent-cap__icon { color: #6BD194; }
-.agent-cap__ping { position: relative; flex: none; width: 6px; height: 6px; border-radius: 50%; background: #3FC073; }
-.agent-cap__ping::after {
-  content: ''; position: absolute; inset: 0; border-radius: 50%; background: #3FC073;
-  animation: agent-ping 1.5s cubic-bezier(0, 0, .2, 1) infinite;
+.studio-grid > * { min-width: 0; }
+/* The diagram is a landscape composition (eight apps around a four-step
+   panel), so it takes the wider column once there is room. */
+@media (min-width: 1100px) {
+  .studio-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
 }
 
-/* --- The circuit that feeds the agent panel --------------------- */
+/* --- Agenda deck: the four days stacked beside the diagram ----------
+   The stack steps up and to the right, so the block reserves that room in
+   its padding and the cards share one grid cell so the tallest sets height. */
+.agenda-deck {
+  --deck-step-x: 30px;
+  --deck-step-y: 28px;
+  --deck-card: linear-gradient(158deg, #101828, #141D30);
+  --deck-line: #1E2939;
+  --deck-ink: #FFFFFF;
+  --deck-ink-2: #9AA4B6;
+  --deck-day: #9FD1E5;
+  --deck-num: #6BD194;
+  --deck-num-bg: rgba(63, 192, 115, 0.16);
+  --deck-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  position: relative; max-width: 440px; margin: 0 auto;
+  display: grid; padding: calc(var(--deck-step-y) * 3) calc(var(--deck-step-x) * 3) 0 0;
+  perspective: 1400px;
+}
+.deck-card {
+  grid-area: 1 / 1; position: relative; box-sizing: border-box;
+  padding: 24px 24px 20px; border-radius: 18px;
+  background: var(--deck-card); border: 1px solid var(--deck-line);
+  box-shadow: var(--deck-shadow);
+  transform-style: preserve-3d; transform-origin: 50% 100%;
+  transition:
+    transform 850ms cubic-bezier(.22, 1, .36, 1),
+    opacity 600ms cubic-bezier(.4, 0, .2, 1),
+    filter 600ms;
+  will-change: transform, opacity;
+}
+.deck-card--pos0 { z-index: 4; transform: translate3d(0, 0, 0) rotate(-1.5deg); opacity: 1; }
+.deck-card--pos1 { z-index: 3; transform: translate3d(var(--deck-step-x), calc(-1 * var(--deck-step-y)), -70px) rotate(0.5deg); opacity: .9; }
+.deck-card--pos2 { z-index: 2; transform: translate3d(calc(var(--deck-step-x) * 2), calc(-2 * var(--deck-step-y)), -140px) rotate(2.5deg); opacity: .74; }
+.deck-card--pos3 { z-index: 1; transform: translate3d(calc(var(--deck-step-x) * 3), calc(-3 * var(--deck-step-y)), -210px) rotate(4.5deg); opacity: .55; }
+.deck-card:not(.deck-card--pos0) { cursor: pointer; }
+/* The lift: the front card rises off the stack before it goes to the back. */
+.deck-card--leaving {
+  z-index: 5; opacity: 0;
+  transform: translate3d(-8px, -90px, 60px) rotate(-6deg) scale(1.03);
+  transition: transform 560ms cubic-bezier(.4, 0, .6, 1), opacity 420ms ease-in 100ms;
+}
+
+.deck-card__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.deck-card__num {
+  font-family: var(--font-display); font-size: 26px; font-weight: 800; line-height: 1;
+  letter-spacing: -0.02em; padding: 5px 10px; border-radius: 9px;
+  color: var(--deck-num); background: var(--deck-num-bg);
+}
+.deck-card__day {
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--deck-day);
+}
+.deck-card__title {
+  margin: 0 0 10px; font-family: var(--font-display);
+  font-size: 21px; font-weight: 700; line-height: 1.3; color: var(--deck-ink);
+}
+.deck-card__desc { margin: 0; font-size: 14.5px; line-height: 1.65; color: var(--deck-ink-2); min-height: 4.95em; }
+.deck-card__foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--deck-line);
+}
+.deck-card__count { font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; color: var(--deck-ink-2); }
+.deck-card__dots { display: flex; gap: 6px; }
+.deck-card__dot {
+  width: 8px; height: 8px; padding: 0; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--deck-line); transition: background 300ms, transform 300ms;
+}
+.deck-card__dot--on { background: var(--deck-num); transform: scale(1.25); }
+.deck-card__dot:focus-visible { outline: 2px solid var(--deck-num); outline-offset: 3px; }
+
+@media (max-width: 560px) {
+  .agenda-deck { --deck-step-x: 18px; --deck-step-y: 20px; }
+  .deck-card { padding: 20px 18px 16px; }
+  .deck-card__title { font-size: 19px; }
+  .deck-card__desc { font-size: 14px; }
+}
+
+/* --- The diagram block ------------------------------------------ */
 .agent-anim {
+  --agent-accent: #6BD194;
+  --agent-accent-rgb: 63, 192, 115;
   --agent-track-a: rgba(63, 192, 115, 0.32);
   --agent-track-b: rgba(48, 139, 175, 0.32);
   --agent-photon-a: #6BD194;
   --agent-photon-b: #64B7D8;
-  position: relative; padding: 26px 21%;
+  --agent-ink: #FFFFFF;
+  --agent-ink-2: rgba(255, 255, 255, 0.62);
+  --agent-ink-3: rgba(255, 255, 255, 0.5);
+  --agent-muted: rgba(255, 255, 255, 0.42);
+  --agent-surface: rgba(255, 255, 255, 0.05);
+  --agent-surface-2: rgba(255, 255, 255, 0.07);
+  --agent-line: rgba(255, 255, 255, 0.11);
+  --agent-line-2: rgba(255, 255, 255, 0.16);
+  --agent-badge-ink: #0A0F1D;
+  position: relative; max-width: 900px; margin: 0 auto;
+  container-type: inline-size; container-name: agent;
 }
 .agent-anim__glow {
   position: absolute; left: 50%; top: 50%; z-index: 0;
-  width: 66%; aspect-ratio: 1; transform: translate(-50%, -50%);
+  width: 60%; aspect-ratio: 1; transform: translate(-50%, -50%);
   border-radius: 50%; pointer-events: none; filter: blur(56px);
   background: radial-gradient(circle, rgba(63, 192, 115, 0.22), rgba(48, 139, 175, 0.14) 55%, transparent 72%);
   animation: agent-breathe 6s ease-in-out infinite;
@@ -772,42 +823,151 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   position: absolute; inset: 0; z-index: 1;
   width: 100%; height: 100%; pointer-events: none; overflow: visible;
 }
-.agent-anim__track { stroke-width: 1.5px; stroke-dasharray: 4 4; }
+/* Row N lights when the panel is on step N. Everything on a row reads --lit. */
+.agent-anim[data-step="1"] .agent-r1,
+.agent-anim[data-step="2"] .agent-r2,
+.agent-anim[data-step="3"] .agent-r3,
+.agent-anim[data-step="4"] .agent-r4 { --lit: 1; }
+
+.agent-anim__track { stroke-width: 1.5px; stroke-dasharray: 4 4; opacity: calc(.55 + .45 * var(--lit, 0)); transition: opacity 500ms; }
 .agent-anim__track--in { stroke: var(--agent-track-a); }
 .agent-anim__track--out { stroke: var(--agent-track-b); }
+.agent-anim__photon { opacity: calc(.5 + .5 * var(--lit, 0)); transition: opacity 500ms; }
 .agent-anim__photon--in { fill: var(--agent-photon-a); }
 .agent-anim__photon--out { fill: var(--agent-photon-b); }
 
-/* App chips sit on the track ends. Centres come from the same viewBox
-   coordinates the tracks use, converted to percentages in the component. */
-.agent-anim__app {
-  position: absolute; z-index: 2; transform: translate(-50%, -50%);
+/* Port dots sit where a track meets the panel. HTML rather than SVG so the
+   stretched viewBox cannot squash them into ellipses. */
+.agent-port {
+  position: absolute; z-index: 2; width: 6px; height: 6px; border-radius: 50%;
+  transform: translate(-50%, -50%); opacity: calc(.55 + .45 * var(--lit, 0));
+  box-shadow: 0 0 calc(10px * var(--lit, 0)) var(--port);
+  transition: opacity 500ms, box-shadow 500ms;
+}
+.agent-port--in { --port: var(--agent-photon-a); background: var(--port); }
+.agent-port--out { --port: var(--agent-photon-b); background: var(--port); }
+
+/* --- Stage: the pill and the panel ------------------------------- */
+.agent-stage {
+  position: relative; z-index: 3;
+  width: 62%; margin: 0 auto; padding-top: 20px;
+  animation: agent-float 5.5s ease-in-out infinite;
+}
+.agent-pill {
+  position: absolute; top: 0; left: 50%; z-index: 2; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 9px; white-space: nowrap;
+  padding: 5px 16px 5px 6px; border-radius: 999px;
+  background: #0E1A2B; border: 1px solid rgba(var(--agent-accent-rgb), 0.45);
+  box-shadow: 0 6px 22px rgba(var(--agent-accent-rgb), 0.18);
+}
+.agent-pill__avatar {
+  width: 30px; height: 30px; flex: none; border-radius: 50%;
+  background: var(--agent-surface-2); border: 1px solid var(--agent-line-2);
+  display: grid; place-items: center;
+}
+.agent-pill__avatar img { width: 18px; height: 18px; display: block; }
+.agent-pill__text { display: flex; flex-direction: column; line-height: 1.15; }
+.agent-pill__name { font-family: var(--font-display); font-size: 12.5px; font-weight: 700; color: var(--agent-ink); }
+.agent-pill__tag { font-size: 9.5px; color: var(--agent-ink-3); }
+
+.agent-panel {
+  position: relative; border-radius: 16px; overflow: hidden;
+  background: linear-gradient(158deg, #112831, #1D5368);
+  border: 1px solid rgba(var(--agent-accent-rgb), 0.16);
+  box-shadow: 0 16px 48px rgba(26, 62, 76, 0.24); padding: 34px 16px 16px;
+}
+.agent-panel__title {
+  margin: 0; text-align: center;
+  font-family: var(--font-display); font-size: 19px; font-weight: 800; line-height: 1.2; color: var(--agent-ink);
+}
+.agent-panel__sub { margin: 4px 0 14px; text-align: center; font-size: 11.5px; color: var(--agent-ink-2); }
+
+/* Steps. Same treatment as the old capability rows: quiet until active. */
+.agent-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.agent-step {
+  display: grid; grid-template-columns: 24px 30px minmax(0, 1fr); align-items: center; gap: 10px;
+  padding: 8px 10px 8px 9px; border-radius: 10px;
+  background: var(--agent-surface-2); border: 1px solid var(--agent-line);
+  transition: background 350ms, border-color 350ms;
+}
+.agent-step__n {
+  width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--font-display); font-size: 9.5px; font-weight: 700; line-height: 1;
+  color: var(--agent-ink-2); background: var(--agent-surface-2); border: 1px solid var(--agent-line-2);
+  transition: background 350ms, color 350ms, border-color 350ms;
+}
+.agent-step__icon {
+  width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+  color: var(--agent-muted); background: var(--agent-surface); transition: color 350ms, background 350ms;
+}
+.agent-step__icon svg { width: 15px; height: 15px; }
+.agent-step__text { display: flex; flex-direction: column; min-width: 0; }
+.agent-step__t { font-family: var(--font-display); font-size: 12.5px; font-weight: 700; line-height: 1.25; color: var(--agent-ink); }
+.agent-step__d { margin-top: 2px; font-size: 10.5px; line-height: 1.4; color: var(--agent-ink-2); }
+.agent-step--active {
+  background: rgba(var(--agent-accent-rgb), 0.15); border-color: rgba(var(--agent-accent-rgb), 0.45);
+}
+.agent-step--active .agent-step__n { background: var(--agent-accent); border-color: var(--agent-accent); color: var(--agent-badge-ink); }
+.agent-step--active .agent-step__icon { color: var(--agent-accent); background: rgba(var(--agent-accent-rgb), 0.14); }
+
+/* Footer timeline: connectors fill as the build advances. */
+.agent-timeline {
+  display: flex; align-items: flex-start;
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--agent-line);
+}
+.agent-tl__group { display: flex; align-items: flex-start; flex: 1 1 0; min-width: 0; }
+.agent-tl__group:first-child { flex: 0 0 auto; }
+.agent-tl__node { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 62px; flex: none; }
+.agent-tl__ring {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  color: var(--agent-muted); background: var(--agent-surface); border: 1.5px solid var(--agent-line-2);
+  transition: color 350ms, background 350ms, box-shadow 350ms, border-color 350ms;
+}
+.agent-tl__ring svg { width: 15px; height: 15px; }
+.agent-tl__label {
+  font-family: var(--font-display); font-size: 8px; font-weight: 700; line-height: 1;
+  letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; color: var(--agent-ink-3);
+  transition: color 350ms;
+}
+.agent-tl__node--done .agent-tl__ring,
+.agent-tl__node--active .agent-tl__ring { color: var(--agent-accent); border-color: rgba(var(--agent-accent-rgb), 0.6); }
+.agent-tl__node--active .agent-tl__ring {
+  background: rgba(var(--agent-accent-rgb), 0.18);
+  box-shadow: 0 0 0 4px rgba(var(--agent-accent-rgb), 0.14), 0 0 18px rgba(var(--agent-accent-rgb), 0.35);
+}
+.agent-tl__node--done .agent-tl__label,
+.agent-tl__node--active .agent-tl__label { color: var(--agent-accent); }
+.agent-tl__link {
+  position: relative; flex: 1 1 0; height: 1.5px; margin-top: 16px; overflow: hidden;
+  background: var(--agent-line);
+}
+.agent-tl__link::after {
+  content: ''; position: absolute; inset: 0; background: var(--agent-accent);
+  transform: scaleX(0); transform-origin: left; transition: transform 600ms cubic-bezier(.4, 0, .2, 1);
+}
+.agent-tl__link--done::after { transform: scaleX(1); }
+
+/* --- App chips on the track ends ---------------------------------- */
+.agent-apps { display: contents; }
+.agent-app {
+  position: absolute; z-index: 2; left: var(--x); top: var(--y);
+  transform: translate(-50%, -50%);
   display: grid; place-items: center;
   width: 46px; height: 46px; border-radius: 13px;
   background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
-  /* Not agent-float: its keyframes set transform outright, which would replace
-     the translate(-50%, -50%) above and drop every chip half its own size down
-     and right of the track end it is supposed to sit on. This variant carries
-     the centring through the float. */
-  animation: agent-float-chip 5s ease-in-out infinite;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.22),
+    0 0 0 1px rgba(var(--agent-accent-rgb), calc(.55 * var(--lit, 0))),
+    0 0 calc(18px * var(--lit, 0)) rgba(var(--agent-accent-rgb), calc(.35 * var(--lit, 0)));
+  transition: box-shadow 500ms;
+  /* Not agent-float: its keyframes set transform outright, which would
+     replace the translate(-50%, -50%) above and drop every chip half its own
+     size down and right of the track end. This variant carries the centring. */
+  animation: agent-float-chip 5s ease-in-out infinite; animation-delay: var(--delay);
 }
-.agent-anim__app img { width: 26px; height: 26px; display: block; }
+.agent-app img { width: 26px; height: 26px; display: block; }
 .agent-anim__mono {
-  font-family: var(--font-display); font-size: 15px; font-weight: 800; color: #6BD194;
-}
-
-.agent-anim .agent-panel {
-  position: relative; z-index: 3;
-  width: 100%; max-width: 360px; margin: 0 auto;
-  animation: agent-float 5.5s ease-in-out infinite;
-}
-.agent-anim__ready {
-  display: flex; align-items: center; justify-content: center;
-  margin-top: 18px; padding: 11px 16px; border-radius: 999px;
-  border: 1.5px solid rgba(63, 192, 115, 0.5); background: rgba(63, 192, 115, 0.10);
-  font-family: var(--font-display); font-size: 12.5px; font-weight: 700;
-  letter-spacing: 0.04em; color: #6BD194;
+  font-family: var(--font-display); font-size: 15px; font-weight: 800; color: var(--agent-accent);
 }
 
 @keyframes agent-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
@@ -816,13 +976,27 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   50% { transform: translate(-50%, calc(-50% - 5px)); }
 }
 @keyframes agent-breathe { 0%, 100% { opacity: .7; } 50% { opacity: 1; } }
-@keyframes agent-ping { 0% { transform: scale(1); opacity: .85; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
 
-/* Below this the gutters are too narrow to read as a circuit. */
-@media (max-width: 560px) {
-  .agent-anim { padding: 0; }
-  .agent-anim__circuit, .agent-anim__glow, .agent-anim__app { display: none; }
-  .agent-anim .agent-panel { width: 100%; animation: none; }
+/* Narrower block: smaller chips, tighter panel. */
+@container agent (max-width: 640px) {
+  .agent-app { width: 40px; height: 40px; border-radius: 11px; }
+  .agent-app img { width: 22px; height: 22px; }
+  .agent-panel { padding: 32px 12px 12px; }
+  .agent-panel__title { font-size: 17px; }
+  .agent-step { gap: 8px; }
+  .agent-tl__node { width: 56px; }
+}
+
+/* Below this the gutters are too narrow to read as a circuit: the panel
+   takes the full width and the apps line up beneath it. */
+@container agent (max-width: 480px) {
+  .agent-anim__circuit, .agent-anim__glow, .agent-port { display: none; }
+  .agent-stage { width: 100%; animation: none; }
+  .agent-apps { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 16px; }
+  .agent-app { position: static; transform: none; animation: none; }
+  .agent-panel__title { font-size: 18px; }
+  .agent-tl__label { font-size: 7.5px; letter-spacing: .08em; }
+  .agent-tl__node { width: 52px; }
 }
 
 /* ============================================================
@@ -1480,13 +1654,11 @@ html[data-theme="dark"] .pricing-card {
 html[data-theme="dark"] .text-gradient {
   background-image: linear-gradient(100deg, #3FC073, #6BD194, #308BAF, #9FD1E5, #3FC073);
 }
-html[data-theme="dark"] .studio-point { color: #D1D5DC; }
-html[data-theme="dark"] .studio-point__tick { color: #6BD194; }
-html[data-theme="dark"] .agent-anim__app {
+html[data-theme="dark"] .agent-app {
   background: rgba(16, 24, 40, 0.85); border-color: #1E2939;
 }
-html[data-theme="dark"] .agent-panel__avatar {
-  background: rgba(16, 24, 40, 0.9); border-color: #1E2939;
+html[data-theme="dark"] .agent-pill {
+  background: #101828; border-color: rgba(107, 209, 148, 0.4);
 }
 html[data-theme="dark"] .agent-panel {
   background: linear-gradient(158deg, #101828, #141D30);
@@ -1770,39 +1942,60 @@ html[data-theme="light"] .orbit-tip__sub { color: var(--ref-body); }
    ============================================================ */
 
 /* --- Copilot Studio panel -------------------------------------- */
-html[data-theme="light"] .agent-panel {
-  background: linear-gradient(158deg, #F4F8FB, #EAF2F7);
-  border: 1px solid var(--ref-card-line);
+html[data-theme="light"] .agenda-deck {
+  --deck-card: #FFFFFF;
+  --deck-line: var(--ref-card-line);
+  --deck-ink: var(--ref-navy);
+  --deck-ink-2: var(--ref-body);
+  --deck-day: var(--ref-teal-dk);
+  --deck-num: #2B824E;
+  --deck-num-bg: rgba(63, 192, 115, 0.12);
+  --deck-shadow: 0 20px 50px rgba(26, 62, 76, 0.16);
 }
-html[data-theme="light"] .agent-panel__name { color: var(--ref-navy); }
-html[data-theme="light"] .agent-cap {
-  background: #FFFFFF; border: 1px solid var(--ref-card-line); color: var(--ref-body);
-}
-html[data-theme="light"] .agent-cap__icon { color: var(--ref-micro); }
-html[data-theme="light"] .agent-cap--active {
-  background: #F1FAF4; border: 1px solid #B3E6C7; color: var(--ref-navy);
-}
-html[data-theme="light"] .agent-cap--active .agent-cap__icon { color: #2B824E; }
+html[data-theme="light"] .deck-card__dot { background: #DBDBDB; }
+html[data-theme="light"] .deck-card__dot--on { background: #2B824E; }
 html[data-theme="light"] .agent-anim {
+  --agent-accent: #2B824E;
+  --agent-accent-rgb: 43, 130, 78;
   --agent-track-a: rgba(53, 161, 96, 0.38);
   --agent-track-b: rgba(48, 139, 175, 0.34);
   --agent-photon-a: #35A160;
   --agent-photon-b: #308BAF;
+  --agent-ink: var(--ref-navy);
+  --agent-ink-2: var(--ref-body);
+  --agent-ink-3: var(--ref-micro);
+  --agent-muted: var(--ref-micro);
+  --agent-surface: #FFFFFF;
+  --agent-surface-2: #FFFFFF;
+  --agent-line: var(--ref-card-line);
+  --agent-line-2: var(--ref-card-line);
+  --agent-badge-ink: #FFFFFF;
 }
 html[data-theme="light"] .agent-anim__glow { opacity: .5; }
-html[data-theme="light"] .agent-anim__app {
-  background: #FFFFFF; border-color: var(--ref-card-line);
-  box-shadow: 0 6px 18px rgba(26, 62, 76, 0.10);
+html[data-theme="light"] .agent-panel {
+  background: linear-gradient(158deg, #F4F8FB, #EAF2F7);
+  border: 1px solid var(--ref-card-line);
+  box-shadow: 0 16px 48px rgba(26, 62, 76, 0.12);
 }
-html[data-theme="light"] .agent-anim__mono { color: #2B824E; }
-html[data-theme="light"] .agent-panel__avatar {
-  background: #FFFFFF; border-color: var(--ref-card-line);
-  box-shadow: 0 4px 14px rgba(26, 62, 76, 0.10);
+html[data-theme="light"] .agent-pill {
+  background: #FFFFFF; border-color: #B3E6C7;
+  box-shadow: 0 6px 20px rgba(26, 62, 76, 0.12);
 }
-html[data-theme="light"] .studio-point { color: var(--ref-navy); }
-html[data-theme="light"] .studio-point__tick { color: #2B824E; }
-html[data-theme="light"] .agent-anim__ready {
-  border-color: #B3E6C7; background: #F1FAF4; color: #2B824E;
+html[data-theme="light"] .agent-pill__avatar {
+  background: #F4F8FB; border-color: var(--ref-card-line);
+}
+html[data-theme="light"] .agent-step--active {
+  background: #F1FAF4; border-color: #B3E6C7;
+}
+html[data-theme="light"] .agent-step__icon { background: #F4F8FB; }
+html[data-theme="light"] .agent-step--active .agent-step__icon { background: #E9F7EE; }
+html[data-theme="light"] .agent-tl__node--active .agent-tl__ring { background: #E9F7EE; }
+html[data-theme="light"] .agent-app {
+  background: #FFFFFF; border-color: var(--ref-card-line);
+  box-shadow:
+    0 6px 18px rgba(26, 62, 76, 0.10),
+    0 0 0 1px rgba(var(--agent-accent-rgb), calc(.5 * var(--lit, 0))),
+    0 0 calc(16px * var(--lit, 0)) rgba(var(--agent-accent-rgb), calc(.25 * var(--lit, 0)));
 }
 
 

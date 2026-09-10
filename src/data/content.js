@@ -19,25 +19,34 @@ export const APP_CARDS = [
   { mark: 'S', title: 'SharePoint', icon: 'microsoft-365/sharepoint.svg', color: '#1D5368', tint: '#E8F3F8', points: ['Knowledge management', 'Enterprise content', 'Copilot-powered search'] },
 ]
 
-export const STUDIO_POINTS = [
-  'No-code / low-code agent building',
-  'Connect to your data and systems',
-  'Deploy across Microsoft 365',
-  'Real-world business use cases',
+// The Copilot Studio diagram. Step N lights row N of the circuit (one app
+// chip on each side), so the apps walk down in time with the build steps.
+export const AGENT_HEADER = { name: 'Copilot Agent', tagline: 'Your AI Work Assistant' }
+
+export const AGENT_STEPS = [
+  { n: '01', icon: 'create', short: 'Create', t: 'Create Your Agent', d: 'Build an agent for your business process.' },
+  { n: '02', icon: 'knowledge', short: 'Knowledge', t: 'Add Knowledge', d: 'Connect your files, data and business knowledge.' },
+  { n: '03', icon: 'instruct', short: 'Instruct', t: 'Set Instructions & Behavior', d: 'Define what your agent should do and how it should respond.' },
+  { n: '04', icon: 'work', short: 'Work 24/7', t: 'Agent Ready — Works 24/7', d: 'Your trained agent is ready to answer, assist and support your process anytime.' },
 ]
 
-export const AGENT_CAPS = [
-  { icon: 'data', t: 'Understands your data' },
-  { icon: 'ask', t: 'Answers questions' },
-  { icon: 'act', t: 'Takes actions' },
-  { icon: 'always', t: 'Works 24/7' },
+// Left column = what the agent reads from. Right column = where it acts.
+export const AGENT_APPS = [
+  { id: 'excel', name: 'Excel', mono: 'X', file: 'microsoft-365/excel.svg', side: 'in' },
+  { id: 'powerpoint', name: 'PowerPoint', mono: 'P', file: 'microsoft-365/powerpoint.svg', side: 'in' },
+  { id: 'word', name: 'Word', mono: 'W', file: 'microsoft-365/word.svg', side: 'in' },
+  { id: 'outlook', name: 'Outlook', mono: 'O', file: 'microsoft-365/outlook.svg', side: 'in' },
+  { id: 'onedrive', name: 'OneDrive', mono: 'D', file: 'microsoft-365/onedrive.svg', side: 'out' },
+  { id: 'teams', name: 'Teams', mono: 'T', file: 'microsoft-365/teams.svg', side: 'out' },
+  { id: 'copilot-chat', name: 'Copilot Chat', mono: 'C', file: 'copilot/copilot-365.svg', side: 'out' },
+  { id: 'sharepoint', name: 'SharePoint', mono: 'S', file: 'microsoft-365/sharepoint.svg', side: 'out' },
 ]
 
 export const AGENDA = [
-  { n: '01', time: '0 – 30 MIN', t: 'Copilot Foundations', d: 'Introduction to Copilot, prompting and best practices across Microsoft 365.' },
-  { n: '02', time: '30 – 60 MIN', t: 'Copilot in Action', d: 'Hands-on with Excel, Word, PowerPoint, Outlook and Teams.' },
-  { n: '03', time: '60 – 90 MIN', t: 'Automation & Insights', d: 'Power Automate, Power BI and Power Apps working alongside Copilot.' },
-  { n: '04', time: '90 – 120 MIN', t: 'Build & Deploy AI Agents', d: 'Build a Copilot Studio agent, see it live, and close with Q&A.' },
+  { n: '01', day: 'Day 1', time: '0 – 30 MIN', t: 'Copilot Foundations', d: 'Introduction to Copilot, prompting and best practices across Microsoft 365.' },
+  { n: '02', day: 'Day 2', time: '30 – 60 MIN', t: 'Copilot in Action', d: 'Hands-on with Excel, Word, PowerPoint, Outlook and Teams.' },
+  { n: '03', day: 'Day 3', time: '60 – 90 MIN', t: 'Automation & Insights', d: 'Power Automate, Power BI and Power Apps working alongside Copilot.' },
+  { n: '04', day: 'Day 4', time: '90 – 120 MIN', t: 'Build & Deploy AI Agents', d: 'Build a Copilot Studio agent, see it live, and close with Q&A.' },
 ]
 
 export const AUDIENCE = [

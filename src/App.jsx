@@ -40,7 +40,7 @@ export default function App() {
         <Overview />
         <CopilotStudio />
         <SeatScrollExperience />
-        <Agenda />
+        {/* <Agenda /> */}
         <Audience />
         {/* <UseCases /> */}
         {/* <LiveDemo /> */}
@@ -49,7 +49,7 @@ export default function App() {
         {/* <Ecosystem /> */}
         <Testimonials />
         <Register />
-        <Faq />
+        {/* <Faq /> */}
         {/* <FinalCta /> */}
       </div>
 
