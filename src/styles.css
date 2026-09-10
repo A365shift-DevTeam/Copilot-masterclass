@@ -159,6 +159,11 @@
 
   --ease: cubic-bezier(.4, 0, .2, 1);
   --section-pad: clamp(56px, 8vh, 96px) clamp(20px, 4vw, 56px);
+  /* The shared content measure every section aligns to. Sections come in two
+     shapes — capped (.section, 1240px outer minus its own side padding) and
+     full-bleed (.section--subtle, .speaker-section) — and both land on this
+     width, so the content edge never shifts from one section to the next. */
+  --content-max: 1128px;
 }
 
 html,
@@ -1449,18 +1454,40 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   margin: 0 auto;
 }
 
+/* Every content section owns at least the full fold, so scrolling never parks
+   two sections on screen at once. Sections whose content is taller than a fold
+   (Benefits) simply grow past it — justify-content is a no-op there.
+   lvh after vh, matching .hero and .seat-scroll-sticky: it does not resize as
+   the mobile URL bar collapses. Gated to tablet and up — on a phone the fold is
+   the scarcest space there is, and padding out a short section wastes it. */
+@media (min-width: 720px) {
+  .section,
+  .section--subtle,
+  .speaker-section {
+    min-height: 100vh;
+    min-height: 100lvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
 .section--subtle {
   background: #F6F9F5;
   max-width: none;
 }
 
 .section--subtle>.section__inner {
-  max-width: 1240px;
+  max-width: var(--content-max);
   margin: 0 auto;
 }
 
 .section-head {
   text-align: center;
+  /* width before max-width: as a flex item its `margin: 0 auto` cancels the
+     default stretch, which would otherwise shrink it to the text's own width
+     and reflow every heading. 100% keeps it filling up to the 740px measure. */
+  width: 100%;
   max-width: 740px;
   margin: 0 auto 48px;
 }
@@ -1558,7 +1585,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
    COPILOT STUDIO
    ============================================================ */
 .studio-grid {
-  max-width: 1240px; margin: 0 auto;
+  max-width: var(--content-max); margin: 0 auto;
   display: grid; grid-template-columns: minmax(0, 1fr);
   gap: clamp(28px, 4vw, 56px); align-items: center;
 }
@@ -2805,7 +2832,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 .speaker-section__svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .28; pointer-events: none; }
 .speaker-grid {
   position: relative;
-  max-width: 1080px;
+  max-width: var(--content-max);
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
@@ -3090,7 +3117,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
    REGISTER
    ============================================================ */
 .register-grid {
-  max-width: 1120px;
+  max-width: var(--content-max);
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
