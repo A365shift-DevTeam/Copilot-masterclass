@@ -8,6 +8,8 @@ export const NAV_LINKS = [
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
 
+export const HERO_TITLE_PHRASES = ['Master Prompt', 'Develop AI Skills', 'Build Intelligent Agents']
+
 export const APP_CARDS = [
   { mark: 'X', title: 'Microsoft Excel', icon: 'microsoft-365/excel.svg', color: '#35A160', tint: '#E9F7EE', points: ['Analyse data', 'Create formulas', 'Identify trends', 'Generate summaries', 'Automate repetitive work'] },
   { mark: 'W', title: 'Microsoft Word', icon: 'microsoft-365/word.svg', color: '#1D5368', tint: '#E8F3F8', points: ['Generate documents', 'Rewrite content', 'Summarise information', 'Improve communication'] },

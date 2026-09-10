@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { scrollToTarget, getLenis } from '../hooks/useLenis.js'
+import useTypewriter from '../hooks/useTypewriter.js'
 import './ticket-scroll.css'
 import {
   TOTAL_TICKET_FRAMES,
@@ -7,6 +8,7 @@ import {
   loadFrame,
   resolveCachedFrame,
   preloadAround,
+  setActiveFrame,
   startBulkPreload,
   subscribeFrames,
 } from '../utils/frameCache.js'
@@ -57,6 +59,34 @@ let charIndex = 0
 const HEADLINE_CHARS = HEADLINE_LINES.map((line) =>
   [...line].map((ch) => ({ ch: ch === ' ' ? '\u00A0' : ch, i: charIndex++ }))
 )
+
+const INTRO_KICKER = 'DON’T JUST WATCH THE AI REVOLUTION. BE PART OF IT.'
+const INTRO_TYPED = 'Master Microsoft Copilot'
+
+/*
+ * Kept in its own component so the typewriter's per-character state updates
+ * re-render this small block instead of the whole scrubber tree.
+ */
+function TicketIntro() {
+  const { displayedText } = useTypewriter({
+    text: INTRO_TYPED,
+    typingSpeed: 70,
+    deletingSpeed: 32,
+    pauseDuration: 2200,
+    deletePauseDuration: 500,
+    loop: true,
+  })
+
+  return (
+    <div className="ticket-scroll-intro">
+      <p className="ticket-scroll-intro__kicker">{INTRO_KICKER}</p>
+      <p className="ticket-scroll-intro__typed" aria-label={INTRO_TYPED}>
+        <span className="ticket-scroll-intro__text" aria-hidden="true">{displayedText || '\u200B'}</span>
+        <span className="ticket-scroll-intro__cursor" aria-hidden="true" />
+      </p>
+    </div>
+  )
+}
 
 const span = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)))
 const ease = (t) => (1 - Math.pow(1 - t, 3)).toFixed(4)
@@ -196,19 +226,24 @@ export default function TicketScrollExperience() {
 
       applyNav(rect.top <= NAV_STAGE_LEAD && rect.bottom >= viewportH)
 
-      // Fill the rest of the sequence once the stage is genuinely on screen.
-      // The observer starts this ticker 300px early, but the pass sits directly
-      // below the fold, so bulk-loading on that margin would pull all 107
-      // frames before the viewer has scrolled at all.
-      if (!stopBulk && rect.top < viewportH && rect.bottom > 0) {
-        stopBulk = startBulkPreload('ticket', 8)
-      }
-
       const totalScrollable = rect.height - viewportH
-      if (totalScrollable <= 0) return
+      if (totalScrollable <= 0) {
+        // Not laid out yet. Keep the loop alive or it never restarts.
+        if (running) rafId = requestAnimationFrame(tick)
+        return
+      }
 
       const clamped = Math.min(1, Math.max(0, -rect.top / totalScrollable))
       const targetIndex = Math.round(clamped * (TOTAL_FRAMES - 1))
+
+      // Fill the rest of the sequence once the stage is genuinely on screen.
+      // The observer starts this ticker 300px early, but the pass sits directly
+      // below the fold, so bulk-loading on that margin would pull all 107
+      // frames before the viewer has scrolled at all. Filling outward from the
+      // current frame keeps the next ones ahead of the ones already passed.
+      if (!stopBulk && rect.top < viewportH && rect.bottom > 0) {
+        stopBulk = startBulkPreload('ticket', 8, targetIndex)
+      }
 
       if (!sizeRef.current.bufW) measure()
 
@@ -251,6 +286,15 @@ export default function TicketScrollExperience() {
       running = false
       cancelAnimationFrame(rafId)
       applyNav(false)
+      // Drop this stage's claim on the loader queue, so frames it asked for
+      // stop outranking the stage the viewer actually moved to.
+      setActiveFrame('ticket', null)
+      // Hand the connection back to whichever stage the viewer moved on to.
+      // Decoded frames stay cached, so re-entry resumes rather than restarts.
+      if (stopBulk) {
+        stopBulk()
+        stopBulk = null
+      }
     }
 
     const isNearViewport = () => {
@@ -324,6 +368,9 @@ export default function TicketScrollExperience() {
       <div ref={stickyRef} className="ticket-scroll-sticky">
         {/* Canvas viewport */}
         <canvas ref={canvasRef} className="ticket-scroll-canvas" />
+
+        {/* Intro copy sitting in the empty band above the pass. */}
+        <TicketIntro />
 
         {/* Top badge */}
         {/* <div className="ticket-scroll-badge">

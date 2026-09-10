@@ -1,16 +1,16 @@
 import { useEffect, useRef } from 'react'
 import CopilotOrbit from './CopilotOrbit.jsx'
-import { HERO_CHECKS } from '../data/content.js'
+import { HERO_CHECKS, HERO_TITLE_PHRASES } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 
 export default function Hero() {
   const scaleRef = useRef(null)
-  const { displayedText } = useTypewriter({
-    text: 'Someone using AI will.”',
-    typingSpeed: 75,
-    deletingSpeed: 35,
-    pauseDuration: 2400,
-    deletePauseDuration: 600,
+  const { displayedText: titleText } = useTypewriter({
+    text: HERO_TITLE_PHRASES,
+    typingSpeed: 65,
+    deletingSpeed: 30,
+    pauseDuration: 1600,
+    deletePauseDuration: 350,
     loop: true,
   })
 
@@ -67,16 +67,18 @@ export default function Hero() {
           </div> */}
 
           <p className="hero__quote" aria-label="“AI won’t replace you. Someone using AI will.”">
-            <span className="hero__quote-line">“AI won’t replace you.</span>
-            <span className="hero__quote-line hero__quote-line--typed">
-              <span className="hero__quote-gradient">{displayedText || '\u200B'}</span>
-              <span className="hero__cursor" aria-hidden="true" />
+            <span className="hero__quote-line">Master Microsoft Copilot</span>
+            <span className="hero__quote-line">
+              <span className="hero__quote-gradient">Join the Webinar</span>
             </span>
           </p>
 
-          <h1 className="hero__title">
-            Master Microsoft Copilot<br />
-            <span className="hero__title-gradient">AI &amp; Agents</span>
+          <h1 className="hero__title" aria-label={HERO_TITLE_PHRASES.join(' / ')}>
+            <br />
+            <span className="hero__title-typed" aria-hidden="true">
+              <span className="hero__title-gradient">{titleText || '\u200B'}</span>
+              <span className="hero__title-cursor" />
+            </span>
           </h1>
 
           <p className="hero__subtitle">2-Day Live Online Program</p>

@@ -9,6 +9,7 @@ import {
   loadFrame,
   resolveCachedFrame,
   preloadAround,
+  setActiveFrame,
   startBulkPreload,
   subscribeFrames,
 } from '../utils/frameCache.js'
@@ -169,17 +170,23 @@ export default function SeatScrollExperience({ onBook }) {
 
       applyNav(rect.top <= NAV_STAGE_LEAD && rect.bottom >= viewportH)
 
-      // Fill the rest of the sequence once the stage is genuinely on screen,
-      // not on the observer's 300px lead. Mirrors the ticket stage.
-      if (!stopBulk && rect.top < viewportH && rect.bottom > 0) {
-        stopBulk = startBulkPreload('seat', 8)
-      }
-
       const totalScrollable = rect.height - viewportH
-      if (totalScrollable <= 0) return
+      if (totalScrollable <= 0) {
+        // Not laid out yet. Keep the loop alive or it never restarts.
+        if (running) rafId = requestAnimationFrame(tick)
+        return
+      }
 
       const clamped = Math.min(1, Math.max(0, -rect.top / totalScrollable))
       const targetIndex = Math.round(clamped * (TOTAL_FRAMES - 1))
+
+      // Fill the rest of the sequence once the stage is genuinely on screen,
+      // not on the observer's 300px lead. Filling outward from the current
+      // frame matters on a slow connection: from 0 it would spend the pipe on
+      // frames already scrolled past while the next ones wait behind them.
+      if (!stopBulk && rect.top < viewportH && rect.bottom > 0) {
+        stopBulk = startBulkPreload('seat', 8, targetIndex)
+      }
 
       if (!sizeRef.current.bufW) measure()
 
@@ -225,6 +232,15 @@ export default function SeatScrollExperience({ onBook }) {
       running = false
       cancelAnimationFrame(rafId)
       applyNav(false)
+      // Drop this stage's claim on the loader queue, so frames it asked for
+      // stop outranking the stage the viewer actually moved to.
+      setActiveFrame('seat', null)
+      // Hand the connection back to whichever stage the viewer moved on to.
+      // Decoded frames stay cached, so re-entry resumes rather than restarts.
+      if (stopBulk) {
+        stopBulk()
+        stopBulk = null
+      }
     }
 
     const isNearViewport = () => {
