@@ -12,13 +12,8 @@ const ICONS = {
   master: GraduationCap,
 }
 
-/**
- * One journey stage as a coverflow face. The strip along the bottom is the
- * whole journey in miniature: ticks before this stage are done, this one is
- * lit, the rest are still ahead, so every card says where it sits in the
- * six-stage story even when it is the only one readable.
- */
-function StageFace({ stage, index }) {
+/** One journey stage as a coverflow face. */
+function StageFace({ stage }) {
   const Icon = ICONS[stage.icon]
   return (
     <div className="journey-face">
@@ -34,11 +29,6 @@ function StageFace({ stage, index }) {
       </div>
       <h3 className="journey-face__title">{stage.t}</h3>
       <p className="journey-face__desc">{stage.d}</p>
-      <span className="journey-face__strip" aria-hidden="true">
-        {JOURNEY.map((s, j) => (
-          <i key={s.n} className={j < index ? 'is-done' : j === index ? 'is-now' : undefined} />
-        ))}
-      </span>
     </div>
   )
 }
@@ -59,8 +49,8 @@ export default function Overview() {
       <CoverflowCarousel
         className="app-coverflow"
         label="The six stages of the Copilot learning journey"
-        items={JOURNEY.map((stage, index) => (
-          <StageFace key={stage.n} stage={stage} index={index} />
+        items={JOURNEY.map((stage) => (
+          <StageFace key={stage.n} stage={stage} />
         ))}
         pageLabels={JOURNEY.map((stage) => stage.stage)}
         autoplay

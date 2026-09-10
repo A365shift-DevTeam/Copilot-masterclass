@@ -2193,7 +2193,7 @@ html[data-theme="light"] .app-card__points .dot { color: #2B824E; }
   margin-top: 8px;
   width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw);
 }
-.journey-face { height: 100%; display: flex; flex-direction: column; padding: 26px 24px 22px; }
+.journey-face { height: 100%; display: flex; flex-direction: column; padding: 26px 24px 24px; }
 .journey-face__rule { position: absolute; left: 0; right: 0; top: 0; height: 4px; background-image: var(--gradient-primary); }
 .journey-face__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .journey-face__mark {
@@ -2211,11 +2211,6 @@ html[data-theme="light"] .app-card__points .dot { color: #2B824E; }
   font-size: 19px; font-weight: 700; line-height: 1.25; color: #002060;
 }
 .journey-face__desc { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--fg-secondary); }
-/* The journey in miniature: done, now, ahead. */
-.journey-face__strip { display: flex; gap: 5px; margin-top: auto; padding-top: 20px; }
-.journey-face__strip i { flex: 1; height: 3px; border-radius: 2px; background: var(--ref-card-line); }
-.journey-face__strip i.is-done { background: #B3E6C7; }
-.journey-face__strip i.is-now { background-image: var(--gradient-primary); }
 
 /* --- stage rail: the story line under the deck ------------------- */
 .cf__rail {
@@ -2255,8 +2250,6 @@ html[data-theme="dark"] .journey-face__stage { color: #9FD1E5; }
 html[data-theme="dark"] .journey-face__stage b { color: #6BD194; }
 html[data-theme="dark"] .journey-face__title { color: #FFFFFF; }
 html[data-theme="dark"] .journey-face__desc { color: rgba(255, 255, 255, 0.62); }
-html[data-theme="dark"] .journey-face__strip i { background: #1E2939; }
-html[data-theme="dark"] .journey-face__strip i.is-done { background: rgba(63, 192, 115, 0.4); }
 html[data-theme="dark"] .cf__rail-item { color: rgba(255, 255, 255, 0.45); }
 html[data-theme="dark"] .cf__rail-item:hover,
 html[data-theme="dark"] .cf__rail-item.is-done { color: #FFFFFF; }
