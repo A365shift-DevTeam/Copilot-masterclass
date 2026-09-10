@@ -98,6 +98,13 @@ export const BENEFITS = [
   { i: 'LM', t: 'Learning Materials', d: 'Resources and checklists where applicable.' },
 ]
 
+// The Benefits fork. Four checkpoints up the Copilot branch, four down the
+// unchanged one; each pair sits at the same distance along its branch.
+export const CAREER_STEPS = {
+  up: ['Save time', 'Work smarter', 'Stay relevant', 'Promotion & growth'],
+  down: ['More manual work', 'Skills gap widens', 'Lower career relevance', 'Fear of job loss'],
+}
+
 export const EXPERTISE = ['Business Automation', 'Artificial Intelligence', 'Microsoft 365', 'Microsoft Copilot', 'Business Applications', 'Digital Transformation']
 
 export const ECOSYSTEM = [
