@@ -8,15 +8,16 @@ export const NAV_LINKS = [
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
 
-export const APP_CARDS = [
-  { mark: 'X', title: 'Microsoft Excel', icon: 'microsoft-365/excel.svg', color: '#35A160', tint: '#E9F7EE', points: ['Analyse data', 'Create formulas', 'Identify trends', 'Generate summaries', 'Automate repetitive work'] },
-  { mark: 'W', title: 'Microsoft Word', icon: 'microsoft-365/word.svg', color: '#1D5368', tint: '#E8F3F8', points: ['Generate documents', 'Rewrite content', 'Summarise information', 'Improve communication'] },
-  { mark: 'P', title: 'Microsoft PowerPoint', icon: 'microsoft-365/powerpoint.svg', color: '#35A160', tint: '#E9F7EE', points: ['Generate presentations', 'Create slide structures', 'Summarise documents into decks'] },
-  { mark: 'O', title: 'Microsoft Outlook', icon: 'microsoft-365/outlook.svg', color: '#1D5368', tint: '#E8F3F8', points: ['Draft emails', 'Summarise threads', 'Prioritise communication'] },
-  { mark: 'T', title: 'Microsoft Teams', icon: 'microsoft-365/teams.svg', color: '#35A160', tint: '#E9F7EE', points: ['Meeting summaries', 'Action items', 'Collaboration assistance'] },
-  { mark: 'B', title: 'Microsoft Power BI', icon: 'power-platform/power-bi.svg', color: '#1D5368', tint: '#E8F3F8', points: ['AI-assisted analysis', 'Business insights', 'Data storytelling'] },
-  { mark: 'A', title: 'Power Automate', icon: 'power-platform/power-automate.svg', color: '#35A160', tint: '#E9F7EE', points: ['Workflow automation', 'Approvals', 'Notifications', 'Microsoft 365 integration'] },
-  { mark: 'S', title: 'SharePoint', icon: 'microsoft-365/sharepoint.svg', color: '#1D5368', tint: '#E8F3F8', points: ['Knowledge management', 'Enterprise content', 'Copilot-powered search'] },
+// The Overview deck. Six stages in order; `stage` is the one-word beat of
+// the story (LEARN -> USE -> BUILD -> PROMPT -> EXPAND -> MASTER) and `icon`
+// keys into the lucide set in Overview.jsx.
+export const JOURNEY = [
+  { n: '01', stage: 'Learn', icon: 'learn', t: 'Master Copilot Fundamentals', d: 'Understand Copilot, AI basics and how to work with it effectively.' },
+  { n: '02', stage: 'Use', icon: 'use', t: 'Use Copilot Across Microsoft 365', d: 'Learn Copilot with Excel, Word, PowerPoint, Outlook, Teams & more.' },
+  { n: '03', stage: 'Build', icon: 'build', t: 'Build Your Own Copilot Agent', d: 'Learn how to create skills, knowledge and Agents for your own business process.' },
+  { n: '04', stage: 'Prompt', icon: 'prompt', t: 'Master Smarter Prompting', d: 'Create reusable Slash Prompts instead of writing long instructions repeatedly.' },
+  { n: '05', stage: 'Expand', icon: 'expand', t: 'One Prompt. Multiple AI Platforms.', d: 'Apply structured prompts across Copilot, ChatGPT, Gemini, Claude & other AI tools.' },
+  { n: '06', stage: 'Master', icon: 'master', t: 'Go From User to AI Professional', d: 'Continue with our 30-Day Accelerator → 90-Day Microsoft 365 Transformation Program.' },
 ]
 
 // The Copilot Studio diagram. Step N lights row N of the circuit (one app

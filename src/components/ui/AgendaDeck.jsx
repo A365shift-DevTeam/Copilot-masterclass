@@ -7,10 +7,12 @@
  * Positions are a pure function of (card, front): `pos` 0 is the front and 3
  * is the back, and the CSS owns the transform for each. `leaving` is the one
  * transient state, held for the lift so a card can leave from the top of the
- * stack before it reappears at the bottom. Hover pauses the deck, and any
- * card or dot can be picked to bring a day forward.
+ * stack before it reappears at the bottom. The controls under the stack step
+ * back and forward and hold or resume the turn; any card or dot can also be
+ * picked to bring a day forward.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
 import { AGENDA } from '../../data/content.js'
 
 const COUNT = AGENDA.length
@@ -20,7 +22,7 @@ const LIFT = 560
 export default function AgendaDeck() {
   const [front, setFront] = useState(0)
   const [leaving, setLeaving] = useState(null)
-  const [paused, setPaused] = useState(false)
+  const [playing, setPlaying] = useState(true)
   const [reduced, setReduced] = useState(false)
   const timer = useRef(null)
 
@@ -34,10 +36,10 @@ export default function AgendaDeck() {
 
   // Turn the deck: lift the front card, then hand the front to the next one.
   useEffect(() => {
-    if (reduced || paused || leaving !== null) return
+    if (reduced || !playing || leaving !== null) return
     timer.current = setTimeout(() => setLeaving(front), HOLD)
     return () => clearTimeout(timer.current)
-  }, [front, paused, leaving, reduced])
+  }, [front, playing, leaving, reduced])
 
   useEffect(() => {
     if (leaving === null) return
@@ -51,15 +53,12 @@ export default function AgendaDeck() {
   const pick = useCallback((i) => {
     clearTimeout(timer.current)
     setLeaving(null)
-    setFront(i)
+    setFront(((i % COUNT) + COUNT) % COUNT)
   }, [])
 
   return (
-    <div
-      className="agenda-deck"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
+    <div className="agenda-deck">
+      <div className="agenda-deck__stack">
       {AGENDA.map((item, i) => {
         const pos = (i - front + COUNT) % COUNT
         const isFront = pos === 0
@@ -96,6 +95,25 @@ export default function AgendaDeck() {
           </article>
         )
       })}
+      </div>
+
+      <div className="deck-controls">
+        <button type="button" className="deck-btn" aria-label="Previous day" onClick={() => pick(front - 1)}>
+          <ChevronLeft strokeWidth={2.2} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="deck-btn deck-btn--play"
+          aria-label={playing ? 'Pause' : 'Play'}
+          aria-pressed={playing}
+          onClick={() => setPlaying((p) => !p)}
+        >
+          {playing ? <Pause strokeWidth={2.2} aria-hidden="true" /> : <Play strokeWidth={2.2} aria-hidden="true" />}
+        </button>
+        <button type="button" className="deck-btn" aria-label="Next day" onClick={() => pick(front + 1)}>
+          <ChevronRight strokeWidth={2.2} aria-hidden="true" />
+        </button>
+      </div>
     </div>
   )
 }

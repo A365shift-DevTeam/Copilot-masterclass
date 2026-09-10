@@ -729,10 +729,31 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   --deck-num: #6BD194;
   --deck-num-bg: rgba(63, 192, 115, 0.16);
   --deck-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --deck-btn: rgba(16, 24, 40, 0.85);
+  --deck-btn-ink: #FFFFFF;
   position: relative; max-width: 440px; margin: 0 auto;
+}
+.agenda-deck__stack {
   display: grid; padding: calc(var(--deck-step-y) * 3) calc(var(--deck-step-x) * 3) 0 0;
   perspective: 1400px;
 }
+/* Back, play/pause, forward: centred under the front card, not the block. */
+.deck-controls {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 22px; margin-right: calc(var(--deck-step-x) * 3);
+}
+.deck-btn {
+  display: grid; place-items: center; width: 40px; height: 40px; padding: 0;
+  border-radius: 50%; border: 1px solid var(--deck-line); cursor: pointer;
+  background: var(--deck-btn); color: var(--deck-btn-ink);
+  transition: background 200ms var(--ease), transform 200ms var(--ease), border-color 200ms var(--ease);
+}
+.deck-btn svg { width: 18px; height: 18px; }
+.deck-btn:hover { transform: translateY(-1px); border-color: var(--deck-num); }
+.deck-btn:focus-visible { outline: 2px solid var(--deck-num); outline-offset: 3px; }
+.deck-btn--play { width: 46px; height: 46px; border: none; background-image: var(--gradient-primary); color: #FFFFFF; }
+.deck-btn--play:hover { background-image: var(--gradient-primary-hover); }
+.deck-btn--play svg { width: 19px; height: 19px; }
 .deck-card {
   grid-area: 1 / 1; position: relative; box-sizing: border-box;
   padding: 24px 24px 20px; border-radius: 18px;
@@ -1951,6 +1972,8 @@ html[data-theme="light"] .agenda-deck {
   --deck-num: #2B824E;
   --deck-num-bg: rgba(63, 192, 115, 0.12);
   --deck-shadow: 0 20px 50px rgba(26, 62, 76, 0.16);
+  --deck-btn: #FFFFFF;
+  --deck-btn-ink: var(--ref-navy);
 }
 html[data-theme="light"] .deck-card__dot { background: #DBDBDB; }
 html[data-theme="light"] .deck-card__dot--on { background: #2B824E; }
@@ -2164,33 +2187,81 @@ html[data-theme="light"] .app-card__points .dot { color: #2B824E; }
 .cf__meta-row dt { color: var(--fg-secondary); margin: 0; }
 .cf__meta-row dd { margin: 0; font-weight: 500; color: var(--ref-navy); }
 
-/* --- an app card as a coverflow face ----------------------------- */
+/* --- a journey stage as a coverflow face ------------------------- */
 /* Breaks out of .section's centred column so the deck runs edge to edge. */
 .app-coverflow {
   margin-top: 8px;
   width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw);
 }
-.app-face { height: 100%; display: flex; flex-direction: column; padding: 26px 24px 24px; }
-.app-face__rule { position: absolute; left: 0; right: 0; top: 0; height: 4px; background-image: var(--gradient-primary); }
-.app-face__mark {
-  position: relative; width: 46px; height: 46px; border-radius: 12px;
-  display: grid; place-items: center; flex: 0 0 auto; overflow: hidden;
+.journey-face { height: 100%; display: flex; flex-direction: column; padding: 26px 24px 22px; }
+.journey-face__rule { position: absolute; left: 0; right: 0; top: 0; height: 4px; background-image: var(--gradient-primary); }
+.journey-face__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.journey-face__mark {
+  width: 46px; height: 46px; border-radius: 12px; flex: 0 0 auto;
+  display: grid; place-items: center; color: #2B824E; background: #E9F7EE;
 }
-.app-face__mono { font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1; }
-.app-face__mark img { position: absolute; inset: 18%; width: 64%; height: 64%; object-fit: contain; }
-.app-face__title {
+.journey-face__mark svg { width: 22px; height: 22px; }
+.journey-face__stage {
+  font-family: var(--font-display); font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--ref-teal-dk); white-space: nowrap;
+}
+.journey-face__stage b { color: #2B824E; margin-right: 8px; }
+.journey-face__title {
   margin: 16px 0 10px; font-family: var(--font-display);
-  font-size: 19px; font-weight: 700; line-height: 1.2; color: #002060;
+  font-size: 19px; font-weight: 700; line-height: 1.25; color: #002060;
 }
-.app-face__points { display: flex; flex-direction: column; gap: 7px; font-size: 14.5px; line-height: 1.5; color: var(--fg-secondary); }
-.app-face__points > span { display: flex; align-items: baseline; }
-.app-face__dot { color: #2B824E; font-style: normal; margin-right: 8px; font-weight: 700; }
+.journey-face__desc { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--fg-secondary); }
+/* The journey in miniature: done, now, ahead. */
+.journey-face__strip { display: flex; gap: 5px; margin-top: auto; padding-top: 20px; }
+.journey-face__strip i { flex: 1; height: 3px; border-radius: 2px; background: var(--ref-card-line); }
+.journey-face__strip i.is-done { background: #B3E6C7; }
+.journey-face__strip i.is-now { background-image: var(--gradient-primary); }
+
+/* --- stage rail: the story line under the deck ------------------- */
+.cf__rail {
+  display: flex; align-items: center; justify-content: flex-start;
+  width: max-content; max-width: 100%; margin: 22px auto 0; padding: 4px 20px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.cf__rail::-webkit-scrollbar { display: none; }
+.cf__rail-item {
+  flex: none; display: flex; align-items: center; gap: 7px;
+  padding: 8px 10px; border: none; border-radius: 8px; background: none; cursor: pointer;
+  font-family: var(--font-display); font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ref-micro);
+  transition: color 250ms var(--ease), background 250ms var(--ease);
+}
+.cf__rail-item small { font-size: 10px; letter-spacing: 0.06em; opacity: .75; }
+.cf__rail-item:hover { color: var(--ref-navy); }
+.cf__rail-item.is-done { color: var(--ref-navy); }
+.cf__rail-item.is-active { color: #2B824E; background: rgba(63, 192, 115, 0.10); }
+.cf__rail-item:focus-visible { outline: 2px solid var(--ref-teal); outline-offset: 2px; }
+.cf__rail-link { position: relative; flex: none; width: 26px; height: 2px; background: var(--ref-card-line); overflow: hidden; }
+.cf__rail-link::after {
+  content: ''; position: absolute; inset: 0; background-image: var(--gradient-primary);
+  transform: scaleX(0); transform-origin: left; transition: transform 500ms var(--ease);
+}
+.cf__rail-link.is-done::after { transform: scaleX(1); }
+@media (max-width: 640px) {
+  .cf__rail { justify-content: flex-start; }
+  .cf__rail-item { font-size: 10.5px; padding: 7px 8px; }
+  .cf__rail-link { width: 14px; }
+}
 
 /* --- dark theme --------------------------------------------------- */
 html[data-theme="dark"] .cf__card { background: #101828; border-color: #1E2939; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45); }
-html[data-theme="dark"] .app-face__title { color: #FFFFFF; }
-html[data-theme="dark"] .app-face__points { color: rgba(255, 255, 255, 0.62); }
-html[data-theme="dark"] .app-face__dot { color: #6BD194; }
+html[data-theme="dark"] .journey-face__mark { color: #6BD194; background: rgba(63, 192, 115, 0.16); }
+html[data-theme="dark"] .journey-face__stage { color: #9FD1E5; }
+html[data-theme="dark"] .journey-face__stage b { color: #6BD194; }
+html[data-theme="dark"] .journey-face__title { color: #FFFFFF; }
+html[data-theme="dark"] .journey-face__desc { color: rgba(255, 255, 255, 0.62); }
+html[data-theme="dark"] .journey-face__strip i { background: #1E2939; }
+html[data-theme="dark"] .journey-face__strip i.is-done { background: rgba(63, 192, 115, 0.4); }
+html[data-theme="dark"] .cf__rail-item { color: rgba(255, 255, 255, 0.45); }
+html[data-theme="dark"] .cf__rail-item:hover,
+html[data-theme="dark"] .cf__rail-item.is-done { color: #FFFFFF; }
+html[data-theme="dark"] .cf__rail-item.is-active { color: #6BD194; background: rgba(63, 192, 115, 0.14); }
+html[data-theme="dark"] .cf__rail-link { background: #1E2939; }
 html[data-theme="dark"] .cf__nav { background: rgba(16, 24, 40, 0.82); border-color: #1E2939; color: #FFFFFF; }
 html[data-theme="dark"] .cf__nav:hover { background: #101828; }
 html[data-theme="dark"] .cf__dot { background: #FFFFFF; }

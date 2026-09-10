@@ -33,6 +33,11 @@ const useIsoLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect
  * @param fade        Opacity lost per step from the centre.
  * @param cardWidth   Any CSS length. Everything else derives from it, so the rake scales.
  * @param gap         Space between cards, as a fraction of card width.
+ * @param pageLabels  One short label per card. When given, a rail of labelled
+ *                    stops with connectors is rendered under the deck; the
+ *                    connectors up to the current card fill in, so the rail
+ *                    reads as progress through a sequence and doubles as
+ *                    navigation.
  */
 export function CoverflowCarousel({
   slides,
@@ -50,6 +55,7 @@ export function CoverflowCarousel({
   showCaption = false,
   showPagination = false,
   showNavigation = false,
+  pageLabels,
   label = 'Cover carousel',
   className,
   cardClassName,
@@ -357,6 +363,28 @@ export function CoverflowCarousel({
               ))}
             </dl>
           )}
+        </div>
+      )}
+
+      {pageLabels && (
+        <div className="cf__rail" role="tablist" aria-label="Stages">
+          {pageLabels.map((text, index) => (
+            <React.Fragment key={text}>
+              {index > 0 && (
+                <span className={cx('cf__rail-link', index <= selected && 'is-done')} aria-hidden="true" />
+              )}
+              <button
+                type="button"
+                role="tab"
+                aria-selected={index === selected}
+                onClick={() => goTo(index)}
+                className={cx('cf__rail-item', index === selected && 'is-active', index < selected && 'is-done')}
+              >
+                <small>{String(index + 1).padStart(2, '0')}</small>
+                {text}
+              </button>
+            </React.Fragment>
+          ))}
         </div>
       )}
 

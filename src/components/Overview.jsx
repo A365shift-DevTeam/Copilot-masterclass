@@ -1,44 +1,44 @@
-import { useState } from 'react'
+import { BookOpen, Bot, Globe, GraduationCap, LayoutGrid, Terminal } from 'lucide-react'
 import useReveal from '../hooks/useReveal.js'
-import { APP_CARDS } from '../data/content.js'
+import { JOURNEY } from '../data/content.js'
 import CoverflowCarousel from './ui/CoverflowCarousel.jsx'
 
-// Same icon CDN the orbit already uses, so the two visuals stay in step.
-const ICON_CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
+const ICONS = {
+  learn: BookOpen,
+  use: LayoutGrid,
+  build: Bot,
+  prompt: Terminal,
+  expand: Globe,
+  master: GraduationCap,
+}
 
 /**
- * One app card as a coverflow face. The letter mark is the base layer and the
- * real icon sits on top, so a CDN failure falls back to the letter instead of a
- * broken-image glyph — the same guard CopilotOrbit uses.
+ * One journey stage as a coverflow face. The strip along the bottom is the
+ * whole journey in miniature: ticks before this stage are done, this one is
+ * lit, the rest are still ahead, so every card says where it sits in the
+ * six-stage story even when it is the only one readable.
  */
-function AppFace({ card }) {
-  const [iconFailed, setIconFailed] = useState(false)
-
+function StageFace({ stage, index }) {
+  const Icon = ICONS[stage.icon]
   return (
-    <div className="app-face">
-      <span className="app-face__rule" />
-      <span className="app-face__mark" style={{ background: card.tint, color: card.color }}>
-        <span className="app-face__mono">{card.mark}</span>
-        {card.icon && !iconFailed ? (
-          <img
-            src={ICON_CDN + card.icon}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            draggable={false}
-            onError={() => setIconFailed(true)}
-          />
-        ) : null}
-      </span>
-      <h3 className="app-face__title">{card.title}</h3>
-      <div className="app-face__points">
-        {card.points.map((pt) => (
-          <span key={pt}>
-            <i className="app-face__dot">·</i>
-            {pt}
-          </span>
-        ))}
+    <div className="journey-face">
+      <span className="journey-face__rule" />
+      <div className="journey-face__head">
+        <span className="journey-face__mark">
+          <Icon strokeWidth={1.8} aria-hidden="true" />
+        </span>
+        <span className="journey-face__stage">
+          <b>{stage.n}</b>
+          {stage.stage}
+        </span>
       </div>
+      <h3 className="journey-face__title">{stage.t}</h3>
+      <p className="journey-face__desc">{stage.d}</p>
+      <span className="journey-face__strip" aria-hidden="true">
+        {JOURNEY.map((s, j) => (
+          <i key={s.n} className={j < index ? 'is-done' : j === index ? 'is-now' : undefined} />
+        ))}
+      </span>
     </div>
   )
 }
@@ -49,34 +49,35 @@ export default function Overview() {
   return (
     <section id="overview" className="section">
       <div ref={headRef} className="section-head">
-        <div className="eyebrow eyebrow--green">MICROSOFT 365 + COPILOT</div>
+        <div className="eyebrow eyebrow--green">SIX-STAGE JOURNEY</div>
         <h2 className="h2" style={{ fontSize: 'clamp(27px,3.2vw,42px)', lineHeight: 1.14 }}>
-          Master Copilot Across Microsoft 365
+          Your Copilot Learning Journey
         </h2>
-        <p>Learn how AI transforms the applications you already use every day.</p>
+        <p>Start with Copilot. Build skills. Create Agents. Master AI.</p>
       </div>
 
       <CoverflowCarousel
         className="app-coverflow"
-        label="Microsoft 365 apps Copilot works across"
-        items={APP_CARDS.map((card) => (
-          <AppFace key={card.title} card={card} />
+        label="The six stages of the Copilot learning journey"
+        items={JOURNEY.map((stage, index) => (
+          <StageFace key={stage.n} stage={stage} index={index} />
         ))}
+        pageLabels={JOURNEY.map((stage) => stage.stage)}
         autoplay
-        autoplayDelay={3000}
+        autoplayDelay={3400}
         showNavigation
         cardWidth="clamp(210px, 26vw, 300px)"
       />
 
       {/* Only the centre card is readable and the faces are decorative to
           assistive tech, so the full set is listed here for screen readers. */}
-      <ul className="sr-only">
-        {APP_CARDS.map((card) => (
-          <li key={card.title}>
-            {card.title}: {card.points.join(', ')}.
+      <ol className="sr-only">
+        {JOURNEY.map((stage) => (
+          <li key={stage.n}>
+            {stage.stage}: {stage.t}. {stage.d}
           </li>
         ))}
-      </ul>
+      </ol>
     </section>
   )
 }
