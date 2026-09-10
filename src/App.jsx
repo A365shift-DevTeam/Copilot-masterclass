@@ -41,7 +41,7 @@ export default function App() {
         <CopilotStudio />
         <SeatScrollExperience />
         {/* <Agenda /> */}
-        <Audience />
+        {/* <Audience /> */}
         {/* <UseCases /> */}
         {/* <LiveDemo /> */}
         <Benefits />

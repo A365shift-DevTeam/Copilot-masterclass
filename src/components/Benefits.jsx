@@ -4,8 +4,7 @@
  * The fork is the argument of the page drawn as one picture. Two people start
  * on the same line today. Scrolling the tall section moves them right: the
  * Copilot user climbs the lit ribbon, the manual user drifts down the grey
- * one, and the wedge between the two, tinted from each ribbon, is the gap
- * that opens between them. At four checkpoints a dotted rung joins the two
+ * one. At four checkpoints a dotted rung joins the two
  * branches, so each column reads as the same moment seen from two careers.
  *
  * All motion hangs off one number. A rAF ticker writes the section's scroll
@@ -13,10 +12,10 @@
  * derives every draw, position and fade from it, so nothing here touches a
  * transform directly. On phones and under reduced motion the ticker stays
  * off, `--p` sits at 1, and the finished picture is shown with the
- * checkpoints as lists.
+ * checkpoints as lists. The travellers are the pins themselves; their name
+ * cards only appear once they arrive.
  */
 import { useEffect, useRef, useState } from 'react'
-import { Keyboard } from 'lucide-react'
 import useReveal from '../hooks/useReveal.js'
 import { AUDIENCE, BENEFITS, CAREER_STEPS } from '../data/content.js'
 
@@ -28,15 +27,17 @@ const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@maste
 const ORIGIN = { x: 80, y: 260 }
 const END_X = 900
 const RISE = 170
-const CHECKPOINTS = [0.22, 0.45, 0.68, 0.9]
+const CHECKPOINTS = [0.22, 0.44, 0.66, 0.86]
 const STEP_START = [0.06, 0.28, 0.5, 0.72]
 const STEP_WINDOW = 0.16
+// Alternate short and long stems so neighbouring labels sit in different bands.
+const STEM = [26, 42, 26, 42]
 
 const px = (v) => `${(v / 10).toFixed(2)}%`
 const py = (v) => `${((v / 520) * 100).toFixed(2)}%`
 const pointAt = (t, dir) => ({ x: ORIGIN.x + t * (END_X - ORIGIN.x), y: ORIGIN.y - dir * t * RISE })
 
-/* The same person on both ribbons; only the tool in the corner differs. */
+/* The manual traveller's mark. The Copilot traveller carries the Copilot logo. */
 function PersonMark() {
   return (
     <svg className="fork__person" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -94,7 +95,7 @@ function useForkProgress(sectionRef, stageRef) {
   }, [sectionRef, stageRef])
 }
 
-const stepVars = (i) => ({ '--start': STEP_START[i], '--window': STEP_WINDOW })
+const stepVars = (i) => ({ '--start': STEP_START[i], '--window': STEP_WINDOW, '--stem': `${STEM[i]}px` })
 
 function Checkpoints({ dir, steps }) {
   const sign = dir === 'up' ? 1 : -1
@@ -173,26 +174,10 @@ export default function Benefits() {
                     <stop offset="0" stopColor="#4D9AA1" />
                     <stop offset="1" stopColor="#65A859" />
                   </linearGradient>
-                  <linearGradient id="forkUpFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stopColor="#65A859" stopOpacity="0.30" />
-                    <stop offset="1" stopColor="#65A859" stopOpacity="0" />
-                  </linearGradient>
-                  <linearGradient id="forkDownFill" x1="0" y1="1" x2="0" y2="0">
-                    <stop offset="0" stopColor="#808080" stopOpacity="0.26" />
-                    <stop offset="1" stopColor="#808080" stopOpacity="0" />
-                  </linearGradient>
                   <filter id="forkGlow" x="-10%" y="-60%" width="120%" height="220%">
                     <feGaussianBlur stdDeviation="7" />
                   </filter>
                 </defs>
-
-                {/* The wedge: each field is tinted from its own ribbon and opens with the scroll. */}
-                <g transform={`translate(${ORIGIN.x} 0)`}>
-                  <g className="fork__fields">
-                    <polygon className="fork__field fork__field--up" points={`0,${ORIGIN.y} ${END_X - ORIGIN.x},${ORIGIN.y - RISE} ${END_X - ORIGIN.x},${ORIGIN.y}`} />
-                    <polygon className="fork__field fork__field--down" points={`0,${ORIGIN.y} ${END_X - ORIGIN.x},${ORIGIN.y + RISE} ${END_X - ORIGIN.x},${ORIGIN.y}`} />
-                  </g>
-                </g>
 
                 <line className="fork__base" x1={ORIGIN.x} y1={ORIGIN.y} x2={END_X} y2={ORIGIN.y} vectorEffect="non-scaling-stroke" />
 
@@ -231,17 +216,15 @@ export default function Benefits() {
               <Checkpoints dir="down" steps={CAREER_STEPS.down} />
 
               <div className="fork__fig fork__fig--up">
-                <i className="fork__pin" />
+                <i className="fork__pin fork__pin--copilot"><CopilotBadge /></i>
                 <div className="fork__card">
-                  <span className="fork__avatar fork__avatar--copilot"><PersonMark /><i className="fork__tool"><CopilotBadge /></i></span>
                   <span className="fork__who">Copilot user<small>Learning and adapting</small></span>
                   <span className="fork__result">Career value ↑</span>
                 </div>
               </div>
               <div className="fork__fig fork__fig--down">
-                <i className="fork__pin" />
+                <i className="fork__pin fork__pin--manual"><PersonMark /></i>
                 <div className="fork__card">
-                  <span className="fork__avatar fork__avatar--manual"><PersonMark /><i className="fork__tool"><Keyboard strokeWidth={2} aria-hidden="true" /></i></span>
                   <span className="fork__who">Manual user<small>Same skills, same routine</small></span>
                   <span className="fork__result">Career risk ↓</span>
                 </div>

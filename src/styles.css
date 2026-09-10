@@ -1322,12 +1322,12 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 /* --- the fork ------------------------------------------------------
    Tall scroll container, sticky stage, one number (--p) drives it all.
    Colour is meaning here: the up ribbon is the brand gradient and its
-   field is tinted green; the down ribbon and its field are desaturated. */
+   field is tinted green; the down ribbon and its field are red. */
 .career { position: relative; height: 260vh; }
 .career__stage {
   --p: 0;
   --up: #35A160; --up-rgb: 53, 161, 96;
-  --down: #9E9E9E; --down-rgb: 128, 128, 128;
+  --down: #DC2626; --down-rgb: 220, 38, 38;
   --fork-ink: #002060; --fork-ink-2: var(--ref-body); --fork-ink-3: var(--ref-micro);
   --fork-panel: linear-gradient(160deg, #FFFFFF, #F4F8FB);
   --fork-line: var(--ref-card-line);
@@ -1346,7 +1346,8 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 .fork-panel {
   position: relative; flex: none; overflow: hidden;
   width: min(1160px, 100%, calc((100vh - 330px) * 1160 / 600));
-  padding: 26px 30px; border-radius: 24px;
+  padding: 26px 30px 30px; border-radius: 24px;
+  container-type: inline-size;
   background: var(--fork-panel); border: 1px solid var(--fork-line);
   box-shadow: 0 24px 70px rgba(26, 62, 76, 0.12);
 }
@@ -1359,11 +1360,6 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 .fork { position: relative; width: 100%; aspect-ratio: 1000 / 520; font-family: var(--font-display); }
 .fork__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-
-/* The wedge opens with the scroll. */
-.fork__fields { transform-box: fill-box; transform-origin: left center; transform: scaleX(var(--p)); }
-.fork__field--up { fill: url(#forkUpFill); }
-.fork__field--down { fill: url(#forkDownFill); }
 
 .fork__base { stroke: var(--fork-line); stroke-width: 1.5px; stroke-dasharray: 2 6; stroke-linecap: round; }
 .fork__rung {
@@ -1396,13 +1392,14 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 .fork__tick {
   --on: clamp(0, (var(--p) - var(--start)) / var(--window), 1);
-  position: absolute; bottom: 0; transform: translateX(-50%);
+  position: absolute; bottom: -22px; transform: translateX(-50%);
   font-size: 9.5px; font-weight: 800; letter-spacing: .1em; color: var(--fork-ink-3);
   opacity: calc(.25 + var(--on) * .75);
 }
 
-/* Checkpoints: a node on the ribbon, a label held off it by a short stem.
-   Labels sit on the outer side of each ribbon; travellers ride the inner. */
+/* Checkpoints: a node on the ribbon, a label held off it by a stem whose
+   length alternates (see STEM in Benefits.jsx) so neighbours never share a
+   band. Labels sit on the outer side of each ribbon; travellers ride the inner. */
 .fork__step {
   --on: clamp(0, (var(--p) - var(--start)) / var(--window), 1);
   position: absolute; width: 0; height: 0; z-index: 2;
@@ -1414,22 +1411,23 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 .fork__label {
   position: absolute; left: 0; white-space: nowrap;
-  padding: 8px 13px; border-radius: 11px; font-size: 12.5px; font-weight: 700; line-height: 1.15;
+  /* Type scales with the panel so a label never outgrows the checkpoint spacing. */
+  padding: .6em 1em; border-radius: 11px; font-size: clamp(10px, 1.15cqw, 12.5px); font-weight: 700; line-height: 1.15;
   background: var(--fork-card); border: 1px solid var(--fork-line); box-shadow: var(--fork-shadow);
   opacity: calc(.14 + var(--on) * .86);
 }
 .fork__label::before {
-  content: ''; position: absolute; left: 50%; width: 1px; height: 16px; background: var(--c); opacity: .45;
+  content: ''; position: absolute; left: 50%; width: 1px; height: calc(var(--stem) - 9px); background: var(--c); opacity: .45;
 }
 .fork__step--up { --c: var(--up); --c-rgb: var(--up-rgb); }
 .fork__step--up .fork__label {
-  bottom: 24px; color: var(--fork-ink); border-color: rgba(var(--up-rgb), .4);
+  bottom: var(--stem); color: var(--fork-ink); border-color: rgba(var(--up-rgb), .4);
   transform: translate(-50%, calc((1 - var(--on)) * 10px));
 }
 .fork__step--up .fork__label::before { top: 100%; }
 .fork__step--down { --c: var(--down); --c-rgb: var(--down-rgb); }
 .fork__step--down .fork__label {
-  top: 24px; color: var(--fork-ink-2);
+  top: var(--stem); color: var(--fork-ink-2);
   transform: translate(-50%, calc((1 - var(--on)) * -10px));
 }
 .fork__step--down .fork__label::before { bottom: 100%; }
@@ -1445,47 +1443,39 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   --c: var(--down); --c-rgb: var(--down-rgb); top: calc(50% + var(--p) * 32.7%);
   filter: grayscale(calc(var(--p) * .6)); opacity: calc(1 - var(--p) * .15);
 }
+/* The pin is the traveller: a ringed disc carrying its mark. */
 .fork__pin {
-  position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; border-radius: 50%;
-  background: var(--fork-card); border: 3.5px solid var(--c);
-  box-shadow: 0 0 0 5px rgba(var(--c-rgb), .18), 0 0 20px rgba(var(--c-rgb), .5);
+  position: absolute; left: -19px; top: -19px; width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center; font-style: normal;
+  background: var(--fork-card); border: 3px solid var(--c);
+  box-shadow: 0 0 0 5px rgba(var(--c-rgb), .18), 0 0 22px rgba(var(--c-rgb), .5);
 }
-/* The card slides a little behind its pin at the end so the outcome chip stays
-   inside the panel. */
+.fork__pin--copilot img { width: 20px; height: 20px; display: block; }
+.fork__pin--manual { color: var(--down); }
+.fork__pin--manual .fork__person { width: 20px; height: 20px; }
+/* The name card only shows once the traveller arrives, sliding in a little
+   behind its pin so the outcome chip stays inside the panel. */
 .fork__card {
   --done: clamp(0, (var(--p) - .84) / .14, 1);
-  position: absolute; left: 0; transform: translateX(calc(-50% - var(--done) * 34px));
-  display: flex; align-items: center; gap: 9px; white-space: nowrap;
-  padding: 6px 12px 6px 6px; border-radius: 999px;
+  position: absolute; left: 0; opacity: var(--done); pointer-events: none;
+  transform: translateX(calc(-50% - var(--done) * 34px));
+  display: flex; align-items: center; gap: 10px; white-space: nowrap;
+  padding: 8px 8px 8px 14px; border-radius: 999px;
   background: var(--fork-card); border: 1px solid var(--fork-line); box-shadow: var(--fork-shadow);
 }
-.fork__fig--up .fork__card { top: 20px; border-color: rgba(var(--up-rgb), .45); }
-.fork__fig--down .fork__card { bottom: 20px; }
-/* Avatar: a person mark, with the tool they work with as a corner badge. */
-.fork__avatar { position: relative; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; flex: none; }
-.fork__person { width: 21px; height: 21px; }
-.fork__avatar--copilot { color: #FFFFFF; background-image: var(--gradient-primary); box-shadow: 0 6px 16px rgba(var(--up-rgb), .35); }
-.fork__avatar--manual { color: #FFFFFF; background: linear-gradient(150deg, #9E9E9E, #6B6B6B); }
-.fork__tool {
-  position: absolute; right: -7px; bottom: -7px; width: 21px; height: 21px; border-radius: 50%;
-  display: grid; place-items: center; background: var(--fork-card); border: 1px solid var(--fork-line);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .18); font-style: normal;
-}
-.fork__tool img { width: 13px; height: 13px; display: block; }
-.fork__tool svg { width: 12px; height: 12px; color: #6B6B6B; }
-.fork__mono { font-size: 8px; font-weight: 800; color: #2B824E; }
-.fork__who { font-size: 12px; font-weight: 800; letter-spacing: .02em; line-height: 1.15; color: var(--fork-ink); }
+.fork__fig--up .fork__card { top: 26px; border-color: rgba(var(--up-rgb), .45); }
+.fork__fig--down .fork__card { bottom: 26px; }
+.fork__mono { font-size: 13px; font-weight: 800; color: #2B824E; }
+.fork__who { font-size: clamp(10px, 1.1cqw, 12px); font-weight: 800; letter-spacing: .02em; line-height: 1.15; color: var(--fork-ink); }
 .fork__who small { display: block; font-size: 10px; font-weight: 600; letter-spacing: 0; color: var(--fork-ink-3); }
 .fork__fig--down .fork__who { color: var(--fork-ink-2); }
 /* The outcome grows out of the card once the traveller arrives. */
 .fork__result {
-  --done: clamp(0, (var(--p) - .84) / .14, 1);
-  max-width: calc(var(--done) * 130px); opacity: var(--done); overflow: hidden;
-  margin-left: calc(var(--done) * 2px); padding: 5px 10px; border-radius: 999px;
-  font-size: 10.5px; font-weight: 800; letter-spacing: .04em;
+  padding: 5px 10px; border-radius: 999px;
+  font-size: clamp(9px, .95cqw, 10.5px); font-weight: 800; letter-spacing: .04em;
 }
 .fork__fig--up .fork__result { background: #3FC073; color: #0A0F1D; }
-.fork__fig--down .fork__result { background: #575757; color: #FFFFFF; }
+.fork__fig--down .fork__result { background: var(--down); color: #FFFFFF; }
 
 .career__hint {
   margin: 14px 0 0; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
@@ -1514,7 +1504,6 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   .fork-lists__col--down li::before { background: var(--down); }
 }
 @media (max-width: 900px) and (min-width: 720px) {
-  .fork__label { font-size: 11px; padding: 6px 10px; }
   .fork__who small { display: none; }
   .fork__result { display: none; }
 }
@@ -1980,7 +1969,7 @@ html[data-theme="dark"] .benefit-chips li { color: #C9E3EE; background: rgba(48,
 /* The fork */
 html[data-theme="dark"] .career__stage {
   --up: #6BD194; --up-rgb: 107, 209, 148;
-  --down: #808080; --down-rgb: 158, 158, 158;
+  --down: #F26D6D; --down-rgb: 242, 109, 109;
   --fork-ink: #FFFFFF; --fork-ink-2: #9AA4B6; --fork-ink-3: #8B96A6;
   --fork-panel: linear-gradient(160deg, #0F1A2B, #101828 60%, #0C1322);
   --fork-line: #1E2939;
@@ -1990,11 +1979,8 @@ html[data-theme="dark"] .career__stage {
 }
 html[data-theme="dark"] .fork-panel { box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45); }
 html[data-theme="dark"] .fork__lane--up { color: #6BD194; }
-html[data-theme="dark"] .fork__ribbon--down { stroke: #6B6B6B; }
-html[data-theme="dark"] .fork__avatar--manual { background: linear-gradient(150deg, #6B6B6B, #424242); }
-html[data-theme="dark"] .fork__tool svg { color: #C2C2C2; }
 html[data-theme="dark"] .fork__mono { color: #6BD194; }
-html[data-theme="dark"] .fork__fig--down .fork__result { background: #424242; color: #D1D5DC; }
+html[data-theme="dark"] .fork__fig--down .fork__result { background: rgba(242, 109, 109, 0.2); color: #F26D6D; }
 html[data-theme="dark"] .career__hint { color: #9FD1E5; }
 html[data-theme="dark"] .career__head p { color: #9AA4B6; }
 
