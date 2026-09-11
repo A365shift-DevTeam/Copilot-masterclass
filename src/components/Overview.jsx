@@ -29,7 +29,11 @@ function StageFace({ stage }) {
         </span>
       </div>
       <h3 className="journey-face__title">{stage.t}</h3>
-      <p className="journey-face__desc">{stage.d}</p>
+      <ul className="journey-face__desc journey-face__points">
+        {stage.points.map((point) => (
+          <li key={point}>{point}</li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -44,7 +48,7 @@ export default function Overview() {
         <h2 className="h2" style={{ fontSize: 'clamp(27px,3.2vw,42px)', lineHeight: 1.14 }}>
           Your Copilot Learning Journey
         </h2>
-        <p>Start with Copilot. Build skills. Create Agents. Master AI.</p>
+        <p>Learn → Use → Build → Prompt → Expand → Master</p>
       </div>
 
       <CoverflowCarousel
@@ -65,7 +69,7 @@ export default function Overview() {
       <ol className="sr-only">
         {JOURNEY.map((stage) => (
           <li key={stage.n}>
-            {stage.stage}: {stage.t}. {stage.d}
+            {stage.stage}: {stage.t}. {stage.points.join('. ')}.
           </li>
         ))}
       </ol>

@@ -16,12 +16,12 @@ export const HERO_TITLE_PHRASES = ['Master Prompt', 'Develop AI Skills', 'Build 
 // the story (LEARN -> USE -> BUILD -> PROMPT -> EXPAND -> MASTER) and `icon`
 // keys into the lucide set in Overview.jsx.
 export const JOURNEY = [
-  { n: '01', stage: 'Learn', icon: 'learn', t: 'Master Copilot Fundamentals', d: 'Understand Copilot, AI basics and how to work with it effectively.' },
-  { n: '02', stage: 'Use', icon: 'use', t: 'Use Copilot Across Microsoft 365', d: 'Learn Copilot with Excel, Word, PowerPoint, Outlook, Teams & more.' },
-  { n: '03', stage: 'Build', icon: 'build', t: 'Build Your Own Copilot Agent', d: 'Learn how to create skills, knowledge and Agents for your own business process.' },
-  { n: '04', stage: 'Prompt', icon: 'prompt', t: 'Master Smarter Prompting', d: 'Create reusable Slash Prompts instead of writing long instructions repeatedly.' },
-  { n: '05', stage: 'Expand', icon: 'expand', t: 'One Prompt. Multiple AI Platforms.', d: 'Apply structured prompts across Copilot, ChatGPT, Gemini, Claude & other AI tools.' },
-  { n: '06', stage: 'Master', icon: 'master', t: 'Go From User to AI Professional', d: 'Continue with our 30-Day Accelerator → 90-Day Microsoft 365 Transformation Program.' },
+  { n: '01', stage: 'Learn', icon: 'learn', t: 'Copilot Fundamentals', points: ['AI Basics', 'Copilot Essentials'] },
+  { n: '02', stage: 'Use', icon: 'use', t: 'Microsoft 365 Copilot', points: ['Work Smarter', 'Across M365 Apps'] },
+  { n: '03', stage: 'Build', icon: 'build', t: 'Build Copilot Agents', points: ['Add Knowledge', 'Automate Processes'] },
+  { n: '04', stage: 'Prompt', icon: 'prompt', t: 'Smarter Prompting', points: ['Slash Prompts', 'Reusable Instructions'] },
+  { n: '05', stage: 'Expand', icon: 'expand', t: 'Beyond Copilot', points: ['Multiple AI Tools', 'One Prompt Structure'] },
+  { n: '06', stage: 'Master', icon: 'master', t: 'AI Professional', points: ['30-Day Accelerator', '90-Day Transformation'] },
 ]
 
 // The Copilot Studio diagram. Step N lights row N of the circuit (one app
@@ -95,11 +95,11 @@ export const DEMO_CONVERSATIONS = [
 ]
 
 export const BENEFITS = [
-  { i: 'LT', t: 'Live Training', d: 'Instructor-led interactive webinar.' },
-  { i: 'UC', t: 'Real Use Cases', d: 'Practical Microsoft 365 scenarios.' },
-  { i: 'WF', t: 'AI Workflows', d: 'Reusable productivity techniques.' },
-  { i: 'QA', t: 'Q&A', d: 'Ask implementation questions directly.' },
-  { i: 'LM', t: 'Learning Materials', d: 'Resources and checklists where applicable.' },
+  { i: 'LT', icon: 'live', t: 'Live Training', d: 'Instructor-led interactive webinar.' },
+  { i: 'UC', icon: 'cases', t: 'Real Use Cases', d: 'Practical Microsoft 365 scenarios.' },
+  { i: 'WF', icon: 'workflow', t: 'AI Workflows', d: 'Reusable productivity techniques.' },
+  { i: 'QA', icon: 'qa', t: 'Q&A', d: 'Ask implementation questions directly.' },
+  { i: 'LM', icon: 'materials', t: 'Learning Materials', d: 'Resources and checklists where applicable.' },
 ]
 
 // The Benefits fork. Four checkpoints up the Copilot branch, four down the

@@ -2756,14 +2756,27 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   padding: 26px 24px 24px; border-radius: 14px; border: 1px solid var(--ref-card-line); background: #FFFFFF;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+/* The card mark sits above the eyebrow in the top-left corner and carries
+   that card's accent: teal for the audience card, green for the included one. */
+.benefit-card__mark {
+  width: 42px; height: 42px; border-radius: 12px; margin-bottom: 14px;
+  display: grid; place-items: center;
+}
+.benefit-card__mark svg { width: 21px; height: 21px; }
+.benefit-card--who .benefit-card__mark { color: #1D5368; background: #E8F3F8; }
+.benefit-card--get .benefit-card__mark { color: #2B824E; background: #E9F7EE; }
 .benefit-card .eyebrow { margin-bottom: 8px; }
 .benefit-card h3 { margin: 0 0 8px; font-family: var(--font-display); font-size: 21px; font-weight: 700; color: #002060; }
 .benefit-card p { margin: 0 0 16px; font-size: 14.5px; line-height: 1.6; color: var(--fg-secondary); }
 .benefit-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .benefit-chips li {
+  display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
   color: #1D5368; background: #E8F3F8; border: 1px solid #C9E3EE;
 }
+/* The chip glyph is the same mark the Audience grid uses, drawn small and
+   a shade lighter so the label stays the thing you read first. */
+.benefit-chips svg { width: 14px; height: 14px; flex: none; opacity: 0.8; }
 .benefit-list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 12px; }
 .benefit-list li { display: flex; align-items: flex-start; gap: 12px; }
 .benefit-list li > span:last-child { font-size: 14px; line-height: 1.5; color: var(--fg-secondary); }
@@ -2772,6 +2785,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   flex: none; width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(140deg, #E9F7EE, #E8F3F8);
   display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; color: #1D5368; font-size: 13px;
 }
+.benefit-card__icon svg { width: 19px; height: 19px; }
 
 /* --- the fork ------------------------------------------------------
    Tall scroll container, sticky stage, one number (--p) drives it all.
@@ -4193,6 +4207,8 @@ html[data-theme="dark"] .register-success__icon {
   color: #6BD194;
 }
 
+html[data-theme="dark"] .benefit-card--who .benefit-card__mark { color: #9FD1E5; background: rgba(48, 139, 175, 0.18); }
+html[data-theme="dark"] .benefit-card--get .benefit-card__mark { color: #6BD194; background: rgba(63, 192, 115, 0.16); }
 html[data-theme="dark"] .benefit-card__icon {
   background: linear-gradient(140deg, rgba(63, 192, 115, 0.20), rgba(48, 139, 175, 0.22));
   color: #C9E3EE;
@@ -5004,6 +5020,14 @@ html[data-theme="light"] .app-card__points .dot {
   font-size: 19px; font-weight: 700; line-height: 1.25; color: #002060;
 }
 .journey-face__desc { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--fg-secondary); }
+/* Two short proof points per card instead of a paragraph: markers are drawn
+   with ::before so the list keeps the title flush-left inside the card. */
+.journey-face__points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.journey-face__points li { position: relative; padding-left: 18px; font-weight: 500; }
+.journey-face__points li::before {
+  content: ""; position: absolute; left: 0; top: 0.55em;
+  width: 6px; height: 6px; border-radius: 50%; background: #2B824E;
+}
 
 /* --- stage rail: the story line under the deck ------------------- */
 .cf__rail {
@@ -5043,6 +5067,7 @@ html[data-theme="dark"] .journey-face__stage { color: #9FD1E5; }
 html[data-theme="dark"] .journey-face__stage b { color: #6BD194; }
 html[data-theme="dark"] .journey-face__title { color: #FFFFFF; }
 html[data-theme="dark"] .journey-face__desc { color: rgba(255, 255, 255, 0.62); }
+html[data-theme="dark"] .journey-face__points li::before { background: #6BD194; }
 html[data-theme="dark"] .cf__rail-item { color: rgba(255, 255, 255, 0.45); }
 html[data-theme="dark"] .cf__rail-item:hover,
 html[data-theme="dark"] .cf__rail-item.is-done { color: #FFFFFF; }

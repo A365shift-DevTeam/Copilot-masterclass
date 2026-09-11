@@ -16,12 +16,23 @@
  * cards only appear once they arrive.
  */
 import { useEffect, useRef, useState } from 'react'
+import { BookOpen, Briefcase, MessageCircleQuestion, MonitorPlay, PackageCheck, Users, Workflow } from 'lucide-react'
 import useReveal from '../hooks/useReveal.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 import { AUDIENCE, BENEFITS, CAREER_PROMPT, CAREER_STEPS } from '../data/content.js'
+import AudienceGlyph from './ui/AudienceGlyph.jsx'
 import ReserveSeatButton from './ReserveSeatButton.jsx'
 
 const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
+
+// One lucide mark per "What you get" row, keyed by the `icon` field on BENEFITS.
+const BENEFIT_ICONS = {
+  live: MonitorPlay,
+  cases: Briefcase,
+  workflow: Workflow,
+  qa: MessageCircleQuestion,
+  materials: BookOpen,
+}
 
 // The fork in a 1000 x 520 box: one start at (80, 260), the up branch ending
 // at (900, 90), the down branch at (900, 430). Checkpoints sit at four
@@ -169,29 +180,43 @@ export default function Benefits() {
     <section id="benefits" className="section benefits">
       <div ref={cardsRef} className="benefits-cards">
         <div className="benefit-card benefit-card--who">
+          <span className="benefit-card__mark" aria-hidden="true">
+            <Users strokeWidth={1.8} />
+          </span>
           <div className="eyebrow eyebrow--teal">WHO IT IS FOR</div>
           <h3>Who should attend?</h3>
           <p>Built for people who already work in Microsoft 365 and want to work smarter.</p>
           <ul className="benefit-chips">
             {AUDIENCE.map((a) => (
-              <li key={a.n}>{a.t}</li>
+              <li key={a.n}>
+                <AudienceGlyph icon={a.icon} />
+                {a.t}
+              </li>
             ))}
           </ul>
         </div>
 
         <div className="benefit-card benefit-card--get">
+          <span className="benefit-card__mark" aria-hidden="true">
+            <PackageCheck strokeWidth={1.8} />
+          </span>
           <div className="eyebrow eyebrow--green">INCLUDED</div>
           <h3>What you get</h3>
           <ul className="benefit-list">
-            {BENEFITS.map((b) => (
-              <li key={b.i}>
-                <span className="benefit-card__icon">{b.i}</span>
-                <span>
-                  <strong>{b.t}</strong>
-                  {b.d}
-                </span>
-              </li>
-            ))}
+            {BENEFITS.map((b) => {
+              const Icon = BENEFIT_ICONS[b.icon]
+              return (
+                <li key={b.i}>
+                  <span className="benefit-card__icon">
+                    <Icon strokeWidth={1.8} aria-hidden="true" />
+                  </span>
+                  <span>
+                    <strong>{b.t}</strong>
+                    {b.d}
+                  </span>
+                </li>
+              )
+            })}
           </ul>
         </div>
       </div>
