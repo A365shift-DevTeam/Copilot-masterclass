@@ -112,7 +112,17 @@ export const CAREER_STEPS = {
 // The question the fork puts to the reader, typed out in the middle of the picture.
 export const CAREER_PROMPT = 'Which direction will you choose?'
 
-export const EXPERTISE = ['Business Automation', 'Artificial Intelligence', 'Microsoft 365', 'Microsoft Copilot', 'Business Applications', 'Digital Transformation']
+// The founder's credentials as pills: `v` is the figure that leads, `l` says
+// what it counts.
+export const EXPERTISE = [
+  { v: '18+ Years', l: 'Professional Experience' },
+  { v: '47+ Clients', l: 'Global Delivery Experience' },
+  { v: 'Microsoft 365', l: 'Expertise' },
+  { v: '1,200+', l: 'Automation Deliveries' },
+  { v: '200+', l: 'Lean Projects' },
+  { v: '10+', l: 'Products Built' },
+  { v: 'India Patent', l: 'Innovation' },
+]
 
 export const ECOSYSTEM = [
   { i: 'CP', t: 'Microsoft Copilot Solutions', d: 'AI agents for smarter daily work.' },

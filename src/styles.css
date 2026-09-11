@@ -3055,9 +3055,14 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   padding: var(--section-pad);
 }
 .speaker-section__svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .28; pointer-events: none; }
+/* The one block that leaves the page's shared --content-max rail. The photo
+   is a square, so on a wide screen it takes half of 1128px and the bio is
+   squeezed into the other half while the outer gutter sits empty beside it.
+   Widening only here lets both columns use that space; every other section
+   stays on the rail. */
 .speaker-grid {
   position: relative;
-  max-width: var(--content-max);
+  max-width: min(1320px, 100%);
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
@@ -3073,7 +3078,8 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   display: grid;
   place-items: center;
   text-align: center;
-  padding: 20px;
+  padding: 0;
+  overflow: hidden;
   box-shadow: 0 16px 48px rgba(7, 18, 21, 0.4);
 }
 
@@ -3088,28 +3094,55 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   }
 }
 
-.speaker-photo__initials {
-  width: 74px;
-  height: 74px;
-  margin: 0 auto 14px;
-  border-radius: 50%;
-  background: linear-gradient(140deg, #3FC073, #308BAF);
-  display: grid;
-  place-items: center;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 24px;
-  color: #fff;
+/* The source is a square 1254px graphic and the card is a square, so cover
+   fills it edge to edge without cropping anything out of the frame. */
+.speaker-photo__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.speaker-photo__note {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.5;
+/* The name and its voice note read as one line, so the button rides with the
+   heading instead of sitting under it; the row carries the spacing the
+   heading used to. */
+.speaker__name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 0 0 6px;
+}
+
+.speaker__voice {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #04121B;
+  background: linear-gradient(140deg, #3FC073, #308BAF);
+  box-shadow: 0 6px 18px rgba(63, 192, 115, 0.30);
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease);
+}
+.speaker__voice svg { width: 19px; height: 19px; }
+.speaker__voice:hover { transform: scale(1.07); }
+.speaker__voice:focus-visible { outline: 2px solid #6BD194; outline-offset: 3px; }
+
+/* While it plays, the ring breathes — the only signal that the button is now
+   a pause control beyond the icon swap. */
+.speaker__voice.is-playing { animation: speaker-voice-pulse 1.8s ease-in-out infinite; }
+@keyframes speaker-voice-pulse {
+  0%, 100% { box-shadow: 0 6px 18px rgba(63, 192, 115, 0.30), 0 0 0 0 rgba(63, 192, 115, 0.45); }
+  50% { box-shadow: 0 6px 18px rgba(63, 192, 115, 0.30), 0 0 0 9px rgba(63, 192, 115, 0); }
 }
 
 .speaker__name {
-  margin: 0 0 6px;
+  margin: 0;
   font-family: var(--font-display);
   font-size: clamp(26px, 3vw, 38px);
   font-weight: 800;
@@ -3132,12 +3165,16 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 .speaker__bio {
-  margin: 20px 0 22px;
+  margin: 20px 0 0;
   font-size: 16px;
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.72);
-  max-width: 560px;
 }
+
+/* The bio runs to two paragraphs, so the gap between them is tighter than
+   the gap that sets the whole block off from the role line and the pills. */
+.speaker__bio + .speaker__bio { margin-top: 14px; }
+.speaker__bio:last-of-type { margin-bottom: 22px; }
 
 .speaker__pills {
   display: flex;
@@ -3153,6 +3190,14 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   font-size: 13px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.86);
+}
+
+/* Each pill is a figure and what it counts, so the figure leads in the
+   accent and the label sits back a step behind it. */
+.speaker__pills b {
+  margin-right: 7px;
+  font-weight: 800;
+  color: #6BD194;
 }
 
 /* ============================================================
@@ -3297,8 +3342,9 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 
 /* The band under the founder. Aligned to the same content width as the bio
    grid above it, so the section reads as one column of material. */
+/* Shares the founder grid's widened rail, since it closes the same block. */
 .feedback-strip {
-  max-width: var(--content-max);
+  max-width: min(1320px, 100%);
   margin: clamp(44px, 6vw, 72px) auto 0;
 }
 /* Quiet enough not to reopen as a section heading — the band needs naming,
@@ -4699,10 +4745,6 @@ html[data-theme="light"] .speaker-photo {
   box-shadow: 0 16px 40px rgba(0, 32, 96, 0.10);
 }
 
-html[data-theme="light"] .speaker-photo__note {
-  color: var(--ref-micro);
-}
-
 html[data-theme="light"] .speaker__name {
   color: var(--ref-navy);
 }
@@ -4724,6 +4766,7 @@ html[data-theme="light"] .speaker__pills span {
   border: 1px solid var(--ref-card-line);
   color: var(--ref-navy);
 }
+html[data-theme="light"] .speaker__pills b { color: #2B824E; }
 
 /* --- Ecosystem hub ---------------------------------------------- */
 /* Stays the emphasised tile among white cards, but as a green tint —
