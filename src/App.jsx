@@ -17,6 +17,7 @@ import StickyRevealFooter from './components/ui/StickyRevealFooter.jsx'
 import SeatScrollExperience from './components/SeatScrollExperience.jsx'
 import TicketScrollExperience from './components/TicketScrollExperience.jsx'
 import Preloader from './components/Preloader.jsx'
+import LogoTraveller from './components/LogoTraveller.jsx'
 import useLenis from './hooks/useLenis.js'
 import useSitePreload from './hooks/useSitePreload.js'
 
@@ -52,6 +53,10 @@ export default function App() {
         {/* <Faq /> */}
         {/* <FinalCta /> */}
       </div>
+
+      {/* Outside .page-stack and any transformed ancestor, so its document
+          coordinates are the page's own. */}
+      <LogoTraveller />
 
       <StickyRevealFooter>
         <Footer />

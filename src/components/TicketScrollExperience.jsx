@@ -427,7 +427,7 @@ export default function TicketScrollExperience() {
               scrollToTarget('#register', -20)
             }}
           >
-            <span><ReserveSeatLabel amount={PASS_PRICE} /></span>
+            <span><ReserveSeatLabel amount={PASS_PRICE} travels={false} /></span>
             <span className="btn-shine" aria-hidden="true" />
           </a>
         </div>

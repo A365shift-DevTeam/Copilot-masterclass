@@ -71,6 +71,13 @@
   /* Gradient midpoint, for glows that sit beneath a primary action. */
   --gradient-primary-rgb: 89, 161, 125;
 
+  /* The bot beside ₹499. One number: the slot in the pill and the flying
+     traveller both read it, and the traveller centres itself on half of it.
+     They have to agree exactly or the bot lands off-centre in the button.
+     Sized against the pill's 15px label, twice it, which is as large as the
+     bot goes before it crowds the pill's 17px of vertical padding. */
+  --bot-size: 50px;
+
   /* ---- Typography --------------------------------------------- */
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Poppins', ui-sans-serif, system-ui, sans-serif;
@@ -965,6 +972,103 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   /* One column everywhere, so every variant falls back to centred. */
   .section-cta { margin-top: 32px; justify-content: center; }
   .section-cta--answer::before { height: 26px; margin-bottom: 12px; }
+}
+
+/* ---------- The bot beside the price -----------------------------
+   A fixed-size slot after ₹499 in every seat pill, so the layout never
+   shifts whether or not the live bot is currently parked there. Waypoint
+   slots hold a dimmed ghost for the traveller to land on; the two scroll
+   reveals keep a solid bot, since the traveller never visits them. */
+.btn-bot {
+  width: var(--bot-size);
+  height: var(--bot-size);
+  margin-left: 10px;
+  flex: 0 0 auto;
+  display: inline-block;
+  vertical-align: calc(var(--bot-size) * -0.3);
+}
+.btn-bot img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+.btn-bot--ghost img { opacity: 0.2; }
+
+/* The traveller in document coordinates: parked, it rides the page like any
+   other element. --x/--y are the waypoint's centre, so the bot is pulled
+   back by half its size to sit on it.
+
+   The curve lives in the split between these two layers. Moving both axes on
+   one element draws a straight line no matter what easing you give it; it is
+   the *difference* between the X easing and the Y easing that bends the path.
+   Both are still transitions to the same endpoint, so however the bot bows on
+   the way, it lands exactly on the button. */
+.bot-traveller {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  width: var(--bot-size);
+  height: var(--bot-size);
+  margin: calc(var(--bot-size) / -2) 0 0 calc(var(--bot-size) / -2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(var(--x, 0));
+  transition: transform var(--fly, 1000ms) var(--ease-x, ease), opacity 220ms linear;
+}
+.bot-traveller__y {
+  transform: translateY(var(--y, 0));
+  transition: transform var(--fly, 1000ms) var(--ease-y, ease);
+}
+.bot-traveller__y,
+.bot-traveller__spin {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.bot-traveller__spin { object-fit: contain; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.35)); }
+
+/* Re-measuring a parked bot must not animate it anywhere. */
+.bot-traveller.is-instant,
+.bot-traveller.is-instant .bot-traveller__y { transition: none; }
+
+/* Four curves, cycled by waypoint index. X ahead of Y bows the path over the
+   top; Y ahead of X drops it early and sweeps it across low. */
+.bot-traveller[data-hop="0"] {            /* over the top, settling gently */
+  --ease-x: cubic-bezier(0.16, 0.84, 0.44, 1);
+  --ease-y: cubic-bezier(0.78, 0, 0.86, 0.36);
+}
+.bot-traveller[data-hop="0"] .bot-traveller__spin { animation: bot-spin 1000ms ease-in-out; }
+
+.bot-traveller[data-hop="1"] {            /* drops away first, sweeps in low */
+  --ease-x: cubic-bezier(0.8, 0, 0.7, 0.4);
+  --ease-y: cubic-bezier(0.2, 0.9, 0.35, 1);
+}
+.bot-traveller[data-hop="1"] .bot-traveller__spin { animation: bot-flip 1000ms cubic-bezier(0.5, 0, 0.3, 1); }
+
+.bot-traveller[data-hop="2"] {            /* wide curve, lands with a bounce */
+  --fly: 1100ms;
+  --ease-x: cubic-bezier(0.32, 0.72, 0.3, 1);
+  --ease-y: cubic-bezier(0.34, 1.44, 0.64, 1);
+}
+.bot-traveller[data-hop="2"] .bot-traveller__spin { animation: bot-pulse 1100ms ease-out; }
+
+.bot-traveller[data-hop="3"] {            /* long shallow S, quick exit */
+  --fly: 950ms;
+  --ease-x: cubic-bezier(0.86, 0, 0.14, 1);
+  --ease-y: cubic-bezier(0.34, 0.02, 0.28, 1);
+}
+.bot-traveller[data-hop="3"] .bot-traveller__spin { animation: bot-spin-fast 950ms cubic-bezier(0.5, 0, 0.2, 1); }
+
+@keyframes bot-spin      { to { transform: rotate(360deg); } }
+@keyframes bot-spin-fast { to { transform: rotate(720deg); } }
+@keyframes bot-flip      { to { transform: rotate(-360deg); } }
+@keyframes bot-pulse     { 40% { transform: scale(1.55); } to { transform: scale(1); } }
+
+/* No traveller is mounted here, so the ghosts are the only bots there are. */
+@media (prefers-reduced-motion: reduce), (max-width: 719px) {
+  .btn-bot--ghost img { opacity: 1; }
 }
 
 .btn-primary {

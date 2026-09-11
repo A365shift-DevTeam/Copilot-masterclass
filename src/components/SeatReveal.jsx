@@ -49,7 +49,7 @@ export default function SeatReveal({ onBook, tabbable = false, amount = 499 }) {
           tabIndex={tabbable ? 0 : -1}
           aria-label={`Reserve your seat for just ₹${amount}`}
         >
-          <span><ReserveSeatLabel amount={amount} /></span>
+          <span><ReserveSeatLabel amount={amount} travels={false} /></span>
           {/* The site's existing sweep, same as the hero's "Reserve My Seat" */}
           <span className="btn-shine" aria-hidden="true" />
         </button>
