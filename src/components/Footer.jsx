@@ -16,13 +16,18 @@ const SOCIAL_ICONS = {
   facebook: FacebookIcon,
 }
 
-/** Anchors on this page work; the rest are still placeholders (see content.js). */
+/* Link hrefs come from content.js. #overview, #learn, #speaker and
+ * #benefits resolve; #agenda, #faq and #register point at sections that are
+ * commented out of App.jsx, so they go nowhere until those come back.
+ * Column titles are paragraphs, not headings: each column is already a
+ * labelled <nav>, so extra <h2>s here would only compete with the page's own
+ * section headings in the document outline. */
 const isPlaceholder = (href) => href === '#'
 
 function LinkColumn({ title, links }) {
   return (
     <nav className="footer__col" aria-label={title}>
-      <h2 className="footer__col-title">{title}</h2>
+      <p className="footer__col-title">{title}</p>
       <ul>
         {links.map((l) => (
           <li key={l.label}>
@@ -59,7 +64,7 @@ export default function Footer() {
           <LinkColumn title="Core offerings" links={FOOTER.offerings} />
 
           <div className="footer__col">
-            <h2 className="footer__col-title">Contact us</h2>
+            <p className="footer__col-title">Contact us</p>
             <ul className="footer__contact">
               <li>
                 <Mail size={15} aria-hidden />

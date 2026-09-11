@@ -1,0 +1,5 @@
+# Single-page site: everything worth indexing is on /.
+User-agent: *
+Allow: /
+
+Sitemap: https://copilot.ambot365.com/sitemap.xml

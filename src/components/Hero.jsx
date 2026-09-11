@@ -74,7 +74,12 @@ export default function Hero() {
             </span>
           </p>
 
-          <h1 className="hero__title" aria-label={HERO_TITLE_PHRASES.join(' / ')}>
+          {/* The visible line types itself a character at a time, so the only
+              text inside the h1 was animation state — empty on first paint and
+              partial after. The static phrase below is the page's real heading
+              for crawlers and screen readers; the typed line stays decorative. */}
+          <h1 className="hero__title">
+            <span className="sr-only">Microsoft 365 Copilot Masterclass — 2-Day Live Online Program</span>
             <br />
             <span className="hero__title-typed" aria-hidden="true">
               <span className="hero__title-gradient">{titleText || '\u200B'}</span>

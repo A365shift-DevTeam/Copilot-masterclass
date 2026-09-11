@@ -1,13 +1,95 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en-IN" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/assets/logo-icon.png" />
+    <link rel="apple-touch-icon" href="/assets/logo-icon.png" />
     <!-- Scroll-sequence frames come from here; warm the connection early. -->
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Live interactive webinar — Master Microsoft 365 Copilot & AI with AmBot365. Transform the way you work with Microsoft 365 + AI." />
-    <title>Master Microsoft 365 Copilot &amp; AI — AmBot365 Webinar</title>
+
+    <title>Copilot AmBot365</title>
+    <meta
+      name="description"
+      content="Live online masterclass on Microsoft 365 Copilot — use it across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting."
+    />
+    <!-- One page, one URL: the canonical keeps tracking parameters on shared
+         links from splitting this page's ranking signals across duplicates. -->
+    <link rel="canonical" href="https://copilot.ambot365.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#0A0F1D" />
+
+    <!-- Social preview. The crawlers that read these (LinkedIn, WhatsApp,
+         Slack, X) do not run the page's JavaScript, so every value a shared
+         link shows has to be spelled out here rather than set at runtime. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AmBot365" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:url" content="https://copilot.ambot365.com/" />
+    <meta property="og:title" content="Microsoft 365 Copilot Masterclass — Live Session" />
+    <meta
+      property="og:description"
+      content="Use Copilot across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting. Live online session by AmBot365."
+    />
+    <meta property="og:image" content="https://copilot.ambot365.com/assets/og-cover.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Microsoft 365 Copilot Masterclass — a live online session from AmBot365" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Microsoft 365 Copilot Masterclass — Live Session" />
+    <meta
+      name="twitter:description"
+      content="Use Copilot across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting. Live online session by AmBot365."
+    />
+    <meta name="twitter:image" content="https://copilot.ambot365.com/assets/og-cover.png" />
+
+    <!-- Organisation and site identity only. Event schema is deliberately
+         absent: it requires a real startDate and this session has no confirmed
+         date yet, and an invented one is a structured-data violation. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://copilot.ambot365.com/#organization",
+            "name": "AmBot365",
+            "legalName": "Ambot365 RPA & IT Solutions OPC Pvt Ltd",
+            "url": "https://copilot.ambot365.com/",
+            "logo": "https://copilot.ambot365.com/assets/logo-horizontal.png",
+            "description": "AI, automation and Microsoft 365 solutions.",
+            "email": "Connect@ambot365.in",
+            "telephone": "+91 9043777365",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Coimbatore",
+              "addressRegion": "Tamil Nadu",
+              "addressCountry": "IN"
+            },
+            "areaServed": ["IN", "AE"]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://copilot.ambot365.com/#website",
+            "url": "https://copilot.ambot365.com/",
+            "name": "Microsoft 365 Copilot Masterclass",
+            "publisher": { "@id": "https://copilot.ambot365.com/#organization" },
+            "inLanguage": "en-IN"
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://copilot.ambot365.com/#webpage",
+            "url": "https://copilot.ambot365.com/",
+            "name": "Microsoft 365 Copilot Masterclass — Live Session",
+            "description": "Live online masterclass on Microsoft 365 Copilot — use it across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting.",
+            "isPartOf": { "@id": "https://copilot.ambot365.com/#website" },
+            "about": { "@id": "https://copilot.ambot365.com/#organization" },
+            "primaryImageOfPage": "https://copilot.ambot365.com/assets/og-cover.png"
+          }
+        ]
+      }
+    </script>
+
     <script>
       // Apply the saved theme before first paint to avoid a flash.
       // The page is dark by default; light is opt-in via the toggle.
