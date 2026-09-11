@@ -75,6 +75,18 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   line-height: 1.3;
 }
 
+/* "DON’T JUST" carries the turn in the sentence, so it runs a size up and
+   takes a navy gradient anchored on --ref-navy, leaving the green to the
+   typed line below. */
+.ticket-scroll-intro__mark {
+  font-size: 1.24em;
+  font-weight: 800;
+  background: linear-gradient(90deg, #002060, #123C86, #1E5AA8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .ticket-scroll-intro__typed {
   margin: 0;
   font-size: clamp(14px, 1.5vw, 21px);

@@ -61,7 +61,10 @@ const HEADLINE_CHARS = HEADLINE_LINES.map((line) =>
   [...line].map((ch) => ({ ch: ch === ' ' ? '\u00A0' : ch, i: charIndex++ }))
 )
 
-const INTRO_KICKER = 'DON’T JUST WATCH THE AI REVOLUTION. BE PART OF IT.'
+// The kicker splits so the turn of the sentence can carry a highlighter
+// stroke; the rest keeps its leading space so the two halves read as one line.
+const INTRO_KICKER_MARK = 'DON’T JUST'
+const INTRO_KICKER_REST = ' WATCH THE AI REVOLUTION. BE PART OF IT.'
 const INTRO_TYPED = 'Master Microsoft Copilot'
 
 /*
@@ -80,7 +83,10 @@ function TicketIntro() {
 
   return (
     <div className="ticket-scroll-intro">
-      <p className="ticket-scroll-intro__kicker">{INTRO_KICKER}</p>
+      <p className="ticket-scroll-intro__kicker">
+        <mark className="ticket-scroll-intro__mark">{INTRO_KICKER_MARK}</mark>
+        {INTRO_KICKER_REST}
+      </p>
       <p className="ticket-scroll-intro__typed" aria-label={INTRO_TYPED}>
         <span className="ticket-scroll-intro__text" aria-hidden="true">{displayedText || '\u200B'}</span>
         <span className="ticket-scroll-intro__cursor" aria-hidden="true" />
