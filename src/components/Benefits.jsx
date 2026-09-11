@@ -244,7 +244,7 @@ export default function Benefits() {
               </svg>
 
               <span className="fork__lane fork__lane--up">COPILOT-POWERED PROFESSIONAL</span>
-              <span className="fork__lane fork__lane--down">Skills not updated</span>
+              <span className="fork__lane fork__lane--down">SKILLS REMAIN UNCHANGED</span>
               <span className="fork__axis fork__axis--start">Today</span>
               <span className="fork__axis fork__axis--end">Career<br />direction →</span>
               <i className="fork__origin" style={{ left: px(ORIGIN.x), top: py(ORIGIN.y) }} />

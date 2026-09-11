@@ -11,8 +11,8 @@ export const SEAT_PRICE = 499
 export default function ReserveSeatLabel({ amount = SEAT_PRICE }) {
   return (
     <>
-      “Reserve your seat for just{' '}
-      <span className="btn-price-highlight">&#8377;{amount}</span>”
+      Reserve your seat for just{' '}
+      <span className="btn-price-highlight">&#8377;{amount}</span>
     </>
   )
 }
