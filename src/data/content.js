@@ -103,9 +103,12 @@ export const BENEFITS = [
 // The Benefits fork. Four checkpoints up the Copilot branch, four down the
 // unchanged one; each pair sits at the same distance along its branch.
 export const CAREER_STEPS = {
-  up: ['Save time', 'Work smarter', 'Stay relevant', 'Promotion & growth'],
-  down: ['More manual work', 'Skills gap widens', 'Lower career relevance', 'Fear of job loss'],
+  up: ['Save Time with Copilot​', 'Work Smarter with Copilot', 'Build Future-Ready Skills', 'Career Growth'],
+  down: ['More Manual Work', 'AI Skills Gap Widens', 'Lower Career Relevance', 'Risk of Falling Behind'],
 }
+
+// The question the fork puts to the reader, typed out in the middle of the picture.
+export const CAREER_PROMPT = 'Which direction will you choose?'
 
 export const EXPERTISE = ['Business Automation', 'Artificial Intelligence', 'Microsoft 365', 'Microsoft Copilot', 'Business Applications', 'Digital Transformation']
 

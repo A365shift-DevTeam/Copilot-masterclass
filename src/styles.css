@@ -2743,6 +2743,31 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 .fork__step--down .fork__label::before { bottom: 100%; }
 
+/* The question at the centre of the fork, typed on a loop. No chip: a card
+   here would read as a ninth checkpoint label, so a soft white bloom clears
+   the dashed base line, the rungs and the dot grid behind the words instead.
+   The sizer reserves the full sentence's width (plus a space for the caret)
+   so the centred line stays put while it types. */
+.fork__prompt {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  z-index: 2; white-space: nowrap; pointer-events: none;
+  font-size: clamp(12px, 1.7cqw, 18px); font-weight: 700; letter-spacing: .01em;
+  color: var(--fork-ink);
+}
+.fork__prompt::before {
+  content: ''; position: absolute; inset: -180% -10%; z-index: -1;
+  background: radial-gradient(ellipse at center, var(--fork-card) 38%, rgba(255, 255, 255, 0) 72%);
+}
+.fork__prompt-sizer { visibility: hidden; }
+.fork__prompt-line { position: absolute; left: 0; top: 0; }
+.fork__prompt-caret {
+  display: inline-block; width: 2px; height: 1em; margin-left: 3px;
+  vertical-align: -.14em; background: var(--up);
+  animation: fork-caret 1s steps(1, end) infinite;
+}
+@keyframes fork-caret { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .fork__prompt-caret { animation: none; } }
+
 /* The travellers: a pin on the ribbon, a profile card hanging off it. */
 .fork__fig {
   position: absolute; width: 0; height: 0; z-index: 3;

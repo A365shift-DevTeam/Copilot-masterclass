@@ -17,7 +17,8 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import useReveal from '../hooks/useReveal.js'
-import { AUDIENCE, BENEFITS, CAREER_STEPS } from '../data/content.js'
+import useTypewriter from '../hooks/useTypewriter.js'
+import { AUDIENCE, BENEFITS, CAREER_PROMPT, CAREER_STEPS } from '../data/content.js'
 
 const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
 
@@ -115,6 +116,48 @@ function Checkpoints({ dir, steps }) {
   })
 }
 
+/* The question in the middle of the fork. A hidden sizer holds the full
+   sentence so the box never resizes while the visible copy is typed into it;
+   without it the centred line would slide outward character by character.
+   The hook lives here rather than in Benefits so its ticks re-render this
+   node alone and leave the scroll-driven picture untouched. */
+function TypedPrompt() {
+  const { displayedText } = useTypewriter({
+    text: CAREER_PROMPT,
+    typingSpeed: 70,
+    deletingSpeed: 30,
+    pauseDuration: 2600,
+    deletePauseDuration: 500,
+    loop: true,
+  })
+  return (
+    <>
+      {displayedText}
+      <i className="fork__prompt-caret" />
+    </>
+  )
+}
+
+function ForkPrompt() {
+  const [still, setStill] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const sync = () => setStill(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
+  return (
+    <span className="fork__prompt" aria-hidden="true">
+      <span className="fork__prompt-sizer">{CAREER_PROMPT}&nbsp;</span>
+      <span className="fork__prompt-line">
+        {still ? CAREER_PROMPT : <TypedPrompt />}
+      </span>
+    </span>
+  )
+}
+
 export default function Benefits() {
   const cardsRef = useReveal()
   const sectionRef = useRef(null)
@@ -156,10 +199,9 @@ export default function Benefits() {
         <div ref={stageRef} className="career__stage">
           <div className="career__head">
             <div className="eyebrow eyebrow--green">BENEFITS</div>
-            <h2 className="h2">Same starting point. Different career direction.</h2>
+            <h2 className="h2">Same Career. Two Different Futures.​</h2>
             <p>
-              Both begin on the same line today. One updates their skills with Copilot and
-              climbs. The other keeps the same routine and drifts below the line.
+              One professional builds Microsoft Copilot skills. The other continues working the same way. See how one decision can change the direction.​
             </p>
           </div>
 
@@ -167,7 +209,7 @@ export default function Benefits() {
             <div
               className="fork"
               role="img"
-              aria-label="Two careers start from the same point. The Copilot user's path rises through saving time, working smarter, staying relevant, and promotion. The manual user's path falls through more manual work, a widening skills gap, lower relevance, and fear of job loss."
+              aria-label={`Two careers start from the same point. The Copilot user's path rises through saving time, working smarter, staying relevant, and promotion. The manual user's path falls through more manual work, a widening skills gap, lower relevance, and fear of job loss. ${CAREER_PROMPT}`}
             >
               <svg className="fork__svg" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true">
                 <defs>
@@ -201,7 +243,7 @@ export default function Benefits() {
                 <line className="fork__ribbon fork__ribbon--up" x1={ORIGIN.x} y1={ORIGIN.y} x2={END_X} y2={ORIGIN.y - RISE} pathLength="1" vectorEffect="non-scaling-stroke" />
               </svg>
 
-              <span className="fork__lane fork__lane--up">Copilot-skilled professional</span>
+              <span className="fork__lane fork__lane--up">COPILOT-POWERED PROFESSIONAL</span>
               <span className="fork__lane fork__lane--down">Skills not updated</span>
               <span className="fork__axis fork__axis--start">Today</span>
               <span className="fork__axis fork__axis--end">Career<br />direction →</span>
@@ -216,18 +258,20 @@ export default function Benefits() {
               <Checkpoints dir="up" steps={CAREER_STEPS.up} />
               <Checkpoints dir="down" steps={CAREER_STEPS.down} />
 
+              <ForkPrompt />
+
               <div className="fork__fig fork__fig--up">
                 <i className="fork__pin fork__pin--copilot"><CopilotBadge /></i>
                 <div className="fork__card">
-                  <span className="fork__who">Copilot user<small>Learning and adapting</small></span>
+                  <span className="fork__who">Copilot-Skilled Professional<small></small></span>
                   <span className="fork__result">Career value ↑</span>
                 </div>
               </div>
               <div className="fork__fig fork__fig--down">
                 <i className="fork__pin fork__pin--manual"><PersonMark /></i>
                 <div className="fork__card">
-                  <span className="fork__who">Manual user<small>Same skills, same routine</small></span>
-                  <span className="fork__result">Career risk ↓</span>
+                  <span className="fork__who">Traditional Work Approach<small></small></span>
+                  <span className="fork__result">Career Risk ↑</span>
                 </div>
               </div>
             </div>
