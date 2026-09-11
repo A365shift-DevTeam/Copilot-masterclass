@@ -1328,36 +1328,85 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   color: var(--st-ink);
 }
 
-/* ---- Who ---------------------------------------------------------- */
-.st__who { max-width: 720px; }
-.st__who .eyebrow { margin-bottom: 10px; }
-.st__lead { margin: 14px 0 20px; font-size: clamp(15px, 1.4vw, 17px); line-height: 1.6; color: var(--st-ink-2); }
-.st__chips { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 9px; }
-.st__chips li {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 8px 13px; border-radius: 999px;
-  font-size: 13px; font-weight: 600; color: var(--st-ink);
-  background: var(--st-chip); border: 1px solid var(--st-chip-line);
-  opacity: 0; transform: translateY(8px);
-  transition: opacity 460ms var(--ease) calc(120ms + var(--i) * 60ms), transform 460ms var(--ease) calc(120ms + var(--i) * 60ms),
-    border-color 200ms, box-shadow 200ms;
+/* ---- Who: the attendee badge ------------------------------------- */
+/* The heading and lead sit left. On the right hangs one conference badge
+   whose name line flips through the audiences, with a roster beside it
+   that highlights whichever name is on the badge. Every colour is a token
+   so the dark theme only restates the tokens. */
+.st__who { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
+.st__who-intro .eyebrow { margin-bottom: 10px; }
+.st__lead { margin: 14px 0 0; font-size: clamp(15px, 1.4vw, 17px); line-height: 1.6; color: var(--st-ink-2); }
+.st__pass { display: flex; align-items: center; gap: clamp(22px, 3vw, 40px); }
+
+/* Badge */
+.st__badge {
+  --badge-w: 236px;
+  position: relative; flex: none; width: var(--badge-w); padding-top: 34px;
+  opacity: 0; transform: translateY(-14px) rotate(-3deg); transform-origin: 50% 0;
+  transition: opacity 520ms var(--ease) 80ms, transform 900ms cubic-bezier(.2, .9, .25, 1.15) 80ms;
 }
-.st__who.in .st__chips li { opacity: 1; transform: none; }
-.st__chips li.is-core { color: var(--st-core-ink); background: var(--st-core); border-color: var(--st-core-line); padding-left: 9px; }
-.st__chips li:hover { border-color: #64B7D8; box-shadow: 0 6px 16px rgba(48, 139, 175, 0.14); }
-.st__chip-mark { display: inline-grid; place-items: center; width: 20px; height: 20px; }
-.st__chip-mark svg { width: 18px; height: 18px; color: #308BAF; }
-.st__chip-mark img { width: 18px; height: 18px; object-fit: contain; display: block; }
-.st__mono { font-weight: 800; font-size: 12px; }
-.st__note {
-  display: flex; align-items: flex-start; gap: 10px; margin: 0; max-width: 620px;
-  padding: 11px 14px; border-radius: 12px; background: var(--st-note); border: 1px dashed var(--st-core-line);
-  font-size: 12.5px; line-height: 1.55; color: var(--st-ink-2);
-  opacity: 0; transition: opacity 460ms var(--ease) 560ms;
+.st__who.in .st__badge { opacity: 1; transform: none; animation: st-sway 6s ease-in-out 1s infinite; }
+@keyframes st-sway { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(1.2deg); } 70% { transform: rotate(-1deg); } }
+.st__badge.is-held { animation-play-state: paused; }
+.st__lanyard {
+  position: absolute; top: -60px; left: 50%; width: 14px; height: 76px; margin-left: -7px;
+  background: repeating-linear-gradient(180deg, #2F6E75 0 6px, #3D7B80 6px 12px);
+  border-radius: 0 0 3px 3px;
 }
-.st__who.in .st__note { opacity: 1; }
-.st__note-mark { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: var(--st-core); color: var(--st-core-ink); }
-.st__note-mark svg { width: 14px; height: 14px; }
+.st__clip {
+  position: absolute; top: 14px; left: 50%; width: 30px; height: 14px; margin-left: -15px; border-radius: 4px;
+  background: linear-gradient(180deg, #C9D3DB, #8E9BA6); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+.st__clip::after { content: ''; position: absolute; left: 9px; right: 9px; top: 5px; height: 4px; border-radius: 2px; background: rgba(0, 0, 0, 0.35); }
+.st__badge-card {
+  overflow: hidden; border-radius: 16px; background: var(--st-card); border: 1px solid var(--st-line);
+  box-shadow: 0 24px 50px rgba(26, 62, 76, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+.st__badge-top { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--gradient-primary); color: #FFFFFF; }
+.st__badge-logo { width: 34px; height: 34px; object-fit: contain; border-radius: 8px; background: #FFFFFF; padding: 4px; }
+.st__badge-event { font-family: var(--font-display); font-size: 12.5px; font-weight: 800; letter-spacing: 0.02em; line-height: 1.15; text-transform: uppercase; }
+.st__badge-body { padding: 18px 16px 14px; }
+.st__badge-label { display: block; margin-bottom: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ref-teal); }
+.st__badge-name {
+  display: flex; align-items: center; gap: 8px; min-height: 2.3em;
+  font-family: var(--font-display); font-size: 17px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; color: var(--st-ink);
+  animation: st-flip-in 460ms cubic-bezier(.2, .9, .25, 1) both;
+}
+@keyframes st-flip-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.st__badge-mark { flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; }
+.st__badge-mark svg { width: 22px; height: 22px; color: #308BAF; }
+.st__badge-mark img { width: 22px; height: 22px; object-fit: contain; display: block; }
+.st__badge-role { display: block; margin-top: 8px; font-size: 11.5px; font-weight: 600; color: var(--st-ink-2); }
+.st__badge-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px 14px; border-top: 1px dashed var(--st-line); }
+.st__badge-bars {
+  flex: 1; height: 22px;
+  background: repeating-linear-gradient(90deg, var(--st-ink) 0 2px, transparent 2px 4px, var(--st-ink) 4px 5px, transparent 5px 8px, var(--st-ink) 8px 11px, transparent 11px 13px);
+  opacity: .55;
+}
+.st__badge-seat { flex: none; font-size: 9.5px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #2B824E; }
+
+/* Roster */
+.st__roster { flex: 1; min-width: 0; }
+.st__roster-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.st__roster-list li {
+  position: relative; display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px 9px 4px; border-radius: 10px; cursor: default;
+  font-family: var(--font-display); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--st-ink-2);
+  opacity: 0; transform: translateX(-8px);
+  transition: opacity 420ms var(--ease) calc(220ms + var(--i) * 70ms), transform 420ms var(--ease) calc(220ms + var(--i) * 70ms),
+    color 260ms var(--ease), background 260ms var(--ease);
+}
+.st__who.in .st__roster-list li { opacity: 1; transform: none; }
+.st__roster-list li.is-core { font-weight: 700; }
+.st__roster-list li.is-on { color: var(--st-ink); background: rgba(48, 139, 175, 0.07); }
+.st__roster-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--st-line); transition: background 260ms, box-shadow 260ms, transform 260ms var(--ease); }
+.st__roster-list li.is-on .st__roster-dot { background: #35A160; box-shadow: 0 0 0 4px rgba(63, 192, 115, 0.18); transform: scale(1.15); }
+.st__roster-mark { flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; }
+.st__roster-mark svg { width: 18px; height: 18px; color: #308BAF; }
+.st__roster-mark img { width: 18px; height: 18px; object-fit: contain; display: block; }
+.st__seat-note { display: flex; align-items: flex-start; gap: 9px; margin: 14px 0 0 4px; font-size: 12.5px; line-height: 1.55; color: var(--fg-muted); max-width: 460px; }
+.st__seat-key { flex: none; display: grid; place-items: center; width: 18px; height: 18px; margin-top: 1px; color: var(--ref-teal); }
+.st__seat-key svg { width: 15px; height: 15px; }
 
 /* ---- Learn head --------------------------------------------------- */
 .st__learn-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin-bottom: 26px; }
@@ -1478,12 +1527,16 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 @keyframes st-arrive { 0%, 82% { text-shadow: none; color: #FFFFFF; } 88% { color: var(--st-pulse); text-shadow: 0 0 18px var(--st-glow); } 96%, 100% { text-shadow: none; color: #FFFFFF; } }
 
 @media (max-width: 860px) {
+  .st__who { grid-template-columns: 1fr; gap: 26px; }
+  .st__pass { align-items: flex-start; }
   .st__card { grid-template-columns: 1fr; min-height: 0; gap: 18px; }
   .st__card-desc { max-width: none; }
   .st__count { top: 18px; right: 18px; }
   .st__card-main { padding-right: 40px; }
 }
 @media (max-width: 640px) {
+  .st__pass { flex-direction: column; align-items: center; gap: 22px; padding-top: 48px; }
+  .st__roster { width: 100%; }
   .st__code { width: 48px; height: 48px; border-radius: 13px; }
   .st__code svg { width: 24px; height: 24px; }
   .st__end { flex-direction: column; gap: 12px; }
@@ -1496,7 +1549,8 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 @keyframes st-drop-2 { 0%, 61.9% { transform: translateY(-100%); opacity: 0; } 62% { transform: translateY(-100%); opacity: 1; } 82% { transform: translateY(300%); opacity: 1; } 82.1%, 100% { transform: translateY(-100%); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .st__chips li, .st__note { opacity: 1; transform: none; transition: none; }
+  .st__badge, .st__roster-list li { opacity: 1; transform: none; transition: none; animation: none; }
+  .st__badge-name { animation: none; }
   .st__card { transform: none; filter: none; }
   .st__hint::after { animation: none; }
   .st__wire::after { animation: none; transform: none; width: 100%; opacity: .6; }
@@ -2155,8 +2209,11 @@ html[data-theme="dark"] .st {
 /* Navy on navy vanishes, so the security card takes a lighter pair here. */
 html[data-theme="dark"] .st__card--as { --t1: #5B8AC9; --t2: #2F5A8F; --t1-rgb: 91, 138, 201; }
 html[data-theme="dark"] .st__card { filter: brightness(calc(1 - 0.3 * var(--p))); }
-html[data-theme="dark"] .st__chips li:hover { border-color: rgba(100, 183, 216, 0.6); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); }
-html[data-theme="dark"] .st__chip-mark svg { color: #9FD1E5; }
+html[data-theme="dark"] .st__badge-card { box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3); }
+html[data-theme="dark"] .st__badge-mark svg, html[data-theme="dark"] .st__roster-mark svg { color: #9FD1E5; }
+html[data-theme="dark"] .st__badge-seat { color: #6BD194; }
+html[data-theme="dark"] .st__roster-list li.is-on { background: rgba(255, 255, 255, 0.05); }
+html[data-theme="dark"] .st__roster-list li.is-on .st__roster-dot { background: #6BD194; }
 html[data-theme="dark"] .st__prompt-app { background: #FFFFFF; border-color: transparent; }
 html[data-theme="dark"] .st__send { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.4); }
 html[data-theme="dark"] .st__send.is-ready { color: #FFFFFF; }

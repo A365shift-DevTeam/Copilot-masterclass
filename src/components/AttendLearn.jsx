@@ -223,6 +223,43 @@ function Card({ item, index, front }) {
   )
 }
 
+/* The attendee badge. Its name line flips through the audiences every few
+   seconds; hovering holds it. Reduced motion shows the first one still. */
+const BADGE_DWELL = 2600
+
+function Badge({ index, held, onHold }) {
+  const a = ATTENDEES[index]
+  return (
+    <div
+      className={`st__badge${held ? ' is-held' : ''}`}
+      onMouseEnter={() => onHold(true)}
+      onMouseLeave={() => onHold(false)}
+      aria-hidden="true"
+    >
+      <span className="st__lanyard" />
+      <span className="st__clip" />
+      <div className="st__badge-card">
+        <div className="st__badge-top">
+          <img className="st__badge-logo" src="/assets/logo-icon.png" alt="" />
+          <span className="st__badge-event">Copilot<br />Masterclass</span>
+        </div>
+        <div className="st__badge-body">
+          <span className="st__badge-label">Attendee</span>
+          <span key={a.t} className="st__badge-name">
+            {a.mark && <span className="st__badge-mark"><Mark kind={a.mark} /></span>}
+            {a.t}
+          </span>
+          <span className="st__badge-role">Microsoft 365 &middot; Copilot</span>
+        </div>
+        <div className="st__badge-foot">
+          <span className="st__badge-bars" />
+          <span className="st__badge-seat">Seat reserved</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AttendLearn() {
   const whoRef = useReveal()
   const headRef = useReveal()
@@ -230,28 +267,51 @@ export default function AttendLearn() {
   const [front, setFront] = useState(0)
   useStack(stackRef, LEARN.length, setFront)
 
+  const [who, setWho] = useState(0)
+  const [held, setHeld] = useState(false)
+  useEffect(() => {
+    if (held || reduced()) return
+    const id = setInterval(() => setWho((k) => (k + 1) % ATTENDEES.length), BADGE_DWELL)
+    return () => clearInterval(id)
+  }, [held])
+
   return (
     <div className="st">
-      {/* Who should attend */}
+      {/* Who should attend: one attendee badge that flips through the
+          audiences, and a list beside it that follows. */}
       <div id="who" ref={whoRef} className="st__who">
-        <div className="eyebrow eyebrow--teal">WHO IT IS FOR</div>
-        <h3 className="st__title">Who Should Attend?</h3>
-        <p className="st__lead">
-          Built for Microsoft 365 users who want to move from simply using Copilot to using it
-          confidently across their daily work.
-        </p>
-        <ul className="st__chips">
-          {ATTENDEES.map((a, i) => (
-            <li key={a.t} className={a.mark ? 'is-core' : undefined} style={{ '--i': i }}>
-              {a.mark && <span className="st__chip-mark"><Mark kind={a.mark} /></span>}
-              {a.t}
-            </li>
-          ))}
-        </ul>
-        <p className="st__note">
-          <span className="st__note-mark"><KeyMark /></span>
-          {LICENSE_NOTE}
-        </p>
+        <div className="st__who-intro">
+          <div className="eyebrow eyebrow--teal">WHO IT IS FOR</div>
+          <h3 className="st__title">Who Should Attend?</h3>
+          <p className="st__lead">
+            Built for Microsoft 365 users who want to move from simply using Copilot to using it
+            confidently across their daily work.
+          </p>
+        </div>
+        <div className="st__pass">
+          <Badge index={who} held={held} onHold={setHeld} />
+          <div className="st__roster">
+            <ul className="st__roster-list">
+              {ATTENDEES.map((a, i) => (
+                <li
+                  key={a.t}
+                  className={`${a.mark ? 'is-core' : ''}${i === who ? ' is-on' : ''}`}
+                  style={{ '--i': i }}
+                  onMouseEnter={() => { setWho(i); setHeld(true) }}
+                  onMouseLeave={() => setHeld(false)}
+                >
+                  <i className="st__roster-dot" aria-hidden="true" />
+                  {a.mark && <span className="st__roster-mark"><Mark kind={a.mark} /></span>}
+                  {a.t}
+                </li>
+              ))}
+            </ul>
+            <p className="st__seat-note">
+              <span className="st__seat-key"><KeyMark /></span>
+              {LICENSE_NOTE}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* What you'll learn */}
