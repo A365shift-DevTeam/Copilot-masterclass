@@ -3050,6 +3050,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   --fork-dot: rgba(0, 32, 96, 0.08);
   --fork-card: #FFFFFF;
   --fork-shadow: 0 14px 34px rgba(26, 62, 76, 0.14);
+  --stairs-down: #E6EAF0;
   position: sticky; top: 0; height: 100vh; height: 100lvh;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 84px 0 20px;
@@ -3058,194 +3059,98 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 .career__head .h2 { margin: 10px 0 10px; font-size: clamp(26px, 3.2vw, 42px); }
 .career__head p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--fg-secondary); }
 
-/* The screen the story plays on. */
-.fork-panel {
-  position: relative; flex: none; overflow: hidden;
-  width: min(1160px, 100%, calc((100vh - 330px) * 1160 / 600));
-  padding: 26px 30px 30px; border-radius: 24px;
-  container-type: inline-size;
+/* The panel the story plays on. The drawing keeps the 1100 x 600 box of
+   its SVG, so the HTML overlays can be placed in percentages of it. */
+.stairs-panel {
+  position: relative; flex: none; overflow: hidden; container-type: inline-size;
+  width: min(1060px, 100%, calc((100vh - 320px) * 1060 / 620));
+  padding: 20px 24px 22px; border-radius: 24px;
   background: var(--fork-panel); border: 1px solid var(--fork-line);
   box-shadow: 0 24px 70px rgba(26, 62, 76, 0.12);
 }
-.fork-panel::before {
+.stairs-panel::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background-image: radial-gradient(var(--fork-dot) 1px, transparent 1.5px);
   background-size: 22px 22px;
   mask-image: radial-gradient(ellipse at 50% 50%, #000 40%, transparent 85%);
   -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 40%, transparent 85%);
 }
-.fork { position: relative; width: 100%; aspect-ratio: 1000 / 520; font-family: var(--font-display); }
-.fork__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.stairs { position: relative; width: 100%; aspect-ratio: 1100 / 600; font-family: var(--font-display); }
+.stairs__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.stairs__floor { stroke: var(--fork-line); stroke-width: 1.5px; }
+.stairs__landing { fill: var(--fork-card); stroke: var(--fork-line); stroke-width: 1px; }
 
-.fork__base { stroke: var(--fork-line); stroke-width: 1.5px; stroke-dasharray: 2 6; stroke-linecap: round; }
-.fork__rung {
-  --on: clamp(0, (var(--p) - var(--start)) / var(--window), 1);
-  stroke: var(--fork-ink-3); stroke-width: 1px; stroke-dasharray: 2 5; stroke-linecap: round;
-  opacity: calc(var(--on) * .55);
+/* Each step is built up from the floor over its own window of the scroll. */
+.stairs__block {
+  --k: clamp(0, (var(--p) - var(--start)) / var(--window), 1);
+  transform-box: fill-box; transform-origin: 50% 100%;
+  transform: scaleY(var(--k));
 }
-.fork__ribbon { fill: none; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--p)); }
-.fork__ribbon--up { stroke: url(#forkUp); stroke-width: 4px; }
-.fork__ribbon--halo { stroke: #65A859; stroke-width: 14px; opacity: .35; }
-.fork__ribbon--down { stroke: var(--down); stroke-width: 2.5px; }
+.stairs__block--up rect { fill: url(#stairUp); }
+.stairs__block--up .stairs__edge { fill: #FFFFFF; opacity: .45; }
+.stairs__block--down rect { fill: var(--stairs-down); }
+.stairs__block--down .stairs__edge { fill: var(--down); opacity: .7; }
 
-/* Lanes, axis, origin, ticks. */
-/* The lane tags are the only pair that names the two outcomes, so they carry
-   the argument in relief. Both are plates standing on the board: the Copilot
-   lane stands proud, lit along its top edge with a 4px extruded side and a
-   cast shadow; the unchanged lane sits low and dull, its edge tight against
-   the surface. The extrusion is mixed from each lane's own colour token, so
-   it follows the theme swap with no colours of its own. */
-.fork__lane {
-  position: absolute; left: 0; padding: 7px 13px; border-radius: 999px;
-  font-size: 10.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
-}
-.fork__lane--up {
-  top: 0; color: #2B824E; transform: translateY(-2px);
-  background: linear-gradient(180deg, rgba(var(--up-rgb), .24), rgba(var(--up-rgb), .10));
-  text-shadow: 0 -1px 0 rgba(255, 255, 255, .75), 0 1px 1px rgba(var(--up-rgb), .3);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .85),
-    inset 0 -1px 0 rgba(var(--up-rgb), .35),
-    0 1px 0 rgba(var(--up-rgb), .55),
-    0 2px 0 rgba(var(--up-rgb), .45),
-    0 3px 0 rgba(var(--up-rgb), .34),
-    0 4px 0 rgba(var(--up-rgb), .24),
-    0 6px 10px rgba(var(--up-rgb), .22);
-}
-.fork__lane--down {
-  /* Deeper than --down: the tag's own pink face sits behind the type, and the
-     token red loses contrast against it at 10.5px. */
-  bottom: 0; color: #B81C1C;
-  background: linear-gradient(180deg, rgba(var(--down-rgb), .20), rgba(var(--down-rgb), .11));
-  text-shadow: 0 1px 0 rgba(255, 255, 255, .6);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .6),
-    0 1px 0 rgba(var(--down-rgb), .38),
-    0 2px 0 rgba(var(--down-rgb), .26),
-    0 3px 7px rgba(var(--down-rgb), .2);
-}
-.fork__axis {
-  position: absolute; top: 50%; transform: translateY(-50%); line-height: 1.3;
-  font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--fork-ink-3);
-  white-space: nowrap;
-}
-.fork__axis--start { right: calc(92% + 14px); }
-.fork__axis--end { right: 0; text-align: right; }
-.fork__origin {
-  position: absolute; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%);
-  background: var(--fork-card); border: 2.5px solid var(--fork-ink-3);
-}
-.fork__tick {
-  --on: clamp(0, (var(--p) - var(--start)) / var(--window), 1);
-  position: absolute; bottom: -22px; transform: translateX(-50%);
-  font-size: 9.5px; font-weight: 800; letter-spacing: .1em; color: var(--fork-ink-3);
-  opacity: calc(.25 + var(--on) * .75);
-}
-
-/* Checkpoints: a node on the ribbon, a label held off it by a stem whose
-   length grows along the ribbon (see STEM in Benefits.jsx) so neighbours
-   never share a band. Labels sit on the outer side of each ribbon; travellers ride the inner. */
-.fork__step {
-  --on: clamp(0, (var(--p) - var(--start)) / var(--window), 1);
-  position: absolute; width: 0; height: 0; z-index: 2;
-}
-.fork__node {
-  position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%;
-  background: var(--c); box-shadow: 0 0 0 3px rgba(var(--c-rgb), .22);
-  transform: scale(calc(.45 + var(--on) * .55)); opacity: calc(.35 + var(--on) * .65);
-}
-.fork__label {
-  position: absolute; left: 0; white-space: nowrap;
-  /* Type scales with the panel so a label never outgrows the checkpoint spacing. */
-  padding: .6em 1em; border-radius: 11px; font-size: clamp(10px, 1.15cqw, 12.5px); font-weight: 700; line-height: 1.15;
-  background: var(--fork-card); border: 1px solid var(--fork-line); box-shadow: var(--fork-shadow);
-  opacity: calc(.14 + var(--on) * .86);
-}
-.fork__label::before {
-  content: ''; position: absolute; left: 50%; width: 1px; height: calc(var(--stem) - 9px); background: var(--c); opacity: .45;
-}
-.fork__step--up { --c: var(--up); --c-rgb: var(--up-rgb); }
-.fork__step--up .fork__label {
-  bottom: var(--stem); color: var(--fork-ink); border-color: rgba(var(--up-rgb), .4);
-  transform: translate(-50%, calc((1 - var(--on)) * 10px));
-}
-.fork__step--up .fork__label::before { top: 100%; }
-.fork__step--down { --c: var(--down); --c-rgb: var(--down-rgb); }
-.fork__step--down .fork__label {
-  top: var(--stem); color: var(--fork-ink-2);
-  transform: translate(-50%, calc((1 - var(--on)) * -10px));
-}
-.fork__step--down .fork__label::before { bottom: 100%; }
-
-/* The question at the centre of the fork, typed on a loop. No chip: a card
-   here would read as a ninth checkpoint label, so a soft white bloom clears
-   the dashed base line, the rungs and the dot grid behind the words instead.
-   The sizer reserves the full sentence's width (plus a space for the caret)
-   so the centred line stays put while it types. */
-.fork__prompt {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  z-index: 2; white-space: nowrap; pointer-events: none;
-  font-size: clamp(12px, 1.7cqw, 18px); font-weight: 700; letter-spacing: .01em;
-  color: var(--fork-ink);
-}
-.fork__prompt::before {
-  content: ''; position: absolute; inset: -180% -10%; z-index: -1;
-  background: radial-gradient(ellipse at center, var(--fork-card) 38%, rgba(255, 255, 255, 0) 72%);
-}
-.fork__prompt-sizer { visibility: hidden; }
-.fork__prompt-line { position: absolute; left: 0; top: 0; }
-.fork__prompt-caret {
-  display: inline-block; width: 2px; height: 1em; margin-left: 3px;
-  vertical-align: -.14em; background: var(--up);
-  animation: fork-caret 1s steps(1, end) infinite;
-}
-@keyframes fork-caret { 50% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .fork__prompt-caret { animation: none; } }
-
-/* The travellers: a pin on the ribbon, a profile card hanging off it. */
-.fork__fig {
-  position: absolute; width: 0; height: 0; z-index: 3;
-  left: calc(8% + var(--p) * 82%);
-  will-change: left, top;
-}
-.fork__fig--up { --c: var(--up); --c-rgb: var(--up-rgb); top: calc(50% - var(--p) * 32.7%); }
-.fork__fig--down {
-  --c: var(--down); --c-rgb: var(--down-rgb); top: calc(50% + var(--p) * 32.7%);
-  filter: grayscale(calc(var(--p) * .6)); opacity: calc(1 - var(--p) * .15);
-}
-/* The pin is the traveller: a ringed disc carrying its mark. */
-.fork__pin {
-  position: absolute; left: -19px; top: -19px; width: 38px; height: 38px; border-radius: 50%;
-  display: grid; place-items: center; font-style: normal;
-  background: var(--fork-card); border: 3px solid var(--c);
-  box-shadow: 0 0 0 5px rgba(var(--c-rgb), .18), 0 0 22px rgba(var(--c-rgb), .5);
-}
-.fork__pin--copilot img { width: 20px; height: 20px; display: block; }
-.fork__pin--manual { color: var(--down); }
-.fork__pin--manual .fork__person { width: 20px; height: 20px; }
-/* The name card only shows once the traveller arrives, sliding in a little
-   behind its pin so the outcome chip stays inside the panel. */
-.fork__card {
-  --done: clamp(0, (var(--p) - .84) / .14, 1);
-  position: absolute; left: 0; opacity: var(--done); pointer-events: none;
-  transform: translateX(calc(-50% - var(--done) * 34px));
-  display: flex; align-items: center; gap: 10px; white-space: nowrap;
-  padding: 8px 8px 8px 14px; border-radius: 999px;
+/* Legend: the top-left corner, which the down flight never reaches. */
+.stairs__legend {
+  position: absolute; left: 0; top: 0; z-index: 3;
+  display: grid; gap: 6px; padding: 8px 12px; border-radius: 10px;
   background: var(--fork-card); border: 1px solid var(--fork-line); box-shadow: var(--fork-shadow);
 }
-.fork__fig--up .fork__card { top: 26px; border-color: rgba(var(--up-rgb), .45); }
-.fork__fig--down .fork__card { bottom: 26px; }
-.fork__mono { font-size: 13px; font-weight: 800; color: #2B824E; }
-.fork__who { font-size: clamp(10px, 1.1cqw, 12px); font-weight: 800; letter-spacing: .02em; line-height: 1.15; color: var(--fork-ink); }
-.fork__who small { display: block; font-size: 10px; font-weight: 600; letter-spacing: 0; color: var(--fork-ink-3); }
-.fork__fig--down .fork__who { color: var(--fork-ink-2); }
-/* The outcome grows out of the card once the traveller arrives. */
-.fork__result {
-  padding: 5px 10px; border-radius: 999px;
-  font-size: clamp(9px, .95cqw, 10.5px); font-weight: 800; letter-spacing: .04em;
+.stairs__legend-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: clamp(8px, 1.05cqw, 12px); font-weight: 800; letter-spacing: .01em; color: var(--fork-ink); white-space: nowrap;
 }
-.fork__fig--up .fork__result { background: #3FC073; color: #0A0F1D; }
-.fork__fig--down .fork__result { background: var(--down); color: #FFFFFF; }
+.stairs__legend-row small { font-size: 0.9em; font-weight: 600; color: var(--fork-ink-3); }
+.stairs__legend-row i { width: 14px; height: 4px; border-radius: 2px; }
+.stairs__legend-row--up i { background: linear-gradient(90deg, #4D9AA1, #65A859); }
+.stairs__legend-row--down i { background: var(--down); }
+.stairs__legend-row--down { color: var(--fork-ink-2); }
+
+.stairs__today {
+  position: absolute; transform: translate(-50%, 8px);
+  font-size: clamp(8px, 1cqw, 11px); font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--fork-ink-3);
+}
+
+/* Labels are printed inside their step, under the tread, and come on with
+   it. The traveller stands on the tread above, so the two never meet. */
+.stairs__label {
+  --k: clamp(0, (var(--p) - var(--start)) / var(--window), 1);
+  position: absolute; width: calc(120 / 1100 * 100% - 10px); text-align: center;
+  transform: translate(-50%, 8px) translateY(calc((1 - var(--k)) * 6px));
+  font-size: clamp(8px, 1.2cqw, 13px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2;
+  opacity: var(--k);
+}
+.stairs__label--up { color: #FFFFFF; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
+.stairs__label--down { color: var(--fork-ink-2); }
+
+/* The travellers. --s is how many steps have been taken; each moves one
+   tread at a time and eases between them. Their bottom sits on the tread. */
+.stairs__pin {
+  --pin: clamp(28px, 3.8cqw, 42px);
+  position: absolute; z-index: 2; display: grid; place-items: center; width: var(--pin); height: var(--pin); border-radius: 50%;
+  transform: translate(-50%, -100%);
+  background: var(--fork-card); border: 2px solid var(--c); color: var(--c);
+  box-shadow: 0 0 0 6px rgba(var(--c-rgb), .16), 0 10px 24px rgba(0, 0, 0, .18);
+  transition: left 480ms cubic-bezier(.4, 0, .2, 1), top 480ms cubic-bezier(.4, 0, .2, 1);
+}
+/* On the landing the two stand side by side, 24 units either side of centre. */
+.stairs__pin--up { --c: var(--up); --c-rgb: var(--up-rgb); left: calc(50% + (24 / 1100 * 100%) + var(--s) * (120 / 1100 * 100%)); top: calc((330 / 600 * 100%) - var(--s) * (46 / 600 * 100%)); }
+.stairs__pin--down { --c: var(--down); --c-rgb: var(--down-rgb); left: calc(50% - (24 / 1100 * 100%) - var(--s) * (120 / 1100 * 100%)); top: calc((330 / 600 * 100%) + var(--s) * (36 / 600 * 100%)); }
+.stairs__pin img, .stairs__person { width: 55%; height: 55%; display: block; }
+.stairs__mono { font-size: 15px; font-weight: 800; color: var(--c); }
+
+/* Results, in their reserved rows: above the top step, under the floor. */
+.stairs__result {
+  --k: clamp(0, (var(--p) - 0.88) / 0.1, 1);
+  position: absolute; white-space: nowrap; padding: 6px 11px; border-radius: 999px;
+  font-size: clamp(8px, 1.1cqw, 12px); font-weight: 800; letter-spacing: .02em;
+  opacity: var(--k);
+}
+.stairs__result--up { transform: translate(-50%, calc(-100% - var(--pin, 42px) - 14px)) translateY(calc((1 - var(--k)) * 6px)); background: #3FC073; color: #0A0F1D; }
+.stairs__result--down { transform: translate(-50%, 10px) translateY(calc((1 - var(--k)) * 6px)); background: rgba(var(--down-rgb), 0.14); color: var(--down); }
+
+.stairs-lists { display: none; }
 
 .career__hint {
   margin: 14px 0 0; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
@@ -3254,42 +3159,29 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 @keyframes career-bob { 50% { transform: translateY(5px); } }
 
-.fork-lists { display: none; }
-
-/* Phones: no scroll drive; the finished fork, and the checkpoints as lists. */
+/* Phones: no scroll drive; the finished staircase, and the steps as lists. */
 @media (max-width: 719px) {
   .career { height: auto; }
   .career__stage { position: static; height: auto; padding: 0; }
-  .fork-panel { width: 100%; padding: 18px 16px; border-radius: 18px; margin-top: 10px; }
-  .fork { aspect-ratio: 1000 / 560; }
-  .fork__step, .fork__tick, .fork__rung, .career__hint, .fork__card, .fork__axis { display: none; }
-  /* A smaller plate needs a shallower edge, or the relief outweighs the tag. */
-  .fork__lane { font-size: 9px; padding: 5px 9px; }
-  .fork__lane--up {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, .8),
-      0 1px 0 rgba(var(--up-rgb), .5),
-      0 2px 0 rgba(var(--up-rgb), .34),
-      0 4px 8px rgba(var(--up-rgb), .26);
-  }
-  .fork__lane--down {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, .55),
-      0 1px 0 rgba(var(--down-rgb), .32),
-      0 2px 5px rgba(var(--down-rgb), .18);
-  }
-  .fork-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; margin-top: 18px; position: relative; }
-  .fork-lists__col { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 13px; font-weight: 600; }
-  .fork-lists__col li { display: flex; align-items: center; gap: 8px; }
-  .fork-lists__col li::before { content: ''; width: 8px; height: 8px; border-radius: 50%; flex: none; }
-  .fork-lists__col--up { color: var(--fork-ink); }
-  .fork-lists__col--up li::before { background: var(--up); }
-  .fork-lists__col--down { color: var(--fork-ink-2); }
-  .fork-lists__col--down li::before { background: var(--down); }
+  .stairs-panel { width: 100%; padding: 14px 12px; border-radius: 18px; margin-top: 10px; }
+  .stairs__label, .career__hint { display: none; }
+  .stairs__legend { padding: 5px 8px; gap: 3px; }
+  .stairs__legend-row small { display: none; }
+  .stairs__today { font-size: 8px; }
+  .stairs__result { font-size: 8.5px; padding: 3px 7px; }
+  .stairs__result--up { left: auto !important; right: 0; transform: translate(0, calc(-100% - var(--pin, 28px) - 8px)); }
+  .stairs__result--down { left: 0 !important; transform: translate(0, 8px); }
+  .stairs-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; margin-top: 18px; position: relative; }
+  .stairs-lists__col { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 13px; font-weight: 600; }
+  .stairs-lists__col li { display: flex; align-items: center; gap: 8px; }
+  .stairs-lists__col li::before { content: ''; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .stairs-lists__col--up { color: var(--fork-ink); }
+  .stairs-lists__col--up li::before { background: var(--up); }
+  .stairs-lists__col--down { color: var(--fork-ink-2); }
+  .stairs-lists__col--down li::before { background: var(--down); }
 }
 @media (max-width: 900px) and (min-width: 720px) {
-  .fork__who small { display: none; }
-  .fork__result { display: none; }
+  .stairs__legend-row small { display: none; }
 }
 
 /* ============================================================
@@ -4532,33 +4424,11 @@ html[data-theme="dark"] .career__stage {
   --fork-dot: rgba(255, 255, 255, 0.07);
   --fork-card: #141D30;
   --fork-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+  --stairs-down: #1A2438;
 }
-html[data-theme="dark"] .fork-panel { box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45); }
-/* On the dark board the light source is weaker: the bevels drop to a hint of
-   white and the cast shadow does the lifting instead of the glow. */
-html[data-theme="dark"] .fork__lane--up {
-  color: #6BD194;
-  text-shadow: 0 -1px 0 rgba(255, 255, 255, .16), 0 1px 2px rgba(0, 0, 0, .55);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .18),
-    inset 0 -1px 0 rgba(0, 0, 0, .4),
-    0 1px 0 rgba(var(--up-rgb), .45),
-    0 2px 0 rgba(var(--up-rgb), .36),
-    0 3px 0 rgba(var(--up-rgb), .26),
-    0 4px 0 rgba(var(--up-rgb), .18),
-    0 8px 16px rgba(0, 0, 0, .5);
-}
-html[data-theme="dark"] .fork__lane--down {
-  color: var(--down);
-  text-shadow: 0 1px 0 rgba(0, 0, 0, .55);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .12),
-    0 1px 0 rgba(var(--down-rgb), .3),
-    0 2px 0 rgba(var(--down-rgb), .2),
-    0 4px 9px rgba(0, 0, 0, .45);
-}
-html[data-theme="dark"] .fork__mono { color: #6BD194; }
-html[data-theme="dark"] .fork__fig--down .fork__result { background: rgba(242, 109, 109, 0.2); color: #F26D6D; }
+html[data-theme="dark"] .stairs-panel { box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45); }
+html[data-theme="dark"] .stairs__block--up .stairs__edge { opacity: .3; }
+html[data-theme="dark"] .stairs__result--down { background: rgba(242, 109, 109, 0.2); color: #F26D6D; }
 html[data-theme="dark"] .career__hint { color: #9FD1E5; }
 html[data-theme="dark"] .career__head p { color: #9AA4B6; }
 

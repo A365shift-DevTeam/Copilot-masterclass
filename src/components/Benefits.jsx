@@ -1,50 +1,54 @@
 /**
- * Benefits: the attend/learn panel, then the fork.
+ * Benefits: the attend/learn panel, then the staircase.
  *
- * The fork is the argument of the page drawn as one picture. Two people start
- * on the same line today. Scrolling the tall section moves them right: the
- * Copilot user climbs the lit ribbon, the manual user drifts down the grey
- * one. At four checkpoints a dotted rung joins the two
- * branches, so each column reads as the same moment seen from two careers.
+ * The staircase is the argument of the page drawn as one picture. Two
+ * people stand on the same landing today. Scrolling the tall section
+ * builds the stairs out from it: four steps climb to the right and the
+ * Copilot user takes them one by one; four steps fall to the left and the
+ * manual user takes those. Each step carries its milestone.
+ *
+ * Nothing that moves can touch the text: the two names live in a fixed
+ * legend in the top-left corner, which no step reaches; each milestone is
+ * printed inside its own step, under the tread the traveller stands on;
+ * and the two results have reserved rows, one above the top step and one
+ * under the floor.
  *
  * All motion hangs off one number. A rAF ticker writes the section's scroll
- * progress to `--p` on the stage while it is near the viewport, and the CSS
- * derives every draw, position and fade from it, so nothing here touches a
- * transform directly. On phones and under reduced motion the ticker stays
- * off, `--p` sits at 1, and the finished picture is shown with the
- * checkpoints as lists. The travellers are the pins themselves; their name
- * cards only appear once they arrive.
+ * progress to `--p` on the stage while it is near the viewport, plus `--s`,
+ * the number of steps taken so far, and the CSS derives every build, move
+ * and fade from those. On phones and under reduced motion the ticker stays
+ * off, the finished staircase is shown, and the steps are listed.
  */
 import { useEffect, useRef, useState } from 'react'
-import useTypewriter from '../hooks/useTypewriter.js'
-import { CAREER_PROMPT, CAREER_STEPS } from '../data/content.js'
+import { CAREER_STEPS } from '../data/content.js'
 import AttendLearn from './AttendLearn.jsx'
 import ReserveSeatButton from './ReserveSeatButton.jsx'
 
 const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
 
+// The staircase in an 1100 x 600 box. The landing sits in the middle; up
+// steps run right from it, down steps run left. The top row (above the
+// highest step) is kept for the up result, and the row under the floor for
+// the down result. Each step comes on at its STEP_START fraction of the
+// scroll, over STEP_WINDOW.
+const W = 1100
+const H = 600
+const LANDING = { x: 490, w: 120, y: 330 }
+const STEP_W = 120
+const RISE = 46
+const DROP = 36
+const FLOOR = 560
+const STEP_START = [0.14, 0.34, 0.54, 0.74]
+const STEP_WINDOW = 0.14
 
-// The fork in a 1000 x 520 box: one start at (80, 260), the up branch ending
-// at (900, 90), the down branch at (900, 430). Checkpoints sit at four
-// fractions along each branch; the overlays read them as percentages.
-const ORIGIN = { x: 80, y: 260 }
-const END_X = 900
-const RISE = 170
-const CHECKPOINTS = [0.22, 0.44, 0.66, 0.86]
-const STEP_START = [0.06, 0.28, 0.5, 0.72]
-const STEP_WINDOW = 0.16
-// Stems grow left to right. Each label's neighbour sits one rise-step further
-// out along the ribbon, so a longer stem keeps every label in its own band.
-const STEM = [20, 32, 44, 56]
-
-const px = (v) => `${(v / 10).toFixed(2)}%`
-const py = (v) => `${((v / 520) * 100).toFixed(2)}%`
-const pointAt = (t, dir) => ({ x: ORIGIN.x + t * (END_X - ORIGIN.x), y: ORIGIN.y - dir * t * RISE })
+const px = (v) => `${((v / W) * 100).toFixed(2)}%`
+const py = (v) => `${((v / H) * 100).toFixed(2)}%`
+const stepVars = (i) => ({ '--start': STEP_START[i], '--window': STEP_WINDOW })
 
 /* The manual traveller's mark. The Copilot traveller carries the Copilot logo. */
 function PersonMark() {
   return (
-    <svg className="fork__person" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg className="stairs__person" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="8.2" r="3.6" />
       <path d="M4.8 20.5c.6-4.2 3.4-6.6 7.2-6.6s6.6 2.4 7.2 6.6" />
     </svg>
@@ -53,11 +57,11 @@ function PersonMark() {
 
 function CopilotBadge() {
   const [failed, setFailed] = useState(false)
-  if (failed) return <span className="fork__mono">C</span>
+  if (failed) return <span className="stairs__mono">C</span>
   return <img src={`${CDN}copilot/copilot-365.svg`} alt="" onError={() => setFailed(true)} />
 }
 
-function useForkProgress(sectionRef, stageRef) {
+function useStairsProgress(sectionRef, stageRef) {
   useEffect(() => {
     const section = sectionRef.current
     const stage = stageRef.current
@@ -71,12 +75,14 @@ function useForkProgress(sectionRef, stageRef) {
       rafId = null
       if (still.matches) {
         stage.style.setProperty('--p', '1')
+        stage.style.setProperty('--s', String(STEP_START.length))
         return
       }
       const rect = section.getBoundingClientRect()
       const range = section.offsetHeight - window.innerHeight
       const p = range > 0 ? Math.min(1, Math.max(0, -rect.top / range)) : 1
       stage.style.setProperty('--p', p.toFixed(4))
+      stage.style.setProperty('--s', String(STEP_START.filter((t) => p >= t + STEP_WINDOW * 0.6).length))
       if (near) rafId = requestAnimationFrame(tick)
     }
 
@@ -99,71 +105,40 @@ function useForkProgress(sectionRef, stageRef) {
   }, [sectionRef, stageRef])
 }
 
-const stepVars = (i) => ({ '--start': STEP_START[i], '--window': STEP_WINDOW, '--stem': `${STEM[i]}px` })
-
-function Checkpoints({ dir, steps }) {
-  const sign = dir === 'up' ? 1 : -1
+/* One flight of steps: the blocks in the SVG. */
+function Blocks({ dir, steps }) {
+  const up = dir === 'up'
   return steps.map((step, i) => {
-    const p = pointAt(CHECKPOINTS[i], sign)
+    const x = up ? LANDING.x + LANDING.w + STEP_W * i : LANDING.x - STEP_W * (i + 1)
+    const y = up ? LANDING.y - RISE * (i + 1) : LANDING.y + DROP * (i + 1)
     return (
-      <span
-        key={step}
-        className={`fork__step fork__step--${dir}`}
-        style={{ left: px(p.x), top: py(p.y), ...stepVars(i) }}
-      >
-        <i className="fork__node" />
-        <span className="fork__label">{step}</span>
+      <g key={step} className={`stairs__block stairs__block--${dir}`} style={stepVars(i)}>
+        <rect x={x} y={y} width={STEP_W} height={FLOOR - y} />
+        <rect className="stairs__edge" x={x} y={y} width={STEP_W} height="5" />
+      </g>
+    )
+  })
+}
+
+/* The same flight's labels, printed inside each step under its tread. */
+function StepLabels({ dir, steps }) {
+  const up = dir === 'up'
+  return steps.map((step, i) => {
+    const x = up ? LANDING.x + LANDING.w + STEP_W * (i + 0.5) : LANDING.x - STEP_W * (i + 0.5)
+    const y = up ? LANDING.y - RISE * (i + 1) : LANDING.y + DROP * (i + 1)
+    return (
+      <span key={step} className={`stairs__label stairs__label--${dir}`} style={{ left: px(x), top: py(y + 5), ...stepVars(i) }}>
+        {step}
       </span>
     )
   })
 }
 
-/* The question in the middle of the fork. A hidden sizer holds the full
-   sentence so the box never resizes while the visible copy is typed into it;
-   without it the centred line would slide outward character by character.
-   The hook lives here rather than in Benefits so its ticks re-render this
-   node alone and leave the scroll-driven picture untouched. */
-function TypedPrompt() {
-  const { displayedText } = useTypewriter({
-    text: CAREER_PROMPT,
-    typingSpeed: 70,
-    deletingSpeed: 30,
-    pauseDuration: 2600,
-    deletePauseDuration: 500,
-    loop: true,
-  })
-  return (
-    <>
-      {displayedText}
-      <i className="fork__prompt-caret" />
-    </>
-  )
-}
-
-function ForkPrompt() {
-  const [still, setStill] = useState(false)
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const sync = () => setStill(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
-
-  return (
-    <span className="fork__prompt" aria-hidden="true">
-      <span className="fork__prompt-sizer">{CAREER_PROMPT}&nbsp;</span>
-      <span className="fork__prompt-line">
-        {still ? CAREER_PROMPT : <TypedPrompt />}
-      </span>
-    </span>
-  )
-}
 
 export default function Benefits() {
   const sectionRef = useRef(null)
   const stageRef = useRef(null)
-  useForkProgress(sectionRef, stageRef)
+  useStairsProgress(sectionRef, stageRef)
 
   return (
     <section id="benefits" className="section benefits">
@@ -179,82 +154,50 @@ export default function Benefits() {
             </p>
           </div>
 
-          <div className="fork-panel">
+          <div className="stairs-panel">
             <div
-              className="fork"
+              className="stairs"
               role="img"
-              aria-label={`Two careers start from the same point. The Copilot user's path rises through saving time, working smarter, staying relevant, and promotion. The manual user's path falls through more manual work, a widening skills gap, lower relevance, and fear of job loss. ${CAREER_PROMPT}`}
+              aria-label="Two people stand on the same landing today. The Copilot user climbs four steps: save time, work smarter, stay relevant, promotion and growth. The manual user descends four steps: more manual work, skills gap widens, lower career relevance, fear of job loss."
             >
-              <svg className="fork__svg" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-hidden="true">
+              <svg className="stairs__svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
                 <defs>
-                  <linearGradient id="forkUp" x1="0" y1="0" x2="1" y2="0">
+                  <linearGradient id="stairUp" gradientUnits="userSpaceOnUse" x1={LANDING.x + LANDING.w} y1="0" x2={W} y2="0">
                     <stop offset="0" stopColor="#4D9AA1" />
                     <stop offset="1" stopColor="#65A859" />
                   </linearGradient>
-                  <filter id="forkGlow" x="-10%" y="-60%" width="120%" height="220%">
-                    <feGaussianBlur stdDeviation="7" />
-                  </filter>
                 </defs>
-
-                <line className="fork__base" x1={ORIGIN.x} y1={ORIGIN.y} x2={END_X} y2={ORIGIN.y} vectorEffect="non-scaling-stroke" />
-
-                {CHECKPOINTS.map((t, i) => {
-                  const up = pointAt(t, 1)
-                  const down = pointAt(t, -1)
-                  return (
-                    <line
-                      key={t}
-                      className="fork__rung"
-                      x1={up.x} y1={up.y} x2={down.x} y2={500}
-                      vectorEffect="non-scaling-stroke"
-                      style={stepVars(i)}
-                    />
-                  )
-                })}
-
-                <line className="fork__ribbon fork__ribbon--halo" x1={ORIGIN.x} y1={ORIGIN.y} x2={END_X} y2={ORIGIN.y - RISE} pathLength="1" vectorEffect="non-scaling-stroke" filter="url(#forkGlow)" />
-                <line className="fork__ribbon fork__ribbon--down" x1={ORIGIN.x} y1={ORIGIN.y} x2={END_X} y2={ORIGIN.y + RISE} pathLength="1" vectorEffect="non-scaling-stroke" />
-                <line className="fork__ribbon fork__ribbon--up" x1={ORIGIN.x} y1={ORIGIN.y} x2={END_X} y2={ORIGIN.y - RISE} pathLength="1" vectorEffect="non-scaling-stroke" />
+                <line className="stairs__floor" x1="0" y1={FLOOR} x2={W} y2={FLOOR} vectorEffect="non-scaling-stroke" />
+                <rect className="stairs__landing" x={LANDING.x} y={LANDING.y} width={LANDING.w} height={FLOOR - LANDING.y} />
+                <Blocks dir="up" steps={CAREER_STEPS.up} />
+                <Blocks dir="down" steps={CAREER_STEPS.down} />
               </svg>
 
-              <span className="fork__lane fork__lane--up">COPILOT-POWERED PROFESSIONAL</span>
-              <span className="fork__lane fork__lane--down">SKILLS REMAIN UNCHANGED</span>
-              <span className="fork__axis fork__axis--start">Today</span>
-              <span className="fork__axis fork__axis--end">Career<br />direction →</span>
-              <i className="fork__origin" style={{ left: px(ORIGIN.x), top: py(ORIGIN.y) }} />
-
-              {CHECKPOINTS.map((t, i) => (
-                <span key={t} className="fork__tick" style={{ left: px(pointAt(t, 1).x), ...stepVars(i) }}>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-              ))}
-
-              <Checkpoints dir="up" steps={CAREER_STEPS.up} />
-              <Checkpoints dir="down" steps={CAREER_STEPS.down} />
-
-              <ForkPrompt />
-
-              <div className="fork__fig fork__fig--up">
-                <i className="fork__pin fork__pin--copilot"><CopilotBadge /></i>
-                <div className="fork__card">
-                  <span className="fork__who">Copilot-Skilled Professional<small></small></span>
-                  <span className="fork__result">Career value ↑</span>
-                </div>
+              {/* Legend, fixed in the top-left corner, which no step reaches. */}
+              <div className="stairs__legend">
+                <span className="stairs__legend-row stairs__legend-row--up"><i />Copilot user<small>Learning and adapting</small></span>
+                <span className="stairs__legend-row stairs__legend-row--down"><i />Manual user<small>Same skills, same routine</small></span>
               </div>
-              <div className="fork__fig fork__fig--down">
-                <i className="fork__pin fork__pin--manual"><PersonMark /></i>
-                <div className="fork__card">
-                  <span className="fork__who">Traditional Work Approach<small></small></span>
-                  <span className="fork__result">Career Risk ↑</span>
-                </div>
-              </div>
+
+              <span className="stairs__today" style={{ left: px(LANDING.x + LANDING.w / 2), top: py(FLOOR) }}>Today</span>
+
+              <StepLabels dir="up" steps={CAREER_STEPS.up} />
+              <StepLabels dir="down" steps={CAREER_STEPS.down} />
+
+              {/* The travellers: pins only, standing on their current tread. */}
+              <i className="stairs__pin stairs__pin--up"><CopilotBadge /></i>
+              <i className="stairs__pin stairs__pin--down"><PersonMark /></i>
+
+              {/* Results, each in its reserved row. */}
+              <span className="stairs__result stairs__result--up" style={{ left: px(W - STEP_W / 2), top: py(LANDING.y - RISE * 4) }}>Career value ↑</span>
+              <span className="stairs__result stairs__result--down" style={{ left: px(STEP_W / 2), top: py(FLOOR) }}>Career risk ↓</span>
             </div>
 
-            <div className="fork-lists" aria-hidden="true">
-              <ul className="fork-lists__col fork-lists__col--up">
+            <div className="stairs-lists" aria-hidden="true">
+              <ul className="stairs-lists__col stairs-lists__col--up">
                 {CAREER_STEPS.up.map((s) => <li key={s}>{s}</li>)}
               </ul>
-              <ul className="fork-lists__col fork-lists__col--down">
+              <ul className="stairs-lists__col stairs-lists__col--down">
                 {CAREER_STEPS.down.map((s) => <li key={s}>{s}</li>)}
               </ul>
             </div>
@@ -264,7 +207,7 @@ export default function Benefits() {
         </div>
       </div>
 
-      {/* The answer to the question the fork types out. Outside .career: its
+      {/* The section's call to action. Outside .career: its
           stage is a sticky 100vh flex box, so a button placed in there would
           be pushed past the bottom of the viewport. */}
       <ReserveSeatButton className="section-cta--answer" />
