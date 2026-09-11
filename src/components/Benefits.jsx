@@ -1,5 +1,5 @@
 /**
- * Benefits: two reference cards, then the fork.
+ * Benefits: the attend/learn panel, then the fork.
  *
  * The fork is the argument of the page drawn as one picture. Two people start
  * on the same line today. Scrolling the tall section moves them right: the
@@ -16,8 +16,8 @@
  * cards only appear once they arrive.
  */
 import { useEffect, useRef, useState } from 'react'
-import useReveal from '../hooks/useReveal.js'
-import { AUDIENCE, BENEFITS, CAREER_STEPS } from '../data/content.js'
+import AttendLearn from './AttendLearn.jsx'
+import { CAREER_STEPS } from '../data/content.js'
 
 const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
 
@@ -116,41 +116,13 @@ function Checkpoints({ dir, steps }) {
 }
 
 export default function Benefits() {
-  const cardsRef = useReveal()
   const sectionRef = useRef(null)
   const stageRef = useRef(null)
   useForkProgress(sectionRef, stageRef)
 
   return (
     <section className="section benefits">
-      <div ref={cardsRef} className="benefits-cards">
-        <div className="benefit-card benefit-card--who">
-          <div className="eyebrow eyebrow--teal">WHO IT IS FOR</div>
-          <h3>Who should attend?</h3>
-          <p>Built for people who already work in Microsoft 365 and want to work smarter.</p>
-          <ul className="benefit-chips">
-            {AUDIENCE.map((a) => (
-              <li key={a.n}>{a.t}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="benefit-card benefit-card--get">
-          <div className="eyebrow eyebrow--green">INCLUDED</div>
-          <h3>What you get</h3>
-          <ul className="benefit-list">
-            {BENEFITS.map((b) => (
-              <li key={b.i}>
-                <span className="benefit-card__icon">{b.i}</span>
-                <span>
-                  <strong>{b.t}</strong>
-                  {b.d}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      <AttendLearn />
 
       <div ref={sectionRef} className="career">
         <div ref={stageRef} className="career__stage">

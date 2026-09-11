@@ -175,3 +175,36 @@ export const FOOTER = {
     { href: '#', label: 'Facebook', icon: 'facebook' },
   ],
 }
+
+// Who the masterclass is for. The first two are the core audience: the page is
+// built around Microsoft 365 and Copilot, so they carry the product marks.
+export const ATTENDEES = [
+  { t: 'Microsoft 365 Users', mark: 'm365' },
+  { t: 'Copilot Licensed Users', mark: 'copilot' },
+  { t: 'Corporate Professionals' },
+  { t: 'Managers & Team Leads' },
+  { t: 'Business Owners' },
+  { t: 'AI & Automation Learners' },
+]
+
+export const LICENSE_NOTE = 'For hands-on Premium Copilot and Agent features, an eligible Microsoft 365 Copilot license is recommended.'
+
+// The five outcomes. `code` is the two-letter monogram shown on each tile.
+// `icon` names the glyph drawn on the outcome's badge; `prompt` is the
+// example typed for it.
+export const LEARN = [
+  { code: 'SP', icon: 'prompt', t: 'Smart Prompting', d: 'Learn how to communicate effectively with Copilot.', prompt: 'Summarise this report in five bullet points for my manager, in a confident tone.' },
+  { code: 'CA', icon: 'apps', t: 'Copilot Across Apps', d: 'Apply the same prompting approach across Microsoft 365 applications.', prompt: 'Turn the figures in this Excel sheet into a three-slide update for Monday’s meeting.' },
+  { code: 'AS', icon: 'shield', t: 'Architecture & Security', d: 'Understand how Copilot works and how your business data is protected.', prompt: 'Which files can you see, and does anything I share leave our tenant?' },
+  { code: 'PK', icon: 'bulb', t: 'Practical Knowledge', d: 'Turn prompting knowledge into skills you can use in your everyday work.', prompt: 'Draft a reply to this thread with the agreed next steps and owners.' },
+  { code: 'AG', icon: 'agent', t: 'Copilot Agents', d: 'Understand how Agents work and how they can support real business processes.', prompt: 'Create an agent that answers HR policy questions from our SharePoint handbook.' },
+]
+
+// The apps the prompt fans out to in the closing flow strip.
+export const LEARN_FLOW_APPS = [
+  { id: 'word', name: 'Word', mono: 'W', file: 'microsoft-365/word.svg' },
+  { id: 'excel', name: 'Excel', mono: 'X', file: 'microsoft-365/excel.svg' },
+  { id: 'powerpoint', name: 'PowerPoint', mono: 'P', file: 'microsoft-365/powerpoint.svg' },
+  { id: 'outlook', name: 'Outlook', mono: 'O', file: 'microsoft-365/outlook.svg' },
+  { id: 'teams', name: 'Teams', mono: 'T', file: 'microsoft-365/teams.svg' },
+]

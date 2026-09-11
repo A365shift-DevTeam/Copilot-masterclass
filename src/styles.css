@@ -1292,31 +1292,215 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 /* ============================================================
-   BENEFITS — two reference cards, then the fork
+   BENEFITS — the attend/learn card stack, then the fork
    ============================================================ */
-.benefits-cards {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
-  gap: 22px; margin-bottom: clamp(24px, 4vh, 48px);
+/* A short "who", then five sticky cards that pile up as the page scrolls,
+   and a gradient finale card. Each card's --p (0..1) says how far the next
+   card has covered it; the CSS turns that into a push-back and a dim.
+   Every colour is a token so the dark theme only restates the tokens. */
+.st {
+  --st-ink: #002060;
+  --st-ink-2: var(--fg-secondary);
+  --st-line: var(--ref-card-line);
+  --st-card: #FFFFFF;
+  --st-card-shadow: 0 -6px 30px rgba(26, 62, 76, 0.10), 0 18px 50px rgba(26, 62, 76, 0.12);
+  --st-chip: #FFFFFF;
+  --st-chip-line: #DCE5E1;
+  --st-core: #E8F3F8;
+  --st-core-line: #C9E3EE;
+  --st-core-ink: #1D5368;
+  --st-note: #F3F9FB;
+  --st-tint-alpha: 0.10;
+  --st-field: #F6F9F5;
+  --st-field-line: #DCE5E1;
+  --st-app: #FFFFFF;
+  --st-end: linear-gradient(135deg, #0B1B3A, #14405A 55%, #1F6B5A);
+  --st-wire: rgba(255, 255, 255, 0.22);
+  --st-pulse: #6BD194;
+  --st-glow: rgba(107, 209, 148, 0.5);
+  --st-T: 5.2s;
+
+  display: grid; gap: clamp(44px, 6vh, 72px); margin-bottom: clamp(40px, 6vh, 72px);
 }
-.benefit-card {
-  padding: 26px 24px 24px; border-radius: 14px; border: 1px solid var(--ref-card-line); background: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+.st__title {
+  margin: 0; font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 40px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08;
+  color: var(--st-ink);
 }
-.benefit-card .eyebrow { margin-bottom: 8px; }
-.benefit-card h3 { margin: 0 0 8px; font-family: var(--font-display); font-size: 21px; font-weight: 700; color: #002060; }
-.benefit-card p { margin: 0 0 16px; font-size: 14.5px; line-height: 1.6; color: var(--fg-secondary); }
-.benefit-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.benefit-chips li {
-  padding: 6px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
-  color: #1D5368; background: #E8F3F8; border: 1px solid #C9E3EE;
+
+/* ---- Who ---------------------------------------------------------- */
+.st__who { max-width: 720px; }
+.st__who .eyebrow { margin-bottom: 10px; }
+.st__lead { margin: 14px 0 20px; font-size: clamp(15px, 1.4vw, 17px); line-height: 1.6; color: var(--st-ink-2); }
+.st__chips { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 9px; }
+.st__chips li {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 13px; border-radius: 999px;
+  font-size: 13px; font-weight: 600; color: var(--st-ink);
+  background: var(--st-chip); border: 1px solid var(--st-chip-line);
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 460ms var(--ease) calc(120ms + var(--i) * 60ms), transform 460ms var(--ease) calc(120ms + var(--i) * 60ms),
+    border-color 200ms, box-shadow 200ms;
 }
-.benefit-list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 12px; }
-.benefit-list li { display: flex; align-items: flex-start; gap: 12px; }
-.benefit-list li > span:last-child { font-size: 14px; line-height: 1.5; color: var(--fg-secondary); }
-.benefit-list strong { display: block; font-family: var(--font-display); font-size: 14.5px; font-weight: 700; color: #002060; }
-.benefit-card__icon {
-  flex: none; width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(140deg, #E9F7EE, #E8F3F8);
-  display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; color: #1D5368; font-size: 13px;
+.st__who.in .st__chips li { opacity: 1; transform: none; }
+.st__chips li.is-core { color: var(--st-core-ink); background: var(--st-core); border-color: var(--st-core-line); padding-left: 9px; }
+.st__chips li:hover { border-color: #64B7D8; box-shadow: 0 6px 16px rgba(48, 139, 175, 0.14); }
+.st__chip-mark { display: inline-grid; place-items: center; width: 20px; height: 20px; }
+.st__chip-mark svg { width: 18px; height: 18px; color: #308BAF; }
+.st__chip-mark img { width: 18px; height: 18px; object-fit: contain; display: block; }
+.st__mono { font-weight: 800; font-size: 12px; }
+.st__note {
+  display: flex; align-items: flex-start; gap: 10px; margin: 0; max-width: 620px;
+  padding: 11px 14px; border-radius: 12px; background: var(--st-note); border: 1px dashed var(--st-core-line);
+  font-size: 12.5px; line-height: 1.55; color: var(--st-ink-2);
+  opacity: 0; transition: opacity 460ms var(--ease) 560ms;
+}
+.st__who.in .st__note { opacity: 1; }
+.st__note-mark { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: var(--st-core); color: var(--st-core-ink); }
+.st__note-mark svg { width: 14px; height: 14px; }
+
+/* ---- Learn head --------------------------------------------------- */
+.st__learn-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin-bottom: 26px; }
+.st__learn-head .eyebrow { margin-bottom: 10px; }
+.st__learn-head > div { flex: 1 1 auto; }
+.st__hint { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-muted); }
+.st__hint::after { content: '↓'; margin-left: 6px; display: inline-block; animation: st-nudge 1.6s ease-in-out infinite; }
+@keyframes st-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+
+/* ---- The stack ---------------------------------------------------- */
+/* Narrower than the section on desktop, so the pile reads as a deck of
+   sheets rather than a full-bleed band. The heading row shares the same
+   width so it stays aligned above the cards. Room below the last card lets
+   it pin before the fork arrives. */
+.st__learn { max-width: 880px; margin: 0 auto; }
+.st__stack { position: relative; padding-bottom: clamp(60px, 12vh, 140px); }
+.st__card {
+  --p: 0;
+  --t1: #4C99A0; --t2: #308BAF; --t1-rgb: 76, 153, 160;
+  position: sticky;
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 44px); align-items: center;
+  min-height: 260px; margin-bottom: 26px; padding: clamp(24px, 3vw, 32px) clamp(22px, 3vw, 34px);
+  border-radius: 24px; border: 1px solid var(--st-line);
+  background:
+    linear-gradient(120deg, rgba(var(--t1-rgb), var(--st-tint-alpha)), transparent 55%),
+    var(--st-card);
+  box-shadow: var(--st-card-shadow);
+  transform-origin: 50% 0;
+  transform: scale(calc(1 - 0.06 * var(--p))) translateY(calc(-10px * var(--p)));
+  filter: brightness(calc(1 - 0.18 * var(--p)));
+  transition: filter 120ms linear;
+  overflow: hidden;
+}
+.st__card::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 5px;
+  background: linear-gradient(90deg, var(--t1), var(--t2));
+}
+.st__card--sp { --t1: #4C99A0; --t2: #308BAF; --t1-rgb: 76, 153, 160; }
+.st__card--ca { --t1: #65A859; --t2: #3FC073; --t1-rgb: 101, 168, 89; }
+.st__card--as { --t1: #2F5A8F; --t2: #002060; --t1-rgb: 47, 90, 143; }
+.st__card--pk { --t1: #379FC8; --t2: #256C88; --t1-rgb: 55, 159, 200; }
+.st__card--ag { --t1: #35A160; --t2: #4C99A0; --t1-rgb: 53, 161, 96; }
+
+.st__card-main { display: flex; align-items: flex-start; gap: 18px; }
+.st__code {
+  flex: none; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 15px;
+  background: linear-gradient(140deg, var(--t1), var(--t2)); color: #FFFFFF;
+  box-shadow: 0 10px 24px rgba(var(--t1-rgb), 0.35);
+}
+.st__code svg { width: 27px; height: 27px; }
+.st__card-title { margin: 4px 0 8px; font-family: var(--font-display); font-size: clamp(21px, 2.2vw, 26px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--st-ink); }
+.st__card-desc { margin: 0; max-width: 440px; font-size: 15px; line-height: 1.6; color: var(--st-ink-2); }
+
+.st__card-side { display: grid; gap: 12px; }
+.st__card-apps { display: flex; }
+.st__card-app {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; margin-right: -6px;
+  background: var(--st-app); border: 1px solid var(--st-line); box-shadow: 0 2px 6px rgba(0, 32, 96, 0.10);
+}
+.st__card-app img { width: 18px; height: 18px; object-fit: contain; display: block; }
+.st__card-app .st__mono { font-size: 10px; color: var(--t2); }
+.st__prompt-label { display: block; margin-bottom: 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--t1); }
+.st__prompt-bar {
+  display: flex; align-items: center; gap: 10px; min-height: 64px;
+  padding: 12px 12px 12px 14px; border-radius: 14px;
+  background: var(--st-field); border: 1px solid var(--st-field-line);
+}
+.st__prompt-app { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: #FFFFFF; border: 1px solid var(--st-line); }
+.st__prompt-app img { width: 17px; height: 17px; object-fit: contain; display: block; }
+.st__prompt-app .st__mono { font-size: 10px; color: var(--st-core-ink); }
+.st__prompt-text { flex: 1; min-height: 1.5em; font-size: 14px; font-weight: 500; line-height: 1.5; color: var(--st-ink); }
+.st__caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -0.12em; background: var(--t1); animation: om-blink 1s step-end infinite; }
+.st__caret.is-idle { opacity: .4; animation: none; }
+.st__send {
+  flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px;
+  background: rgba(0, 32, 96, 0.06); color: rgba(0, 32, 96, 0.35);
+  transition: background 260ms, color 260ms, transform 260ms cubic-bezier(.34, 1.4, .64, 1), box-shadow 260ms;
+}
+.st__send svg { width: 15px; height: 15px; }
+.st__send.is-ready { background: linear-gradient(140deg, var(--t1), var(--t2)); color: #FFFFFF; transform: scale(1.06); box-shadow: 0 6px 16px rgba(var(--t1-rgb), 0.4); }
+.st__count {
+  position: absolute; top: 22px; right: 24px;
+  font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--st-ink); font-variant-numeric: tabular-nums;
+}
+.st__count em { font-style: normal; font-weight: 600; opacity: .45; }
+
+/* The finale card: the closing line and its pulse. */
+.st__card--end { display: block; min-height: 0; margin-bottom: 0; background: var(--st-end); border-color: transparent; color: #FFFFFF; }
+.st__card--end::before { display: none; }
+.st__end { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2vw, 24px); padding: 6px 0; }
+.st__end-step { flex: none; display: flex; flex-direction: column; text-align: center; font-family: var(--font-display); font-size: 15px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; }
+.st__end-step small, .st__end-apps small { font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #9FD1E5; }
+.st__end-step small { margin-bottom: 3px; }
+.st__end-step--out { animation: st-arrive var(--st-T) linear infinite; }
+.st__wire { position: relative; flex: 1 1 40px; max-width: 150px; height: 2px; border-radius: 2px; background: var(--st-wire); overflow: hidden; }
+.st__wire::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 34%;
+  background: linear-gradient(90deg, transparent, var(--st-pulse), transparent);
+  transform: translateX(-100%); animation: st-run var(--st-T) linear infinite;
+}
+.st__wire--2::after { animation-name: st-run-2; }
+.st__end-apps { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.st__end-row { display: flex; gap: 8px; }
+.st__end-app {
+  position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px;
+  background: #FFFFFF; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.st__end-app::after {
+  content: ''; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 0 2px var(--st-pulse), 0 6px 18px var(--st-glow); opacity: 0;
+  animation: st-lit var(--st-T) linear infinite; animation-delay: calc(var(--k) * 0.34s);
+}
+.st__end-app img { width: 22px; height: 22px; object-fit: contain; display: block; }
+.st__end-app .st__mono { font-size: 13px; color: #0B1B3A; }
+@keyframes st-run { 0% { transform: translateX(-100%); opacity: 1; } 22% { transform: translateX(300%); opacity: 1; } 22.1%, 100% { transform: translateX(-100%); opacity: 0; } }
+@keyframes st-run-2 { 0%, 61.9% { transform: translateX(-100%); opacity: 0; } 62% { transform: translateX(-100%); opacity: 1; } 82% { transform: translateX(300%); opacity: 1; } 82.1%, 100% { transform: translateX(-100%); opacity: 0; } }
+@keyframes st-lit { 0%, 23% { opacity: 0; } 27%, 31% { opacity: 1; } 36%, 100% { opacity: 0; } }
+@keyframes st-arrive { 0%, 82% { text-shadow: none; color: #FFFFFF; } 88% { color: var(--st-pulse); text-shadow: 0 0 18px var(--st-glow); } 96%, 100% { text-shadow: none; color: #FFFFFF; } }
+
+@media (max-width: 860px) {
+  .st__card { grid-template-columns: 1fr; min-height: 0; gap: 18px; }
+  .st__card-desc { max-width: none; }
+  .st__count { top: 18px; right: 18px; }
+  .st__card-main { padding-right: 40px; }
+}
+@media (max-width: 640px) {
+  .st__code { width: 48px; height: 48px; border-radius: 13px; }
+  .st__code svg { width: 24px; height: 24px; }
+  .st__end { flex-direction: column; gap: 12px; }
+  .st__wire { flex: none; width: 2px; height: 26px; max-width: none; }
+  .st__wire::after { left: 0; right: 0; top: 0; bottom: auto; width: auto; height: 34%; background: linear-gradient(180deg, transparent, var(--st-pulse), transparent); transform: translateY(-100%); animation-name: st-drop; }
+  .st__wire--2::after { animation-name: st-drop-2; }
+  .st__end-row { flex-wrap: wrap; justify-content: center; }
+}
+@keyframes st-drop { 0% { transform: translateY(-100%); opacity: 1; } 22% { transform: translateY(300%); opacity: 1; } 22.1%, 100% { transform: translateY(-100%); opacity: 0; } }
+@keyframes st-drop-2 { 0%, 61.9% { transform: translateY(-100%); opacity: 0; } 62% { transform: translateY(-100%); opacity: 1; } 82% { transform: translateY(300%); opacity: 1; } 82.1%, 100% { transform: translateY(-100%); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .st__chips li, .st__note { opacity: 1; transform: none; transition: none; }
+  .st__card { transform: none; filter: none; }
+  .st__hint::after { animation: none; }
+  .st__wire::after { animation: none; transform: none; width: 100%; opacity: .6; }
+  .st__end-app::after, .st__end-step--out { animation: none; }
 }
 
 /* --- the fork ------------------------------------------------------
@@ -1908,7 +2092,6 @@ html[data-theme="dark"] .nav.solid .theme-toggle {
 html[data-theme="dark"] .app-card,
 html[data-theme="dark"] .aud-card,
 html[data-theme="dark"] .usecase-card,
-html[data-theme="dark"] .benefit-card,
 html[data-theme="dark"] .eco-card,
 html[data-theme="dark"] .testimonial-card,
 html[data-theme="dark"] .register-card {
@@ -1918,7 +2101,6 @@ html[data-theme="dark"] .register-card {
 html[data-theme="dark"] .app-card::before,
 html[data-theme="dark"] .aud-card::before,
 html[data-theme="dark"] .usecase-card::before,
-html[data-theme="dark"] .benefit-card::before,
 html[data-theme="dark"] .eco-card::before,
 html[data-theme="dark"] .testimonial-card::before,
 html[data-theme="dark"] .register-card::before {
@@ -1931,7 +2113,6 @@ html[data-theme="dark"] .register-card::before {
 html[data-theme="dark"] .app-card,
 html[data-theme="dark"] .aud-card,
 html[data-theme="dark"] .usecase-card,
-html[data-theme="dark"] .benefit-card,
 html[data-theme="dark"] .eco-card,
 html[data-theme="dark"] .testimonial-card,
 html[data-theme="dark"] .register-card {
@@ -1939,12 +2120,10 @@ html[data-theme="dark"] .register-card {
   border: 1px solid #1E2939;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
-html[data-theme="dark"] .app-card:hover,
-html[data-theme="dark"] .benefit-card:hover { border-color: rgba(63, 192, 115, 0.55); }
+html[data-theme="dark"] .app-card:hover { border-color: rgba(63, 192, 115, 0.55); }
 
 /* Headings & labels inside cards */
 html[data-theme="dark"] .app-card h3,
-html[data-theme="dark"] .benefit-card h3,
 html[data-theme="dark"] .eco-card h3,
 html[data-theme="dark"] .testimonial-card__name,
 html[data-theme="dark"] .register-card h3,
@@ -1955,12 +2134,32 @@ html[data-theme="dark"] .eco-card__icon,
 html[data-theme="dark"] .register-success__icon {
   background: rgba(63, 192, 115, 0.16); color: #6BD194;
 }
-html[data-theme="dark"] .benefit-card__icon {
-  background: linear-gradient(140deg, rgba(63, 192, 115, 0.20), rgba(48, 139, 175, 0.22));
-  color: #C9E3EE;
+html[data-theme="dark"] .st {
+  --st-ink: #FFFFFF;
+  --st-ink-2: #9AA4B6;
+  --st-line: #1E2939;
+  --st-card: #101828;
+  --st-card-shadow: 0 -6px 30px rgba(0, 0, 0, 0.35), 0 18px 50px rgba(0, 0, 0, 0.45);
+  --st-chip: rgba(255, 255, 255, 0.04);
+  --st-chip-line: #26324A;
+  --st-core: rgba(48, 139, 175, 0.16);
+  --st-core-line: rgba(159, 209, 229, 0.25);
+  --st-core-ink: #C9E3EE;
+  --st-note: rgba(48, 139, 175, 0.08);
+  --st-tint-alpha: 0.20;
+  --st-field: rgba(255, 255, 255, 0.05);
+  --st-field-line: #26324A;
+  --st-app: #172238;
+  --st-end: linear-gradient(135deg, #132340, #14405A 55%, #1F6B5A);
 }
-html[data-theme="dark"] .benefit-list strong { color: #FFFFFF; }
-html[data-theme="dark"] .benefit-chips li { color: #C9E3EE; background: rgba(48, 139, 175, 0.16); border-color: rgba(159, 209, 229, 0.25); }
+/* Navy on navy vanishes, so the security card takes a lighter pair here. */
+html[data-theme="dark"] .st__card--as { --t1: #5B8AC9; --t2: #2F5A8F; --t1-rgb: 91, 138, 201; }
+html[data-theme="dark"] .st__card { filter: brightness(calc(1 - 0.3 * var(--p))); }
+html[data-theme="dark"] .st__chips li:hover { border-color: rgba(100, 183, 216, 0.6); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); }
+html[data-theme="dark"] .st__chip-mark svg { color: #9FD1E5; }
+html[data-theme="dark"] .st__prompt-app { background: #FFFFFF; border-color: transparent; }
+html[data-theme="dark"] .st__send { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.4); }
+html[data-theme="dark"] .st__send.is-ready { color: #FFFFFF; }
 
 /* The fork */
 html[data-theme="dark"] .career__stage {
