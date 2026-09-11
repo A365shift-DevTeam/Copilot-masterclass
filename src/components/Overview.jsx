@@ -2,6 +2,7 @@ import { BookOpen, Bot, Globe, GraduationCap, LayoutGrid, Terminal } from 'lucid
 import useReveal from '../hooks/useReveal.js'
 import { JOURNEY } from '../data/content.js'
 import CoverflowCarousel from './ui/CoverflowCarousel.jsx'
+import ReserveSeatButton from './ReserveSeatButton.jsx'
 
 const ICONS = {
   learn: BookOpen,
@@ -68,6 +69,8 @@ export default function Overview() {
           </li>
         ))}
       </ol>
+
+      <ReserveSeatButton />
     </section>
   )
 }

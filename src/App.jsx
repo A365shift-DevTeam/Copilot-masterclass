@@ -9,7 +9,6 @@ import LiveDemo from './components/LiveDemo.jsx'
 import Benefits from './components/Benefits.jsx'
 import Speaker from './components/Speaker.jsx'
 import Ecosystem from './components/Ecosystem.jsx'
-import Testimonials from './components/Testimonials.jsx'
 import Register from './components/Register.jsx'
 import Faq from './components/Faq.jsx'
 import FinalCta from './components/FinalCta.jsx'
@@ -45,10 +44,11 @@ export default function App() {
         {/* <UseCases /> */}
         {/* <LiveDemo /> */}
         <Benefits />
+        {/* Feedback is no longer its own section — it runs as a strip at the
+            bottom of Speaker. */}
         <Speaker />
         {/* <Ecosystem /> */}
-        <Testimonials />
-        <Register />
+        {/* <Register /> */}
         {/* <Faq /> */}
         {/* <FinalCta /> */}
       </div>

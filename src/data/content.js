@@ -1,9 +1,11 @@
+/* Every entry must point at a section that is actually rendered in App.jsx.
+   Agenda and FAQ were dropped because Agenda.jsx and Faq.jsx are commented
+   out there — re-add them here if those sections come back. */
 export const NAV_LINKS = [
   { href: '#overview', label: 'Overview' },
   { href: '#learn', label: "What You'll Learn" },
-  { href: '#agenda', label: 'Agenda' },
+  { href: '#benefits', label: 'Benefits' },
   { href: '#speaker', label: 'Speaker' },
-  { href: '#faq', label: 'FAQ' },
 ]
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
@@ -120,11 +122,18 @@ export const ECOSYSTEM = [
   { i: 'DX', t: 'Premium Digital Experiences', d: 'Modern interactive web solutions.' },
 ]
 
+/* ⚠️ MOCK DATA — NOT REAL PEOPLE, NOT REAL QUOTES.
+   Written to design and test the feedback strip. Every name, role and quote
+   below is invented. Swap the whole array for verified participant feedback
+   before this page goes live: publishing invented reviews attributed to named
+   people is a legal and trust problem, not just a content gap. */
 export const TESTIMONIALS = [
-  { quote: 'Placeholder testimonial — replace with a verified participant quote once collected.', name: 'Participant name', role: 'Role — Organisation' },
-  { quote: 'Placeholder testimonial — replace with a verified participant quote once collected.', name: 'Participant name', role: 'Role — Organisation' },
-  { quote: 'Placeholder testimonial — replace with a verified participant quote once collected.', name: 'Participant name', role: 'Role — Organisation' },
-  { quote: 'Placeholder testimonial — replace with a verified participant quote once collected.', name: 'Participant name', role: 'Role — Organisation' },
+  { rating: 5, quote: 'I automated my monthly sales report in Excel the same week. What took a full day now takes twenty minutes.', name: 'Priya Raghavan', role: 'Sales Manager' },
+  { rating: 5, quote: 'Building an agent in Copilot Studio was the part I expected to lose. Ambrose walked it through without jargon.', name: 'Vinod Menon', role: 'Operations Head' },
+  { rating: 5, quote: 'Our finance team drafts the month-end summary with Copilot now and reviews it, instead of retyping it.', name: 'Fatima Al-Harbi', role: 'Finance Lead' },
+  { rating: 4, quote: 'Practical from the first minute. Every demonstration used a task I actually do on a Monday morning.', name: 'Sneha Kulkarni', role: 'HR Manager' },
+  { rating: 5, quote: 'I came for the Excel tips and left with a prompt library I reuse across Word and Outlook every day.', name: 'Arjun Desai', role: 'Business Owner' },
+  { rating: 5, quote: 'Straight answers in the Q&A, even on the awkward rollout and licensing questions.', name: 'Rahul Iyer', role: 'IT Administrator' },
 ]
 
 export const INCLUDED = ['Live training', 'Demonstrations', 'Q&A', 'Practical examples', 'Learning resources']

@@ -928,6 +928,45 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   align-items: center;
 }
 
+/* The repeating seat CTA. The pill itself never changes — only where it sits.
+   Each section anchors it to its own layout rather than dropping it in the
+   middle: centred where the section is centred, in the column where the
+   section is a grid, on the slider's edge where a control edge already
+   exists. The modifier says which. */
+.section-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 44px;
+}
+/* Inside a grid column, the button belongs to the column's text edge. Closer
+   too, since it follows its own column's content rather than a whole band. */
+.section-cta--start { justify-content: flex-start; margin-top: 30px; }
+/* Aligned to the slider's right edge, where the prev/next controls already
+   set an edge to answer to. */
+.section-cta--end { justify-content: flex-end; }
+
+/* Benefits is the one that earns a gesture. The fork asks "Which direction
+   will you choose?" and this is the answer, so the button hangs off the
+   chart on the same stem the checkpoint labels use to reach the ribbon —
+   the section's own device, in the up path's green. */
+.section-cta--answer { flex-direction: column; align-items: center; margin-top: 26px; }
+.section-cta--answer::before {
+  content: '';
+  width: 2px; height: 36px; margin-bottom: 16px; border-radius: 2px;
+  background: linear-gradient(180deg, rgba(101, 168, 89, 0), #65A859);
+}
+
+/* The speaker section's ground is dark teal and the pill's left end is teal
+   too, so its edge needs a light ring to separate from it. */
+.speaker-section .section-cta .btn-primary {
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+@media (max-width: 719px) {
+  /* One column everywhere, so every variant falls back to centred. */
+  .section-cta { margin-top: 32px; justify-content: center; }
+  .section-cta--answer::before { height: 26px; margin-bottom: 12px; }
+}
+
 .btn-primary {
   position: relative;
   overflow: hidden;
@@ -3093,92 +3132,130 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 /* ============================================================
    TESTIMONIALS
    ============================================================ */
-.testimonials__head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
+/* The marquee. Two equal halves inside one track that travels exactly -50%:
+   at the end of a pass the second half sits precisely where the first began,
+   so the loop repeats with no jump. The halves stay equal because each one
+   carries its own trailing gap in padding-right rather than relying on a gap
+   between them. */
+.marquee {
+  overflow: hidden;
+  /* Fades both ends, so the row reads as running past the frame instead of
+     being chopped off at it. */
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
 
-.testimonials__title {
+.marquee__track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 52s linear infinite;
+}
+
+/* Hovering holds the row still so a card can be read. */
+.marquee:hover .marquee__track,
+.marquee:focus-within .marquee__track {
+  animation-play-state: paused;
+}
+
+/* The gap and the trailing padding must stay equal, or the two halves differ
+   in width and the -50% loop drifts. */
+.marquee__half {
+  display: flex;
+  gap: 14px;
+  padding-right: 14px;
+}
+
+@keyframes marquee-scroll {
+  to { transform: translateX(-50%); }
+}
+
+/* Stopped, the duplicate half is just repeated content, and the row needs to
+   stay reachable without the animation to bring it into view. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee { overflow-x: auto; mask-image: none; -webkit-mask-image: none; }
+  .marquee__track { animation: none; width: auto; }
+  .marquee__half + .marquee__half { display: none; }
+}
+
+/* The band under the founder. Aligned to the same content width as the bio
+   grid above it, so the section reads as one column of material. */
+.feedback-strip {
+  max-width: var(--content-max);
+  margin: clamp(44px, 6vw, 72px) auto 0;
+}
+/* Quiet enough not to reopen as a section heading — the band needs naming,
+   not announcing. */
+.feedback-strip__label {
+  margin: 0 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+/* Strip-sized: small enough that several pass at once and the row reads as a
+   moving band rather than a queue of cards. The quote is capped at two lines
+   so every card is the same height and the band has a straight edge.
+   These cards only ever sit on the speaker section's dark teal, in both
+   themes, so they borrow the translucent fill .speaker__pills already uses
+   rather than carrying a light-ground style and a dark-theme override. */
+.testimonial-card {
+  flex: 0 0 min(258px, 74vw);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Unlit stars stay in place at low opacity, so a four-star card is the same
+   width as a five and the row keeps its rhythm. */
+.testimonial-card__stars {
+  display: flex;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 1;
+  color: #6BD194;
+}
+.testimonial-card__stars span { opacity: 0.22; }
+.testimonial-card__stars .is-on { opacity: 1; }
+
+.testimonial-card__quote {
   margin: 0;
-  font-size: clamp(24px, 2.6vw, 34px);
-}
-
-.testimonials__nav {
-  display: flex;
-  gap: 10px;
-}
-
-.testimonials__nav button {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 1px solid #D4E5D1;
-  background: #fff;
-  color: #002060;
-  font-size: 16px;
-  cursor: pointer;
-  transition: border-color 200ms, transform 200ms;
-}
-
-.testimonials__nav button:hover {
-  border-color: #3FC073;
-  transform: translateY(-2px);
-}
-
-.testimonials__viewport {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
 }
 
-.testimonials__track {
+.testimonial-card figcaption {
   display: flex;
-  gap: 18px;
-  transition: transform 450ms var(--ease);
-}
-
-.testimonial-card {
-  flex: 0 0 min(360px, 84vw);
-  padding: 26px;
-  border-radius: 12px;
-  border: 1px solid var(--ref-card-line);
-  background: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.testimonial-card__stars {
-  color: #3FC073;
-  letter-spacing: 0.12em;
-  font-size: 15px;
-}
-
-.testimonial-card__quote {
-  margin: 14px 0 18px;
-  font-size: 15px;
-  line-height: 1.65;
-  color: var(--fg-secondary);
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
 }
 
 .testimonial-card__name {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 14.5px;
-  color: #002060;
+  font-size: 12.5px;
+  color: #FFFFFF;
+  white-space: nowrap;
 }
 
+/* Truncates rather than wraps, so a long role can never add a third line. */
 .testimonial-card__role {
-  font-size: 13px;
-  color: var(--fg-muted);
-}
-
-.testimonial-card__note {
-  margin-top: 14px;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  color: #548D4A;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ============================================================
@@ -3959,7 +4036,6 @@ html[data-theme="dark"] .aud-card,
 html[data-theme="dark"] .usecase-card,
 html[data-theme="dark"] .benefit-card,
 html[data-theme="dark"] .eco-card,
-html[data-theme="dark"] .testimonial-card,
 html[data-theme="dark"] .register-card {
   position: relative;
   overflow: hidden;
@@ -3970,7 +4046,6 @@ html[data-theme="dark"] .aud-card::before,
 html[data-theme="dark"] .usecase-card::before,
 html[data-theme="dark"] .benefit-card::before,
 html[data-theme="dark"] .eco-card::before,
-html[data-theme="dark"] .testimonial-card::before,
 html[data-theme="dark"] .register-card::before {
   content: '';
   position: absolute;
@@ -3987,7 +4062,6 @@ html[data-theme="dark"] .aud-card,
 html[data-theme="dark"] .usecase-card,
 html[data-theme="dark"] .benefit-card,
 html[data-theme="dark"] .eco-card,
-html[data-theme="dark"] .testimonial-card,
 html[data-theme="dark"] .register-card {
   background: #101828;
   border: 1px solid #1E2939;
@@ -4003,7 +4077,6 @@ html[data-theme="dark"] .benefit-card:hover {
 html[data-theme="dark"] .app-card h3,
 html[data-theme="dark"] .benefit-card h3,
 html[data-theme="dark"] .eco-card h3,
-html[data-theme="dark"] .testimonial-card__name,
 html[data-theme="dark"] .register-card h3,
 html[data-theme="dark"] .register-success h3 {
   color: #FFFFFF;
@@ -4140,22 +4213,6 @@ html[data-theme="dark"] .usecase-card__tags span {
 }
 
 /* Testimonials */
-html[data-theme="dark"] .testimonials__nav button {
-  background: #101828;
-  border-color: #1E2939;
-  color: #fff;
-}
-
-/* The light theme's dashed note-card border gives way to the same solid
-   hairline every other dark card uses, so the top rules read as one system. */
-html[data-theme="dark"] .testimonial-card {
-  border: 1px solid #1E2939;
-}
-
-html[data-theme="dark"] .testimonial-card__note {
-  color: rgba(255, 255, 255, 0.3);
-}
-
 /* Register form */
 html[data-theme="dark"] .register-form .field-label {
   color: rgba(255, 255, 255, 0.75);
@@ -4629,10 +4686,6 @@ html[data-theme="light"] .cta-section p {
    step down the same scale to stay legible on white.                 */
 html[data-theme="light"] .pricing-card__eyebrow {
   color: var(--ref-teal-dk);
-}
-
-html[data-theme="light"] .testimonial-card__stars {
-  color: #2B824E;
 }
 
 html[data-theme="light"] .app-card__points .dot {

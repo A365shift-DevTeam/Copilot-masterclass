@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from 'react'
 import useReveal from '../hooks/useReveal.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 import { AUDIENCE, BENEFITS, CAREER_PROMPT, CAREER_STEPS } from '../data/content.js'
+import ReserveSeatButton from './ReserveSeatButton.jsx'
 
 const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
 
@@ -165,7 +166,7 @@ export default function Benefits() {
   useForkProgress(sectionRef, stageRef)
 
   return (
-    <section className="section benefits">
+    <section id="benefits" className="section benefits">
       <div ref={cardsRef} className="benefits-cards">
         <div className="benefit-card benefit-card--who">
           <div className="eyebrow eyebrow--teal">WHO IT IS FOR</div>
@@ -289,6 +290,11 @@ export default function Benefits() {
           <p className="career__hint" aria-hidden="true">Scroll to watch the difference</p>
         </div>
       </div>
+
+      {/* The answer to the question the fork types out. Outside .career: its
+          stage is a sticky 100vh flex box, so a button placed in there would
+          be pushed past the bottom of the viewport. */}
+      <ReserveSeatButton className="section-cta--answer" />
     </section>
   )
 }

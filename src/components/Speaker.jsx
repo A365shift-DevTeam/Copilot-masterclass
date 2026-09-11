@@ -1,5 +1,7 @@
 import useReveal from '../hooks/useReveal.js'
 import { EXPERTISE } from '../data/content.js'
+import ReserveSeatButton from './ReserveSeatButton.jsx'
+import FeedbackStrip from './FeedbackStrip.jsx'
 
 export default function Speaker() {
   const photoRef = useReveal()
@@ -40,8 +42,15 @@ export default function Speaker() {
               <span key={e}>{e}</span>
             ))}
           </div>
+          {/* Ends the bio rather than the section: the ask follows the person
+              making it, on the same left edge as his name. */}
+          <ReserveSeatButton className="section-cta--start" />
         </div>
       </div>
+
+      {/* Social proof sits with the person it is about, closing his section
+          rather than opening one of its own. */}
+      <FeedbackStrip />
     </section>
   )
 }
