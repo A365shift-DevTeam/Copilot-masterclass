@@ -8,7 +8,7 @@
  * many of them the scrub actually uses.
  */
 const SOURCE_SEAT_FRAMES = 118
-const SOURCE_TICKET_FRAMES = 107
+const SOURCE_TICKET_FRAMES = 103
 
 /*
  * Play every Nth source frame.
