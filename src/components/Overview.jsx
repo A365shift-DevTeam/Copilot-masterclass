@@ -57,7 +57,6 @@ export default function Overview() {
         items={JOURNEY.map((stage) => (
           <StageFace key={stage.n} stage={stage} />
         ))}
-        pageLabels={JOURNEY.map((stage) => stage.stage)}
         autoplay
         autoplayDelay={3400}
         showNavigation
