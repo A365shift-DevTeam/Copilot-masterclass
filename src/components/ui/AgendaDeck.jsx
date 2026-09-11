@@ -1,15 +1,15 @@
 /**
- * The four agenda days as a stacked deck. The front card is the one being
- * read; the others sit behind it, stepped up and to the right, and the deck
- * turns on a timer: the front card lifts away, the rest come forward, and the
- * lifted card settles at the back.
+ * The four agenda cards as a stacked deck — two per day. The front card is
+ * the one being read; the others sit behind it, stepped up and to the right,
+ * and the deck turns on a timer: the front card lifts away, the rest come
+ * forward, and the lifted card settles at the back.
  *
  * Positions are a pure function of (card, front): `pos` 0 is the front and 3
  * is the back, and the CSS owns the transform for each. `leaving` is the one
  * transient state, held for the lift so a card can leave from the top of the
  * stack before it reappears at the bottom. The controls under the stack step
  * back and forward and hold or resume the turn; any card or dot can also be
- * picked to bring a day forward.
+ * picked to bring a card forward.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
@@ -75,16 +75,20 @@ export default function AgendaDeck() {
               <span className="deck-card__day">{item.day}</span>
             </div>
             <h3 className="deck-card__title">{item.t}</h3>
-            <p className="deck-card__desc">{item.d}</p>
+            <ul className="deck-card__points">
+              {item.points.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
             <div className="deck-card__foot">
-              <span className="deck-card__count">{item.day} of {COUNT}</span>
-              <span className="deck-card__dots" role="group" aria-label="Choose a day">
+              <span className="deck-card__count">Card {i + 1} of {COUNT}</span>
+              <span className="deck-card__dots" role="group" aria-label="Choose a card">
                 {AGENDA.map((d, j) => (
                   <button
                     key={d.n}
                     type="button"
                     className={`deck-card__dot${j === front ? ' deck-card__dot--on' : ''}`}
-                    aria-label={`Show ${d.day}`}
+                    aria-label={`Show ${d.t}`}
                     aria-pressed={j === front}
                     tabIndex={isFront ? 0 : -1}
                     onClick={(e) => { e.stopPropagation(); pick(j) }}
@@ -98,7 +102,7 @@ export default function AgendaDeck() {
       </div>
 
       <div className="deck-controls">
-        <button type="button" className="deck-btn" aria-label="Previous day" onClick={() => pick(front - 1)}>
+        <button type="button" className="deck-btn" aria-label="Previous card" onClick={() => pick(front - 1)}>
           <ChevronLeft strokeWidth={2.2} aria-hidden="true" />
         </button>
         <button
@@ -110,7 +114,7 @@ export default function AgendaDeck() {
         >
           {playing ? <Pause strokeWidth={2.2} aria-hidden="true" /> : <Play strokeWidth={2.2} aria-hidden="true" />}
         </button>
-        <button type="button" className="deck-btn" aria-label="Next day" onClick={() => pick(front + 1)}>
+        <button type="button" className="deck-btn" aria-label="Next card" onClick={() => pick(front + 1)}>
           <ChevronRight strokeWidth={2.2} aria-hidden="true" />
         </button>
       </div>

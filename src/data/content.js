@@ -47,11 +47,13 @@ export const AGENT_APPS = [
   { id: 'sharepoint', name: 'SharePoint', mono: 'S', file: 'microsoft-365/sharepoint.svg', side: 'out' },
 ]
 
+// The agenda deck: four cards over two days, each one a title and the three
+// things it covers.
 export const AGENDA = [
-  { n: '01', day: 'Day 1', time: '0 – 30 MIN', t: 'Copilot Foundations', d: 'Introduction to Copilot, prompting and best practices across Microsoft 365.' },
-  { n: '02', day: 'Day 2', time: '30 – 60 MIN', t: 'Copilot in Action', d: 'Hands-on with Excel, Word, PowerPoint, Outlook and Teams.' },
-  { n: '03', day: 'Day 3', time: '60 – 90 MIN', t: 'Automation & Insights', d: 'Power Automate, Power BI and Power Apps working alongside Copilot.' },
-  { n: '04', day: 'Day 4', time: '90 – 120 MIN', t: 'Build & Deploy AI Agents', d: 'Build a Copilot Studio agent, see it live, and close with Q&A.' },
+  { n: '01', day: 'Day 1', t: 'Understand Copilot', points: ['How Copilot Works', 'Copilot Architecture', 'Security & Your Data'] },
+  { n: '02', day: 'Day 1', t: 'Smart Prompting', points: ['How to Talk to Copilot', 'Build Better Prompts', 'Use the Same Prompting Skills Across Copilot'] },
+  { n: '03', day: 'Day 2', t: 'Copilot in Microsoft 365', points: ['Excel • Word • PowerPoint', 'Outlook • Teams', 'Work Faster with Copilot'] },
+  { n: '04', day: 'Day 2', t: 'Build with Copilot', points: ['Connect Your Daily Work', 'Create Smart Workflows', 'Build Practical Copilot Skills'] },
 ]
 
 export const AUDIENCE = [

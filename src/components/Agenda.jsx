@@ -10,9 +10,13 @@ function AgendaStep({ item }) {
         <span className="agenda-step__line" />
         <span className="agenda-step__dot" />
       </div>
-      <div className="agenda-step__time">{item.time}</div>
+      <div className="agenda-step__time">{item.day}</div>
       <h3 className="agenda-step__title">{item.t}</h3>
-      <p className="agenda-step__desc">{item.d}</p>
+      <ul className="agenda-step__desc">
+        {item.points.map((point) => (
+          <li key={point}>{point}</li>
+        ))}
+      </ul>
     </div>
   )
 }
