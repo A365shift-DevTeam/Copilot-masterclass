@@ -3500,9 +3500,10 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 /* Strip-sized: small enough that several pass at once and the row reads as a
    moving band rather than a queue of cards. The quote is capped at two lines
    so every card is the same height and the band has a straight edge.
-   These cards only ever sit on the speaker section's dark teal, in both
-   themes, so they borrow the translucent fill .speaker__pills already uses
-   rather than carrying a light-ground style and a dark-theme override. */
+   These cards sit on the speaker section's ground, which is dark teal by
+   default and light under the light theme, so they borrow the translucent
+   fill .speaker__pills uses here and take the pills' white treatment in the
+   light-theme block further down. */
 .testimonial-card {
   flex: 0 0 min(258px, 74vw);
   display: flex;
@@ -4897,6 +4898,19 @@ html[data-theme="light"] .speaker__pills span {
   color: var(--ref-navy);
 }
 html[data-theme="light"] .speaker__pills b { color: #2B824E; }
+
+/* The feedback band closes the same block, so its cards take the pills'
+   white-on-light treatment: white card, hairline edge, navy name. */
+html[data-theme="light"] .feedback-strip__label { color: var(--ref-micro); }
+html[data-theme="light"] .testimonial-card {
+  background: #FFFFFF;
+  border: 1px solid var(--ref-card-line);
+  box-shadow: 0 6px 18px rgba(0, 32, 96, 0.06);
+}
+html[data-theme="light"] .testimonial-card__stars { color: #2B824E; }
+html[data-theme="light"] .testimonial-card__quote { color: var(--ref-body); }
+html[data-theme="light"] .testimonial-card__name { color: var(--ref-navy); }
+html[data-theme="light"] .testimonial-card__role { color: var(--ref-micro); }
 
 /* --- Ecosystem hub ---------------------------------------------- */
 /* Stays the emphasised tile among white cards, but as a green tint —
