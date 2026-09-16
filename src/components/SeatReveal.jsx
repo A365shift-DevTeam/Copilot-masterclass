@@ -1,4 +1,4 @@
-import { scrollToTarget } from '../hooks/useLenis.js'
+import { PAYMENT_URL } from '../data/content.js'
 import ReserveSeatLabel from './ReserveSeatLabel.jsx'
 import './seat-reveal.css'
 
@@ -20,7 +20,9 @@ export default function SeatReveal({ onBook, tabbable = false, amount = 499 }) {
       onBook()
       return
     }
-    scrollToTarget('#register', -20)
+    // No booking modal wired up: go straight to the hosted checkout, the same
+    // place every other "Reserve a seat" CTA on the page lands.
+    window.open(PAYMENT_URL, '_blank', 'noopener,noreferrer')
   }
 
   return (

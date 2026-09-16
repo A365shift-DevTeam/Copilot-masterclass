@@ -17,12 +17,14 @@ const SOCIAL_ICONS = {
 }
 
 /* Link hrefs come from content.js. #overview, #learn, #speaker and
- * #benefits resolve; #agenda, #faq and #register point at sections that are
- * commented out of App.jsx, so they go nowhere until those come back.
+ * #benefits resolve; #agenda and #faq point at sections that are commented
+ * out of App.jsx, so they go nowhere until those come back. "Reserve a seat"
+ * is an absolute URL to the checkout page, so it opens in a new tab.
  * Column titles are paragraphs, not headings: each column is already a
  * labelled <nav>, so extra <h2>s here would only compete with the page's own
  * section headings in the document outline. */
 const isPlaceholder = (href) => href === '#'
+const isExternal = (href) => /^https?:///.test(href)
 
 function LinkColumn({ title, links }) {
   return (
@@ -31,7 +33,12 @@ function LinkColumn({ title, links }) {
       <ul>
         {links.map((l) => (
           <li key={l.label}>
-            <a href={l.href} aria-disabled={isPlaceholder(l.href) || undefined}>
+            <a
+              href={l.href}
+              aria-disabled={isPlaceholder(l.href) || undefined}
+              target={isExternal(l.href) ? '_blank' : undefined}
+              rel={isExternal(l.href) ? 'noopener noreferrer' : undefined}
+            >
               {l.label}
             </a>
           </li>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NAV_LINKS } from '../data/content.js'
+import { NAV_LINKS, PAYMENT_URL } from '../data/content.js'
 
 function SunIcon() {
   return (
@@ -84,7 +84,7 @@ export default function Navbar() {
           >
             <span className="nav__burger"><span /><span /><span /></span>
           </button>
-          <a href="#register" className="nav__cta">Reserve a Seat</a>
+          <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="nav__cta">Reserve a Seat</a>
         </div>
       </nav>
 
@@ -92,7 +92,7 @@ export default function Navbar() {
         {NAV_LINKS.map((l) => (
           <a key={l.href} href={l.href} onClick={close}>{l.label}</a>
         ))}
-        <a href="#register" className="menu-panel__cta" onClick={close}>Reserve My Seat</a>
+        <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="menu-panel__cta" onClick={close}>Reserve My Seat</a>
       </div>
     </>
   )

@@ -1,3 +1,10 @@
+/* Every "Reserve a seat" CTA on the page — nav, hero, the ticket and seat
+   reveals, the repeating section pill and the footer link — sends the viewer
+   straight to the hosted payment page. There is no on-page registration form
+   any more (Register.jsx is commented out of App.jsx), so this is the single
+   place the checkout URL lives. */
+export const PAYMENT_URL = 'https://link.trym.co.in/payment-link/6aaa40f2f426560dbc2f087d'
+
 /* Every entry must point at a section that is actually rendered in App.jsx.
    Agenda and FAQ were dropped because Agenda.jsx and Faq.jsx are commented
    out there — re-add them here if those sections come back. */
@@ -170,14 +177,14 @@ export const FOOTER = {
   email: 'Connect@ambot365.in',
   phone: '+91 9043777365',
   location: 'Coimbatore | Tamil Nadu',
-  // Real, working anchors on this page.
+  // Real, working anchors on this page, plus the checkout link.
   webinar: [
     { href: '#overview', label: 'Overview' },
     { href: '#learn', label: "What You'll Learn" },
     { href: '#agenda', label: 'Agenda' },
     { href: '#speaker', label: 'Speaker' },
     { href: '#faq', label: 'FAQ' },
-    { href: '#register', label: 'Reserve a seat' },
+    { href: PAYMENT_URL, label: 'Reserve a seat' },
   ],
   offerings: [
     { href: '#', label: 'M365 Copilot' },

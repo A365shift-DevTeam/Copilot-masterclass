@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { scrollToTarget, getLenis } from '../hooks/useLenis.js'
 import useTypewriter from '../hooks/useTypewriter.js'
+import { PAYMENT_URL } from '../data/content.js'
 import ReserveSeatLabel from './ReserveSeatLabel.jsx'
 import './ticket-scroll.css'
 import {
@@ -424,14 +425,12 @@ export default function TicketScrollExperience() {
           </p>
 
           <a
-            href="#register"
+            href={PAYMENT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="ticket-scroll-cta"
             tabIndex={isEnding ? 0 : -1}
             aria-label={`Reserve your seat for just ₹${PASS_PRICE}`}
-            onClick={(e) => {
-              e.preventDefault()
-              scrollToTarget('#register', -20)
-            }}
           >
             <span><ReserveSeatLabel amount={PASS_PRICE} travels={false} /></span>
             <span className="btn-shine" aria-hidden="true" />

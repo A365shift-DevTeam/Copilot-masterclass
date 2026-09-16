@@ -1,3 +1,4 @@
+import { PAYMENT_URL } from '../data/content.js'
 import ReserveSeatLabel from './ReserveSeatLabel.jsx'
 
 /**
@@ -20,7 +21,7 @@ export default function ReserveSeatButton({ className = '' }) {
 
   return (
     <div className={`section-cta ${className}`.trim()}>
-      <a href="#register" className="btn-primary" onClick={handleClick}>
+      <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleClick}>
         <ReserveSeatLabel />
         <span className="btn-shine" />
       </a>
