@@ -25,10 +25,12 @@ export default function ReserveSeatLabel({ amount = SEAT_PRICE }) {
  *
  * The slot is a fixed-size box, so the row's width never shifts whether or
  * not the live bot is currently parked there. Where `travels` is true the
- * slot holds a dimmed ghost and is registered as a waypoint — the live bot in
- * LogoTraveller flies between those and lands on top. The two scroll reveals
- * opt out: their pills ride their own scroll transforms, so a traveller
- * aiming at them would chase a moving target. They show a solid bot instead.
+ * slot is registered as a waypoint and its own image is hidden — the live bot
+ * in LogoTraveller flies between those and is the only one you see. The two
+ * scroll reveals opt out: their pills ride their own scroll transforms, so a
+ * traveller aiming at them would chase a moving target. They show a solid bot
+ * instead. Below the mobile break no traveller mounts at all, so the hidden
+ * images come back (see .btn-bot--ghost in styles.css).
  */
 export function ReserveSeatBot({ travels = true }) {
   return (

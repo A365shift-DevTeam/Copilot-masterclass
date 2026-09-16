@@ -988,9 +988,9 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
    pill, then a fixed-size bot slot — and the row is what a section lays out.
 
    The slot is fixed-size so the row's width never shifts whether or not the
-   live bot is currently parked there. Waypoint slots hold a dimmed ghost for
-   the traveller to land on; the two scroll reveals keep a solid bot, since
-   the traveller never visits them. */
+   live bot is currently parked there. Waypoint slots are empty — the live bot
+   supplies the only visible one — while the two scroll reveals keep a solid
+   bot, since the traveller never visits them. */
 .seat-cta-row {
   display: inline-flex;
   align-items: center;
@@ -1008,7 +1008,11 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   display: block;
   object-fit: contain;
 }
-.btn-bot--ghost img { opacity: 0.2; }
+/* Fully invisible, not a faint silhouette: the live traveller never covers
+   the slot exactly, so a visible ghost read as a second bot sitting behind
+   it. The slot itself stays — it is the waypoint the traveller measures and
+   the box that keeps the row's width from shifting. */
+.btn-bot--ghost img { opacity: 0; }
 
 /* The traveller in document coordinates: parked, it rides the page like any
    other element. --x/--y are the waypoint's centre, so the bot is pulled
