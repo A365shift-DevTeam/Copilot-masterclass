@@ -25,6 +25,17 @@
 /* Only the button takes pointer input; the copy stays out of the way. */
 .seat-reveal__cta { pointer-events: auto; }
 
+/* The pill and the bot beside it reveal as one thing, so the scrub drives the
+   row. Putting it on each of them separately would give them two transform
+   stacks off one variable, and the pill's :active would desync the bot. */
+.seat-reveal__cta-row {
+  margin-top: clamp(6px, 1.4vh, 18px);
+  opacity: var(--cta, 0);
+  /* No transition on transform: this property is written every frame by the
+     scroll reveal, and easing it would make the row lag the scrubber. */
+  transform: translate3d(0, calc((1 - var(--cta, 0)) * 20px), 0);
+}
+
 /* ---------- Dotted leader --------------------------------------- */
 
 .seat-reveal__connector {
@@ -103,8 +114,7 @@
   position: relative;
   /* Clips the .btn-shine sweep to the pill */
   overflow: hidden;
-  margin-top: clamp(6px, 1.4vh, 18px);
-  padding: clamp(12px, 1.5vh, 19px) clamp(26px, 3.2vw, 50px);
+  padding: clamp(8px, 1vh, 13px) clamp(26px, 3.2vw, 50px);
   border: 0;
   border-radius: var(--radius-full);
   background-image: var(--cta-gradient);
@@ -116,19 +126,12 @@
   cursor: pointer;
   box-shadow: 0 14px 38px rgba(0, 0, 0, 0.45),
     0 8px 22px rgba(var(--cta-glow-rgb), 0.32);
-  opacity: var(--cta, 0);
-  /* No transition on transform: this property is written every frame by the
-     scroll reveal, and easing it would make the button lag the scrubber. */
-  transform: translate3d(0, calc((1 - var(--cta, 0)) * 20px), 0);
 }
 /* The label sits above the sweep */
 .seat-reveal__cta > span:not(.btn-shine) { position: relative; z-index: 1; }
 
-.seat-reveal__cta:active {
-  transform:
-    translate3d(0, calc((1 - var(--cta, 0)) * 20px), 0)
-    scale(0.985);
-}
+/* The row already carries the scrub's transform, so the press is only the dip. */
+.seat-reveal__cta:active { transform: scale(0.985); }
 .seat-reveal__cta:focus-visible {
   outline: 3px solid var(--color-primary-400);
   outline-offset: 4px;
@@ -182,13 +185,23 @@
     gap: 6px;
   }
 
+  /* The fixed width belongs to the row now that the bot sits beside the pill
+     rather than inside it — the pill takes what is left of it. The bot steps
+     down too, so the pill keeps the text room it had before the move. */
+  .seat-reveal__cta-row {
+    --bot-size: 40px;
+    --seat-cta-gap: 8px;
+    width: min(85vw, 300px);
+    margin-top: clamp(6px, 1vh, 12px);
+  }
+
   /* The label is a full sentence rather than the two words it replaced, so it
      is stepped down to stay on one line inside the fixed pill width. */
   .seat-reveal__cta {
-    width: min(85vw, 300px);
-    padding: clamp(11px, 1.4vh, 15px) 18px;
-    font-size: clamp(12px, 3.2vw, 14px);
-    margin-top: clamp(6px, 1vh, 12px);
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: clamp(11px, 1.4vh, 15px) 12px;
+    font-size: clamp(11px, 3vw, 14px);
   }
 }
 
@@ -204,10 +217,14 @@
   .seat-reveal__price {
     font-size: clamp(16px, 2.8vw, 22px);
   }
+  .seat-reveal__cta-row {
+    --bot-size: 34px;
+    --seat-cta-gap: 8px;
+    margin-top: 6px;
+  }
   .seat-reveal__cta {
     padding: 8px 18px;
     font-size: 13px;
-    margin-top: 6px;
   }
   .seat-reveal__connector-line {
     width: 20px;

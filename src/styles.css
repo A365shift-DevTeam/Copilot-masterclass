@@ -77,6 +77,9 @@
      Sized against the pill's 15px label, twice it, which is as large as the
      bot goes before it crowds the pill's 17px of vertical padding. */
   --bot-size: 50px;
+  /* Pill-to-bot spacing. Also the figure .section-cta--answer offsets its
+     stem by, so keep the two reading from this one value. */
+  --seat-cta-gap: 12px;
 
   /* ---- Typography --------------------------------------------- */
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
@@ -961,6 +964,10 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   content: '';
   width: 2px; height: 36px; margin-bottom: 16px; border-radius: 2px;
   background: linear-gradient(180deg, rgba(101, 168, 89, 0), #65A859);
+  /* The row is wider than the pill by the bot and its gap, so a stem centred
+     on the row would miss the pill it is pointing at. In a centred column a
+     right margin shifts an item left by half of it — exactly the overhang. */
+  margin-right: calc(var(--bot-size) + var(--seat-cta-gap));
 }
 
 /* The speaker section's ground is dark teal and the pill's left end is teal
@@ -974,18 +981,26 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   .section-cta--answer::before { height: 26px; margin-bottom: 12px; }
 }
 
-/* ---------- The bot beside the price -----------------------------
-   A fixed-size slot after ₹499 in every seat pill, so the layout never
-   shifts whether or not the live bot is currently parked there. Waypoint
-   slots hold a dimmed ghost for the traveller to land on; the two scroll
-   reveals keep a solid bot, since the traveller never visits them. */
+/* ---------- The pill and the bot beside it ------------------------
+   The bot sits *outside* the pill, off its right end. It cannot live inside:
+   every pill class carries `overflow: hidden` to clip the .btn-shine sweep,
+   which would crop the bot too. So each seat CTA is a two-item row — the
+   pill, then a fixed-size bot slot — and the row is what a section lays out.
+
+   The slot is fixed-size so the row's width never shifts whether or not the
+   live bot is currently parked there. Waypoint slots hold a dimmed ghost for
+   the traveller to land on; the two scroll reveals keep a solid bot, since
+   the traveller never visits them. */
+.seat-cta-row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--seat-cta-gap);
+}
 .btn-bot {
   width: var(--bot-size);
   height: var(--bot-size);
-  margin-left: 10px;
   flex: 0 0 auto;
-  display: inline-block;
-  vertical-align: calc(var(--bot-size) * -0.3);
+  display: block;
 }
 .btn-bot img {
   width: 100%;
@@ -1076,7 +1091,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   overflow: hidden;
   display: inline-flex;
   align-items: center;
-  padding: 17px 34px;
+  padding: 12px 34px;
   border-radius: 50px;
   background-image: var(--gradient-primary);
   color: #FFFFFF !important;
@@ -1093,7 +1108,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 .hero .btn-primary {
-  padding: 17px 38px;
+  padding: 12px 38px;
   font-size: clamp(17px, 1.35vw, 19.5px);
   font-weight: 700;
   border-radius: 50px;

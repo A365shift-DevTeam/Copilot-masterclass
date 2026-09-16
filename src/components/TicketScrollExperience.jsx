@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { scrollToTarget, getLenis } from '../hooks/useLenis.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 import { PAYMENT_URL } from '../data/content.js'
-import ReserveSeatLabel from './ReserveSeatLabel.jsx'
+import ReserveSeatLabel, { ReserveSeatBot } from './ReserveSeatLabel.jsx'
 import './ticket-scroll.css'
 import {
   TOTAL_TICKET_FRAMES,
@@ -424,17 +424,20 @@ export default function TicketScrollExperience() {
             <span className="ticket-scroll-reveal__only">Only</span>
           </p>
 
-          <a
-            href={PAYMENT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ticket-scroll-cta"
-            tabIndex={isEnding ? 0 : -1}
-            aria-label={`Reserve your seat for just ₹${PASS_PRICE}`}
-          >
-            <span><ReserveSeatLabel amount={PASS_PRICE} travels={false} /></span>
-            <span className="btn-shine" aria-hidden="true" />
-          </a>
+          <div className="seat-cta-row ticket-scroll-cta-row">
+            <a
+              href={PAYMENT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ticket-scroll-cta"
+              tabIndex={isEnding ? 0 : -1}
+              aria-label={`Reserve your seat for just ₹${PASS_PRICE}`}
+            >
+              <span><ReserveSeatLabel amount={PASS_PRICE} /></span>
+              <span className="btn-shine" aria-hidden="true" />
+            </a>
+            <ReserveSeatBot travels={false} />
+          </div>
         </div>
 
         {/* Progress tracker bar */}

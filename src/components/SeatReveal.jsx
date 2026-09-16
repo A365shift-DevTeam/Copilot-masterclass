@@ -1,5 +1,5 @@
 import { PAYMENT_URL } from '../data/content.js'
-import ReserveSeatLabel from './ReserveSeatLabel.jsx'
+import ReserveSeatLabel, { ReserveSeatBot } from './ReserveSeatLabel.jsx'
 import './seat-reveal.css'
 
 /**
@@ -44,17 +44,20 @@ export default function SeatReveal({ onBook, tabbable = false, amount = 499 }) {
           <span className="seat-reveal__only">Only</span>
         </p>
 
-        <button
-          type="button"
-          className="seat-reveal__cta"
-          onClick={openBookingModal}
-          tabIndex={tabbable ? 0 : -1}
-          aria-label={`Reserve your seat for just ₹${amount}`}
-        >
-          <span><ReserveSeatLabel amount={amount} travels={false} /></span>
-          {/* The site's existing sweep, same as the hero's "Reserve My Seat" */}
-          <span className="btn-shine" aria-hidden="true" />
-        </button>
+        <div className="seat-cta-row seat-reveal__cta-row">
+          <button
+            type="button"
+            className="seat-reveal__cta"
+            onClick={openBookingModal}
+            tabIndex={tabbable ? 0 : -1}
+            aria-label={`Reserve your seat for just ₹${amount}`}
+          >
+            <span><ReserveSeatLabel amount={amount} /></span>
+            {/* The site's existing sweep, same as the hero's "Reserve My Seat" */}
+            <span className="btn-shine" aria-hidden="true" />
+          </button>
+          <ReserveSeatBot travels={false} />
+        </div>
       </div>
     </div>
   )

@@ -399,13 +399,12 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   position: relative;
   /* Clips the .btn-shine sweep to the pill */
   overflow: hidden;
-  margin-top: clamp(6px, 1.2vh, 16px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   max-width: 100%;
-  padding: clamp(10px, 1.3vh, 16px) clamp(16px, 2vw, 34px);
+  padding: clamp(7px, 0.9vh, 11px) clamp(16px, 2vw, 34px);
   border: 0;
   border-radius: 999px;
   background-image: linear-gradient(to right, #4d9a9c, #64a75c);
@@ -417,9 +416,17 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   white-space: nowrap;
   cursor: pointer;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), 0 8px 20px rgba(88, 161, 124, 0.3);
+}
+
+/* The pill and the bot beside it reveal as one thing, so the scrub drives the
+   row. Putting it on each of them separately would give them two transform
+   stacks off one variable, and the pill's :active would desync the bot. */
+.ticket-scroll-cta-row {
+  margin-top: clamp(6px, 1.2vh, 16px);
+  max-width: 100%;
   opacity: var(--pass-cta, 0);
   /* No transition on transform: it is written every frame by the scroll
-     reveal, and easing it would make the button lag the scrubber. */
+     reveal, and easing it would make the row lag the scrubber. */
   transform: translate3d(0, calc((1 - var(--pass-cta, 0)) * 18px), 0);
 }
 
@@ -436,11 +443,8 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   color: #ffffff;
 }
 
-.ticket-scroll-cta:active {
-  transform:
-    translate3d(0, calc((1 - var(--pass-cta, 0)) * 18px), 0)
-    scale(0.985);
-}
+/* The row already carries the scrub's transform, so the press is only the dip. */
+.ticket-scroll-cta:active { transform: scale(0.985); }
 
 .ticket-scroll-cta:focus-visible {
   outline: 3px solid var(--color-primary-400, #6bd194);
@@ -530,10 +534,18 @@ html[data-theme="dark"] .ticket-scroll-sticky {
   .ticket-scroll-reveal__price {
     font-size: clamp(27px, 8.6vw, 42px);
   }
-  .ticket-scroll-cta {
+  /* The full width belongs to the row; the pill fills what the bot leaves. */
+  .ticket-scroll-cta-row {
+    --bot-size: 42px;
+    --seat-cta-gap: 8px;
+    display: flex;
     width: 100%;
+  }
+  .ticket-scroll-cta {
+    flex: 1 1 auto;
+    min-width: 0;
     justify-content: center;
-    font-size: 15px;
-    padding: 15px 24px;
+    font-size: clamp(12px, 3.6vw, 15px);
+    padding: 15px 14px;
   }
 }

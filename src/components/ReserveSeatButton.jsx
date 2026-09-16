@@ -1,5 +1,5 @@
 import { PAYMENT_URL } from '../data/content.js'
-import ReserveSeatLabel from './ReserveSeatLabel.jsx'
+import ReserveSeatLabel, { ReserveSeatBot } from './ReserveSeatLabel.jsx'
 
 /**
  * The seat CTA as it repeats down the page, once at the end of each section
@@ -21,10 +21,13 @@ export default function ReserveSeatButton({ className = '' }) {
 
   return (
     <div className={`section-cta ${className}`.trim()}>
-      <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleClick}>
-        <ReserveSeatLabel />
-        <span className="btn-shine" />
-      </a>
+      <span className="seat-cta-row">
+        <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleClick}>
+          <ReserveSeatLabel />
+          <span className="btn-shine" />
+        </a>
+        <ReserveSeatBot />
+      </span>
     </div>
   )
 }
