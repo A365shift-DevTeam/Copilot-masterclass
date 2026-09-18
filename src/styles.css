@@ -3213,7 +3213,6 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   background: linear-gradient(150deg, #1A3E4C, #112831);
   padding: var(--section-pad);
 }
-.speaker-section__svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .28; pointer-events: none; }
 /* The one block that leaves the page's shared --content-max rail. The photo
    is a square, so on a wide screen it takes half of 1128px and the bio is
    squeezed into the other half while the outer gutter sits empty beside it.
@@ -3230,6 +3229,8 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 .speaker-photo {
+  /* Anchors the BorderBeam that laps the card's edge. */
+  position: relative;
   aspect-ratio: 1 / 1;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -3238,8 +3239,16 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   place-items: center;
   text-align: center;
   padding: 0;
-  overflow: hidden;
+  /* Not clipped: the beam laps outside the card. The image rounds itself. */
   box-shadow: 0 16px 48px rgba(7, 18, 21, 0.4);
+}
+
+/* Pushed out past the card's own 1px border by the ring's width, so the beam
+   frames the photo instead of covering its edge; the radius grows to match.
+   Scoped under the card so it outranks .border-beam, which comes later. */
+.speaker-photo .speaker-photo__beam {
+  inset: calc(-1px - var(--bb-width, 1.5px));
+  border-radius: calc(16px + var(--bb-width, 1.5px));
 }
 
 /* On stacked mobile layouts, keep the desktop proportions: a compact photo
@@ -3260,6 +3269,8 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* The card's 16px less its 1px border. */
+  border-radius: 15px;
 }
 
 /* The name and its voice note read as one line, so the button rides with the
@@ -4887,8 +4898,6 @@ html[data-theme="light"] .speaker-section {
   background: linear-gradient(150deg, #F1F6F9, #F7FAFB);
 }
 
-/* screen blending only lifts a dark ground; on light it washes out */
-html[data-theme="light"] .speaker-section__svg { opacity: 0.16; }
 html[data-theme="light"] .speaker-photo {
   border: 1px solid var(--ref-card-line);
   background: #FFFFFF;

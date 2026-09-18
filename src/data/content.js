@@ -175,7 +175,7 @@ export const FOOTER = {
   tagline: 'AI • Automation • Microsoft 365 Solutions',
   regions: 'UAE | India',
   email: 'Connect@ambot365.in',
-  phone: '+91 9043777365',
+  phone: '+91 88707 77365',
   location: 'Coimbatore | Tamil Nadu',
   // Real, working anchors on this page, plus the checkout link.
   webinar: [
