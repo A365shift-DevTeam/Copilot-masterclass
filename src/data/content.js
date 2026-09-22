@@ -3,7 +3,7 @@
    straight to the hosted payment page. There is no on-page registration form
    any more (Register.jsx is commented out of App.jsx), so this is the single
    place the checkout URL lives. */
-export const PAYMENT_URL = 'https://link.trym.co.in/payment-link/6aaa40f2f426560dbc2f087d'
+export const PAYMENT_URL = 'https://link.trym.co.in/widget/form/NkftkuuLIgwagCAj0LQL'
 
 /* Every entry must point at a section that is actually rendered in App.jsx.
    Agenda and FAQ were dropped because Agenda.jsx and Faq.jsx are commented
