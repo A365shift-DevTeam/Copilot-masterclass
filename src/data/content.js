@@ -169,7 +169,9 @@ export const FAQS = [
 ]
 
 // Footer content. Contact details are AmBot365's own, taken from the site.
-// TODO: the legal and social hrefs are placeholders — swap in the real URLs.
+// TODO: the social hrefs, Disclaimer and Cookie Policy are placeholders — swap in the real URLs.
+// Terms and Privacy open the LegalDialog (key in `dialog`, copy in legal.js);
+// the href is the matching static page under public/legal/ for direct links.
 export const FOOTER = {
   company: 'Ambot365 RPA & IT Solutions OPC Pvt Ltd',
   tagline: 'AI • Automation • Microsoft 365 Solutions',
@@ -195,8 +197,8 @@ export const FOOTER = {
     { href: '#', label: 'Premium 3D Websites' },
   ],
   legal: [
-    { href: '#', label: 'Terms & Conditions' },
-    { href: '#', label: 'Privacy Policy' },
+    { href: '/legal/terms-and-conditions.html', label: 'Terms & Conditions', dialog: 'terms' },
+    { href: '/legal/privacy-policy.html', label: 'Privacy Policy', dialog: 'privacy' },
     { href: '#', label: 'Disclaimer' },
     { href: '#', label: 'Cookie Policy' },
   ],

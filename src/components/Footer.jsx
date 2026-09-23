@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { FOOTER } from '../data/content.js'
+import { LEGAL } from '../data/legal.js'
+import LegalDialog from './ui/LegalDialog.jsx'
 // lucide v1 removed its brand icons, so these four are inlined locally.
 import {
   FacebookIcon,
@@ -51,6 +54,19 @@ function LinkColumn({ title, links }) {
 export default function Footer() {
   const year = new Date().getFullYear()
 
+  /* Terms and Privacy open in a dialog on a plain click; the href still
+   * points at the static page under /legal/, so modifier-clicks, middle
+   * clicks and no-JS visitors get the full page instead. The last-shown doc
+   * is kept while closing so the content does not vanish mid-fade. */
+  const [legalDoc, setLegalDoc] = useState(null)
+  const [legalOpen, setLegalOpen] = useState(false)
+  const openLegal = (e, key) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    e.preventDefault()
+    setLegalDoc(LEGAL[key])
+    setLegalOpen(true)
+  }
+
   return (
     <footer className="footer">
       <div className="footer__inner">
@@ -95,12 +111,22 @@ export default function Footer() {
           <ul className="footer__legal">
             {FOOTER.legal.map((l) => (
               <li key={l.label}>
-                <a href={l.href} aria-disabled={isPlaceholder(l.href) || undefined}>
+                <a
+                  href={l.href}
+                  aria-disabled={isPlaceholder(l.href) || undefined}
+                  onClick={l.dialog ? (e) => openLegal(e, l.dialog) : undefined}
+                >
                   {l.label}
                 </a>
               </li>
             ))}
           </ul>
+
+          <LegalDialog
+            doc={legalDoc}
+            open={legalOpen}
+            onOpenChange={(next) => !next && setLegalOpen(false)}
+          />
 
           <ul className="footer__social">
             {FOOTER.social.map((s) => {

@@ -1,0 +1,160 @@
+/* Shared styling for the static legal pages (/legal/*.html).
+   Modelled on ambot365.com/legal/legal.css, using this site's Poppins face. */
+:root {
+  --bg-deep: #071f14;
+  --bg-mid: #0c2d1e;
+  --bg-soft: #eaf6ef;
+  --panel: rgba(255, 255, 255, 0.92);
+  --text-main: #12261d;
+  --text-muted: #4b6357;
+  --brand: #19a35b;
+  --brand-2: #41be78;
+  --border: rgba(19, 54, 37, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Poppins, 'Segoe UI', Arial, sans-serif;
+  color: var(--text-main);
+  background:
+    radial-gradient(900px 400px at 10% -10%, rgba(65, 190, 120, 0.14), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(25, 163, 91, 0.12), transparent 65%),
+    linear-gradient(180deg, #f2fbf6 0%, #e8f5ee 100%);
+  min-height: 100vh;
+}
+
+.shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 20px 56px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(120deg, var(--bg-deep), var(--bg-mid));
+  box-shadow: 0 24px 55px -32px rgba(6, 29, 19, 0.7);
+  padding: 30px 28px;
+  color: #ffffff;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -80px;
+  top: -120px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(65, 190, 120, 0.45) 0%, rgba(65, 190, 120, 0) 70%);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #b4efcd;
+}
+
+.badge::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+}
+
+.hero h1 {
+  margin: 12px 0 8px;
+  font-size: clamp(30px, 4.2vw, 42px);
+  line-height: 1.1;
+}
+
+.hero p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 760px;
+}
+
+.content {
+  margin-top: 18px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 20px 45px -36px rgba(7, 31, 20, 0.35);
+  padding: 22px;
+}
+
+.section {
+  border: 1px solid rgba(15, 69, 43, 0.08);
+  border-radius: 14px;
+  background: #fff;
+  padding: 18px;
+}
+
+.section + .section {
+  margin-top: 14px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #0d6339;
+}
+
+p { margin: 0; line-height: 1.7; }
+
+ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+li {
+  margin: 6px 0;
+  color: var(--text-main);
+}
+
+.meta {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(15, 69, 43, 0.2);
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+a {
+  color: #0a7f45;
+  text-underline-offset: 2px;
+}
+
+.back {
+  display: inline-flex;
+  margin-top: 18px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(90deg, #179d58, #3fbc76);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.back:hover,
+.back:focus-visible {
+  background: linear-gradient(90deg, #117a44, #2f9c5e);
+}
+
+@media (max-width: 700px) {
+  .shell { padding: 18px 14px 34px; }
+  .hero { padding: 24px 18px; }
+  .content { padding: 14px; }
+  .section { padding: 14px; }
+}
