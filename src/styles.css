@@ -6111,3 +6111,195 @@ html[data-theme="dark"] {
     animation: none !important;
   }
 }
+
+/* ============================================================
+   Thank-you page (/thank-you) — src/pages/ThankYou.jsx
+   Where the payment page redirects after a successful checkout.
+   ============================================================ */
+.ty {
+  --ty-card: #FFFFFF;
+  --ty-line: var(--ref-card-line);
+  --ty-step: var(--color-primary-50);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(800px 420px at 15% -10%, rgba(77, 154, 161, 0.12), transparent 60%),
+    radial-gradient(800px 480px at 90% 0%, rgba(101, 168, 89, 0.12), transparent 65%),
+    var(--page-bg);
+}
+html[data-theme="dark"] .ty {
+  --ty-card: var(--ref-card);
+  --ty-line: var(--ref-line);
+  --ty-step: rgba(255, 255, 255, 0.03);
+}
+.ty__top {
+  display: flex;
+  justify-content: center;
+  padding: 28px 16px 0;
+}
+.ty__logo { height: 38px; width: auto; }
+.ty__main {
+  flex: 1;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 16px 48px;
+}
+.ty__card {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 44px 32px 36px;
+  border: 1px solid var(--ty-line);
+  border-radius: 24px;
+  background: var(--ty-card);
+  box-shadow: 0 30px 70px -40px rgba(0, 0, 0, 0.45);
+}
+.ty__card::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -140px;
+  width: 360px;
+  height: 360px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(63, 192, 115, 0.22) 0%, rgba(63, 192, 115, 0) 70%);
+  pointer-events: none;
+}
+.ty__tick {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #FFFFFF;
+  background-image: var(--gradient-primary);
+  box-shadow: 0 0 0 10px rgba(63, 192, 115, 0.12), 0 18px 40px -12px rgba(var(--gradient-primary-rgb), 0.7);
+  animation: ty-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+.ty__tick svg { width: 44px; height: 44px; }
+@keyframes ty-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.ty__badge {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 14px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary-700);
+  background: rgba(63, 192, 115, 0.1);
+  border: 1px solid rgba(63, 192, 115, 0.3);
+}
+html[data-theme="dark"] .ty__badge { color: var(--color-primary-400); }
+.ty__title {
+  position: relative;
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 5vw, 36px);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--fg-primary);
+}
+html[data-theme="dark"] .ty__title { color: #FFFFFF; }
+.ty__lead {
+  position: relative;
+  max-width: 520px;
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--fg-secondary);
+}
+.ty__lead strong { color: var(--fg-primary); }
+.ty__steps {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  margin: 32px 0 0;
+  padding: 0;
+  text-align: left;
+}
+.ty__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--ty-line);
+  border-radius: 16px;
+  background: var(--ty-step);
+}
+.ty__step-icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #FFFFFF;
+  background-image: var(--gradient-primary);
+}
+.ty__step-icon svg { width: 18px; height: 18px; }
+.ty__step-title {
+  margin: 0 0 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg-primary);
+}
+html[data-theme="dark"] .ty__step-title { color: #FFFFFF; }
+.ty__step-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fg-secondary);
+}
+.ty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 30px;
+}
+.ty__actions > a { justify-content: center; min-height: 48px; }
+.ty__btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 34px;
+  border-radius: 50px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg-primary);
+  border: 1px solid var(--ty-line);
+  transition: border-color 0.2s ease;
+}
+.ty__btn-ghost:hover { border-color: var(--color-primary-500); }
+.ty__help {
+  margin: 26px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--fg-muted);
+}
+.ty__help a { color: var(--color-primary-600); }
+html[data-theme="dark"] .ty__help a { color: var(--color-primary-400); }
+.ty__help a:hover { text-decoration: underline; }
+.ty__footer {
+  padding: 0 16px 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+@media (max-width: 520px) {
+  .ty__card { padding: 36px 20px 28px; border-radius: 20px; }
+  .ty__actions > a { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ty__tick { animation: none; }
+}
