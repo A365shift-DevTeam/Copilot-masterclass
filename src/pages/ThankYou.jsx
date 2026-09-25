@@ -1,37 +1,31 @@
-import { useEffect, useState } from 'react'
-import { Check, ChevronRight, Mail, Phone } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { Check, ChevronRight, Mail } from 'lucide-react'
 import { FOOTER, WHATSAPP_COMMUNITY_URL } from '../data/content.js'
+import Confetti from '../components/ui/motion-confetti.tsx'
 
 // Seat price, reported to the Meta Pixel as the Purchase value.
 const SEAT_PRICE_INR = 499
 
-const PAPER_COLORS = ['#2f9a92', '#69b451', '#f5c542', '#ff6b6b', '#5ec8e5', '#062b70', '#8ed4b0', '#ff9f43']
+// Matches Confetti's duration so the redirect starts when the burst ends.
+const CONFETTI_MS = 2500
 
-let paperSeq = 0
-
-function makePapers() {
-  return Array.from({ length: 72 }, () => {
-    const strip = Math.random() < 0.4
-    return {
-      id: ++paperSeq,
-      left: Math.random() * 100,
-      delay: Math.random() * 0.28,
-      duration: 2.3 + Math.random() * 1.7,
-      color: PAPER_COLORS[Math.floor(Math.random() * PAPER_COLORS.length)],
-      drift: Math.round((Math.random() - 0.5) * 200),
-      spin: Math.round(420 + Math.random() * 700),
-      w: strip ? 6 + Math.round(Math.random() * 3) : 10 + Math.round(Math.random() * 7),
-      h: strip ? 14 + Math.round(Math.random() * 12) : 7 + Math.round(Math.random() * 6),
-      radius: Math.random() < 0.16 ? '50%' : '2px',
-    }
-  })
+function WhatsAppIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12.04 2C6.58 2 2.15 6.4 2.15 11.83c0 1.74.46 3.44 1.32 4.94L2 22l5.39-1.41a10 10 0 0 0 4.65 1.15h.01c5.46 0 9.89-4.4 9.89-9.83C21.94 6.4 17.5 2 12.04 2zm5.76 13.9c-.24.68-1.4 1.3-1.94 1.38-.5.08-1.12.11-1.81-.11-.42-.14-.95-.3-1.64-.59-2.88-1.24-4.76-4.14-4.9-4.33-.14-.19-1.16-1.54-1.16-2.94s.73-2.08 1-2.37c.24-.27.64-.39.85-.39.21 0 .42 0 .6.01.19.01.45-.07.7.53.26.64.87 2.2.95 2.36.08.16.13.35.03.56-.1.21-.16.34-.31.52-.16.19-.33.42-.47.56-.16.16-.32.33-.14.64.19.32.83 1.37 1.78 2.22 1.22 1.09 2.25 1.43 2.57 1.59.32.16.5.13.69-.08.19-.21.8-.93 1.01-1.25.21-.32.43-.27.72-.16.29.1 1.84.87 2.16 1.03.32.16.53.24.61.37.08.14.08.78-.16 1.46z"
+      />
+    </svg>
+  )
 }
 
 /* The payment page redirects here after a successful checkout. The page
  * cannot verify the payment itself, so anyone opening /thank-you directly
  * also fires the Purchase event. */
 export default function ThankYou() {
-  const [papers, setPapers] = useState([])
+  const confettiRef = useRef(null)
+  const leaving = useRef(false)
 
   useEffect(() => {
     document.title = 'Payment Successful - Copilot AmBot365'
@@ -46,15 +40,17 @@ export default function ThankYou() {
     }
   }, [])
 
-  function dropPapers() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const burst = makePapers()
-    setPapers((current) => [...current, ...burst].slice(-160))
-    const life = (Math.max(...burst.map((p) => p.delay + p.duration)) + 0.2) * 1000
+  function joinCommunity(event) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    event.preventDefault()
+    if (leaving.current) return
+    leaving.current = true
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!reduced) confettiRef.current?.fire()
     window.setTimeout(() => {
-      const ids = new Set(burst.map((p) => p.id))
-      setPapers((current) => current.filter((p) => !ids.has(p.id)))
-    }, life)
+      window.location.assign(WHATSAPP_COMMUNITY_URL)
+    }, reduced ? 0 : CONFETTI_MS)
   }
 
   const email = FOOTER.email.toLowerCase()
@@ -63,27 +59,16 @@ export default function ThankYou() {
     <main className="ty">
       <div className="ty__halo" aria-hidden="true" />
       <div className="ty__wave" aria-hidden="true" />
-      {papers.length > 0 && (
-        <div className="ty__confetti" aria-hidden="true">
-          {papers.map((p) => (
-            <span
-              key={p.id}
-              className="ty__paper"
-              style={{
-                left: `${p.left}%`,
-                width: p.w,
-                height: p.h,
-                background: p.color,
-                borderRadius: p.radius,
-                animationDelay: `${p.delay}s`,
-                animationDuration: `${p.duration}s`,
-                '--drift': `${p.drift}px`,
-                '--spin': p.spin,
-              }}
-            />
-          ))}
-        </div>
-      )}
+      <Confetti
+        ref={confettiRef}
+        showTrigger={false}
+        fullscreen
+        particleCount={400}
+        spread={360}
+        startVelocity={48}
+        size={1.15}
+        duration={CONFETTI_MS / 1000}
+      />
 
       <div className="ty__inner">
         <div className="ty__seal" aria-hidden="true">
@@ -126,12 +111,10 @@ export default function ThankYou() {
         <a
           className="ty__wa"
           href={WHATSAPP_COMMUNITY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={dropPapers}
+          onClick={joinCommunity}
         >
           <span className="ty__wa-icon" aria-hidden="true">
-            <Phone strokeWidth={2.25} />
+            <WhatsAppIcon />
           </span>
           <span className="ty__wa-text">
             Join the

@@ -6235,15 +6235,15 @@ html:has(.ty) body {
 }
 
 .ty__badge {
-  margin: 8px 0 22px;
-  padding: 8px 18px;
+  margin: 6px 0 16px;
+  padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid #bfe8d1;
   background: #effaf4;
   color: #31895b;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -6252,11 +6252,10 @@ html:has(.ty) body {
   width: 100%;
   min-width: 0;
   font-family: var(--font-display);
-  /* The long line is "Your Seat is Confirmed" (~12.4em in Poppins 800).
-     Size it from the viewport so that line stays on one row down to 320px. */
-  font-size: min(52px, calc((100vw - 72px) / 12.4));
+  /* Capped so "Your Seat is Confirmed" stays one line and matches the compact card. */
+  font-size: clamp(24px, 7.2vw, 32px);
   font-weight: 800;
-  line-height: 1.08;
+  line-height: 1.12;
   letter-spacing: -0.03em;
   color: #062b70;
 }
@@ -6275,9 +6274,9 @@ html:has(.ty) body {
 }
 
 .ty__lead {
-  margin: 16px 0 32px;
-  font-size: clamp(16px, 2.2vw, 20px);
-  line-height: 1.5;
+  margin: 12px 0 22px;
+  font-size: 14px;
+  line-height: 1.45;
   color: #66758a;
 }
 
@@ -6287,14 +6286,14 @@ html:has(.ty) body {
 }
 
 .ty__wa {
-  width: min(100%, 520px);
-  max-width: 100%;
+  width: min(100%, 320px);
+  min-height: 70px;
   min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 16px 28px 16px 18px;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 12px 18px 12px 16px;
   border-radius: 999px;
   text-decoration: none;
   color: #ffffff;
@@ -6320,33 +6319,31 @@ html:has(.ty) body {
 
 .ty__wa-icon {
   flex: none;
-  width: 48px;
-  height: 48px;
-  border: 2.5px solid #ffffff;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
 }
 
 .ty__wa-icon svg {
-  width: 24px;
-  height: 24px;
+  width: 34px;
+  height: 34px;
 }
 
 .ty__wa-text {
   min-width: 0;
-  font-size: clamp(15px, 4.5vw, 24px);
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1.15;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.2px;
   text-align: left;
 }
 
 .ty__wa-text svg {
-  width: 22px;
-  height: 22px;
+  width: 16px;
+  height: 16px;
   margin-left: 2px;
-  vertical-align: -4px;
+  vertical-align: -3px;
 }
 
 .ty__support {
@@ -6356,10 +6353,10 @@ html:has(.ty) body {
   gap: 12px;
   max-width: 100%;
   min-width: 0;
-  margin-top: 30px;
+  margin-top: 22px;
   text-align: left;
   color: #64748b;
-  font-size: clamp(13px, 3.6vw, 16px);
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -6398,8 +6395,8 @@ html:has(.ty) body {
 }
 
 .ty__mail svg {
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
 }
 
 @media (max-width: 520px) {
@@ -6407,52 +6404,16 @@ html:has(.ty) body {
   .ty__seal { width: 148px; height: 148px; }
   .ty__check { width: 88px; height: 88px; box-shadow: 0 0 0 10px rgba(82, 180, 126, 0.10), 0 12px 28px rgba(42, 145, 114, 0.18); }
   .ty__check svg { width: 40px; height: 40px; }
-  .ty__badge { font-size: 11px; letter-spacing: 0.12em; }
-  .ty__lead { font-size: 16px; margin-bottom: 26px; }
-  .ty__wa { gap: 12px; padding: 14px 18px 14px 14px; }
-  .ty__wa-icon { width: 42px; height: 42px; }
-  .ty__wa-icon svg { width: 20px; height: 20px; }
-  .ty__support { gap: 10px; }
-}
-
-.ty__confetti {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.ty__paper {
-  position: absolute;
-  top: -28px;
-  opacity: 0;
-  animation-name: ty-fall;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards;
-  box-shadow: 0 1px 2px rgba(6, 43, 112, 0.15);
-}
-
-@keyframes ty-fall {
-  0% {
-    opacity: 1;
-    transform: translate3d(0, -6vh, 0) rotate(0deg);
-  }
-  30% {
-    transform: translate3d(calc(var(--drift) * 0.35), 28vh, 0) rotate(calc(var(--spin) * 0.3 * 1deg));
-  }
-  60% {
-    transform: translate3d(calc(var(--drift) * -0.25), 62vh, 0) rotate(calc(var(--spin) * 0.65 * 1deg));
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(var(--drift), 112vh, 0) rotate(calc(var(--spin) * 1deg));
-  }
+  .ty__lead { margin-bottom: 18px; }
+  .ty__wa { width: min(100%, 300px); min-height: 70px; gap: 10px; padding: 10px 14px; }
+  .ty__wa-icon { width: 32px; height: 32px; }
+  .ty__wa-icon svg { width: 30px; height: 30px; }
+  .ty__wa-text { font-size: 15px; }
+  .ty__support { gap: 10px; font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ty__check { animation: none; }
   .ty__wa { transition: none; }
   .ty__wa:hover { transform: none; }
-  .ty__paper { animation: none; }
 }
