@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Check, ChevronRight, Mail } from 'lucide-react'
 import { FOOTER, WHATSAPP_COMMUNITY_URL } from '../data/content.js'
 import Confetti from '../components/ui/motion-confetti.tsx'
@@ -25,7 +25,9 @@ function WhatsAppIcon() {
  * also fires the Purchase event. */
 export default function ThankYou() {
   const confettiRef = useRef(null)
+  const popRef = useRef(null)
   const leaving = useRef(false)
+  const [celebrate, setCelebrate] = useState(false)
 
   useEffect(() => {
     document.title = 'Payment Successful - Copilot AmBot365'
@@ -40,6 +42,10 @@ export default function ThankYou() {
     }
   }, [])
 
+  useEffect(() => {
+    if (celebrate) popRef.current?.focus()
+  }, [celebrate])
+
   function joinCommunity(event) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
     event.preventDefault()
@@ -47,10 +53,11 @@ export default function ThankYou() {
     leaving.current = true
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    setCelebrate(true)
     if (!reduced) confettiRef.current?.fire()
     window.setTimeout(() => {
       window.location.assign(WHATSAPP_COMMUNITY_URL)
-    }, reduced ? 0 : CONFETTI_MS)
+    }, CONFETTI_MS)
   }
 
   const email = FOOTER.email.toLowerCase()
@@ -69,6 +76,26 @@ export default function ThankYou() {
         size={1.15}
         duration={CONFETTI_MS / 1000}
       />
+
+      {celebrate && (
+        <div
+          className="ty__pop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ty-congrats"
+          ref={popRef}
+          tabIndex={-1}
+        >
+          <div className="ty__pop-card">
+            <p className="ty__pop-kicker">Congratulations</p>
+            <h2 id="ty-congrats">You've joined the masterclass</h2>
+            <p>
+              Thank you for joining the Microsoft 365 Copilot Masterclass.
+              Your seat is confirmed, and we're glad you'll be with us.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="ty__inner">
         <div className="ty__seal" aria-hidden="true">

@@ -6412,8 +6412,75 @@ html:has(.ty) body {
   .ty__support { gap: 10px; font-size: 12px; }
 }
 
+.ty__pop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.42);
+  outline: none;
+  animation: ty-pop-fade 0.4s ease both;
+}
+
+.ty__pop-card {
+  width: min(100%, 380px);
+  margin: 0;
+  padding: 28px 26px 26px;
+  border-radius: 24px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(6, 43, 112, 0.16);
+  animation: ty-pop-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ty-pop-fade {
+  from { background-color: rgba(255, 255, 255, 0); }
+  to { background-color: rgba(255, 255, 255, 0.42); }
+}
+
+@keyframes ty-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ty__pop-kicker {
+  margin: 0 0 8px;
+  color: #31895b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ty__pop-card h2 {
+  margin: 0 0 10px;
+  color: #062b70;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.ty__pop-card p:last-child {
+  margin: 0;
+  color: #66758a;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ty__check { animation: none; }
   .ty__wa { transition: none; }
   .ty__wa:hover { transform: none; }
+  .ty__pop,
+  .ty__pop-card { animation: none; }
 }
