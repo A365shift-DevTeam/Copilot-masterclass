@@ -63,7 +63,7 @@ export default function Speaker() {
         <div ref={photoRef} className="speaker-photo">
           <img
             className="speaker-photo__img"
-            src="/assets/fonunder.webp"
+            src="/assets/fonunder.jpeg"
             alt="Ambrose Denny, Founder and CEO of AmBot365 — automate, simplify, transform: RPA, Microsoft 365, AI and analytics, digital solutions"
             width="1254"
             height="1254"
