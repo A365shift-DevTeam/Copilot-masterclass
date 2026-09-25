@@ -6,7 +6,7 @@
 export const PAYMENT_URL = 'https://link.trym.co.in/widget/form/NkftkuuLIgwagCAj0LQL'
 
 /* Thank-you page. Paste the real WhatsApp Community invite over this placeholder. */
-export const WHATSAPP_COMMUNITY_URL = 'YOUR_WHATSAPP_COMMUNITY_LINK'
+export const WHATSAPP_COMMUNITY_URL = 'https://chat.whatsapp.com/Fe1uU0KfSq86Hdk4wX0zhr'
 
 /* Every entry must point at a section that is actually rendered in App.jsx.
    Agenda and FAQ were dropped because Agenda.jsx and Faq.jsx are commented
