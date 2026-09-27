@@ -7,7 +7,7 @@
  * What was uploaded. Every frame is still on Cloudinary; STRIDE decides how
  * many of them the scrub actually uses.
  */
-const SOURCE_SEAT_FRAMES = 118
+const SOURCE_SEAT_FRAMES = 90
 const SOURCE_TICKET_FRAMES = 103
 
 /*
@@ -84,13 +84,17 @@ function sourceFrameNumber(index, sourceTotal) {
   return Math.min(index * FRAME_STRIDE + 1, sourceTotal)
 }
 
-function cloudFrameUrl(folder, sourceNumber) {
+// Version string forces CDN edge and browser disk caches to invalidate when new assets are uploaded
+export const SEAT_VERSION = '1790498380'
+
+function cloudFrameUrl(folder, sourceNumber, version = null) {
   const pad = String(sourceNumber).padStart(4, '0')
-  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${DELIVERY}/${folder}/frame_${pad}`
+  const v = version ? `v${version}/` : ''
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/${DELIVERY}/${v}${folder}/frame_${pad}`
 }
 
 export function getSeatFrameUrl(index) {
-  return cloudFrameUrl(SEAT_CLOUD_FOLDER, sourceFrameNumber(index, SOURCE_SEAT_FRAMES))
+  return cloudFrameUrl(SEAT_CLOUD_FOLDER, sourceFrameNumber(index, SOURCE_SEAT_FRAMES), SEAT_VERSION)
 }
 
 export function getTicketFrameUrl(index) {

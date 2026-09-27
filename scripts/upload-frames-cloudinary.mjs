@@ -46,8 +46,14 @@ cloudinary.config({
 })
 
 const SEQUENCES = {
-  ticket: { dir: 'public/frames/ticket-scroll', folder: 'ticket-frames' },
-  seat: { dir: 'public/frames/seat-scroll', folder: 'seat-frames' },
+  ticket: {
+    dirs: ['public/frames/ticket-scroll', 'public/Ticket frames'],
+    folder: 'ticket-frames',
+  },
+  seat: {
+    dirs: ['seat-frames', 'public/frames/seat-scroll'],
+    folder: 'seat-frames',
+  },
 }
 
 const CONCURRENCY = 6
@@ -56,29 +62,38 @@ const requested = process.argv.slice(2).filter((a) => a in SEQUENCES)
 const targets = requested.length ? requested : Object.keys(SEQUENCES)
 
 async function uploadSequence(name) {
-  const { dir, folder } = SEQUENCES[name]
-  const inputDir = path.resolve(dir)
+  const { dirs, folder } = SEQUENCES[name]
+  const foundDir = dirs.find((d) => fs.existsSync(path.resolve(d)))
 
-  if (!fs.existsSync(inputDir)) {
-    console.error(`Skipping "${name}": ${dir} does not exist.`)
+  if (!foundDir) {
+    console.error(`Skipping "${name}": None of [${dirs.join(', ')}] exists.`)
     return
   }
+
+  const inputDir = path.resolve(foundDir)
 
   const files = fs
     .readdirSync(inputDir)
     .filter((f) => f.toLowerCase().endsWith('.webp'))
     .sort()
 
-  console.log(`\n[${name}] uploading ${files.length} frames to "${folder}/"...`)
+  console.log(`\n[${name}] uploading ${files.length} frames from "${foundDir}" to "${folder}/"...`)
 
   let done = 0
   let failed = 0
   let cursor = 0
 
+  const items = files.map((file, index) => {
+    const isFramePrefixed = /^frame_\d+$/i.test(path.parse(file).name)
+    const publicId = isFramePrefixed
+      ? path.parse(file).name
+      : `frame_${String(index + 1).padStart(4, '0')}`
+    return { file, publicId }
+  })
+
   const worker = async () => {
-    while (cursor < files.length) {
-      const file = files[cursor++]
-      const publicId = path.parse(file).name // frame_0001
+    while (cursor < items.length) {
+      const { file, publicId } = items[cursor++]
       try {
         await cloudinary.uploader.upload(path.join(inputDir, file), {
           folder,
@@ -91,12 +106,12 @@ async function uploadSequence(name) {
         })
       } catch (err) {
         failed++
-        console.error(`  failed ${file}: ${err.message}`)
+        console.error(`  failed ${file} (${publicId}): ${err.message}`)
         continue
       }
       done++
-      if (done % 20 === 0 || done + failed === files.length) {
-        console.log(`  ${done}/${files.length} uploaded`)
+      if (done % 15 === 0 || done + failed === items.length) {
+        console.log(`  ${done}/${items.length} uploaded (last: ${publicId})`)
       }
     }
   }
