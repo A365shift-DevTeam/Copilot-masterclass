@@ -47,11 +47,11 @@ cloudinary.config({
 
 const SEQUENCES = {
   ticket: {
-    dirs: ['public/frames/ticket-scroll', 'public/Ticket frames'],
+    dirs: ['ticket-frames', 'Ticket frames', 'public/frames/ticket-scroll', 'public/Ticket frames'],
     folder: 'ticket-frames',
   },
   seat: {
-    dirs: ['seat-frames', 'public/frames/seat-scroll'],
+    dirs: ['seat-frames', 'Seat frames', 'public/frames/seat-scroll'],
     folder: 'seat-frames',
   },
 }
@@ -74,7 +74,7 @@ async function uploadSequence(name) {
 
   const files = fs
     .readdirSync(inputDir)
-    .filter((f) => f.toLowerCase().endsWith('.webp'))
+    .filter((f) => /\.(webp|jpg|jpeg|png)$/i.test(f))
     .sort()
 
   console.log(`\n[${name}] uploading ${files.length} frames from "${foundDir}" to "${folder}/"...`)
@@ -91,11 +91,13 @@ async function uploadSequence(name) {
     return { file, publicId }
   })
 
+  let lastVersion = null
+
   const worker = async () => {
     while (cursor < items.length) {
       const { file, publicId } = items[cursor++]
       try {
-        await cloudinary.uploader.upload(path.join(inputDir, file), {
+        const res = await cloudinary.uploader.upload(path.join(inputDir, file), {
           folder,
           public_id: publicId,
           use_filename: false,
@@ -104,6 +106,7 @@ async function uploadSequence(name) {
           invalidate: true,
           resource_type: 'image',
         })
+        if (res && res.version) lastVersion = res.version
       } catch (err) {
         failed++
         console.error(`  failed ${file} (${publicId}): ${err.message}`)
@@ -119,10 +122,14 @@ async function uploadSequence(name) {
   await Promise.all(Array.from({ length: CONCURRENCY }, worker))
 
   console.log(`[${name}] done. ${done} uploaded, ${failed} failed.`)
+  if (lastVersion) {
+    console.log(`  version: ${lastVersion}`)
+  }
   if (done > 0) {
+    const vPrefix = lastVersion ? `v${lastVersion}/` : ''
     console.log(
       `  verify: https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}` +
-        `/image/upload/f_auto,q_auto:good,c_limit,w_1280/${folder}/frame_0001`
+        `/image/upload/f_auto,q_auto:good,c_limit,w_1280/${vPrefix}${folder}/frame_0001`
     )
   }
 }

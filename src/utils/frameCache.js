@@ -8,7 +8,7 @@
  * many of them the scrub actually uses.
  */
 const SOURCE_SEAT_FRAMES = 90
-const SOURCE_TICKET_FRAMES = 103
+const SOURCE_TICKET_FRAMES = 95
 
 /*
  * Play every Nth source frame.
@@ -84,8 +84,9 @@ function sourceFrameNumber(index, sourceTotal) {
   return Math.min(index * FRAME_STRIDE + 1, sourceTotal)
 }
 
-// Version string forces CDN edge and browser disk caches to invalidate when new assets are uploaded
+// Version strings force CDN edge and browser disk caches to invalidate when new assets are uploaded
 export const SEAT_VERSION = '1790498380'
+export const TICKET_VERSION = '1790500733'
 
 function cloudFrameUrl(folder, sourceNumber, version = null) {
   const pad = String(sourceNumber).padStart(4, '0')
@@ -98,7 +99,7 @@ export function getSeatFrameUrl(index) {
 }
 
 export function getTicketFrameUrl(index) {
-  return cloudFrameUrl(TICKET_CLOUD_FOLDER, sourceFrameNumber(index, SOURCE_TICKET_FRAMES))
+  return cloudFrameUrl(TICKET_CLOUD_FOLDER, sourceFrameNumber(index, SOURCE_TICKET_FRAMES), TICKET_VERSION)
 }
 
 /**
