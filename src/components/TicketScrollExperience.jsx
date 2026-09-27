@@ -378,7 +378,7 @@ export default function TicketScrollExperience() {
         <canvas ref={canvasRef} className="ticket-scroll-canvas" />
 
         {/* Intro copy sitting in the empty band above the pass. */}
-        <TicketIntro />
+        {/* <TicketIntro /> */}
 
         {/* Top badge */}
         {/* <div className="ticket-scroll-badge">
