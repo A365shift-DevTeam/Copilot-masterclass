@@ -34,15 +34,17 @@ export default function SeatReveal({ onBook, tabbable = false, amount = 499 }) {
       </div>
 
       <div className="seat-reveal__copy">
-        <h3 className="seat-reveal__headline">
-          <span>Your Seat</span>
-          <span>Is Waiting</span>
-        </h3>
+        <div className="seat-reveal__card">
+          <h3 className="seat-reveal__headline">
+            <span>Your Seat</span>
+            <span>Is Waiting</span>
+          </h3>
 
-        <p className="seat-reveal__price">
-          <span className="seat-reveal__amount">&#8377;{amount}</span>
-          <span className="seat-reveal__only">Only</span>
-        </p>
+          <p className="seat-reveal__price">
+            <span className="seat-reveal__amount">&#8377;{amount}</span>
+            <span className="seat-reveal__only">Only</span>
+          </p>
+        </div>
 
         <div className="seat-cta-row seat-reveal__cta-row">
           <button
