@@ -41,7 +41,11 @@ export default function ThankYou() {
     let sent = false
     try { sent = sessionStorage.getItem('ty-purchase-sent') === '1' } catch { /* storage blocked */ }
     if (!sent && typeof window.fbq === 'function') {
-      window.fbq('track', 'Purchase', { value: SEAT_PRICE_INR, currency: 'INR' })
+      window.fbq('track', 'Purchase', {
+        value: SEAT_PRICE_INR,
+        currency: 'INR',
+        page_url: 'https://learnai.ambot365.com/thank-you',
+      })
       try { sessionStorage.setItem('ty-purchase-sent', '1') } catch { /* storage blocked */ }
     }
   }, [])
