@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { FOOTER } from '../data/content.js'
 import { LEGAL } from '../data/legal.js'
@@ -27,7 +27,7 @@ const SOCIAL_ICONS = {
  * labelled <nav>, so extra <h2>s here would only compete with the page's own
  * section headings in the document outline. */
 const isPlaceholder = (href) => href === '#'
-const isExternal = (href) => /^https?:///.test(href)
+const isExternal = (href) => /^https?:\/\//.test(href)
 
 function LinkColumn({ title, links }) {
   return (
@@ -66,6 +66,18 @@ export default function Footer() {
     setLegalDoc(LEGAL[key])
     setLegalOpen(true)
   }
+
+  useEffect(() => {
+    const handleOpenLegal = (e) => {
+      const key = (e && e.detail) || 'disclaimer'
+      if (LEGAL[key]) {
+        setLegalDoc(LEGAL[key])
+        setLegalOpen(true)
+      }
+    }
+    window.addEventListener('ambot365:open-legal', handleOpenLegal)
+    return () => window.removeEventListener('ambot365:open-legal', handleOpenLegal)
+  }, [])
 
   return (
     <footer className="footer">

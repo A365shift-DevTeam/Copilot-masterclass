@@ -1,0 +1,338 @@
+/* ============================================================
+   DISCLAIMER POPUP — Centered Trademark & Non-Affiliation Modal
+   Follows Ambot365 design tokens, glassmorphism, and dark/light themes.
+   ============================================================ */
+
+/* Fullscreen centered overlay */
+.disclaimer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 350;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(3, 9, 21, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: disclaimer-fade-in 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+html[data-theme="dark"] .disclaimer-overlay {
+  background: rgba(3, 9, 21, 0.72);
+}
+
+.disclaimer-overlay--closing {
+  animation: disclaimer-fade-out 200ms ease forwards;
+  pointer-events: none;
+}
+
+/* Centered popup card */
+.disclaimer-popup {
+  position: relative;
+  width: min(520px, calc(100vw - 32px));
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(43, 130, 78, 0.22);
+  box-shadow:
+    0 30px 65px -15px rgba(13, 99, 57, 0.25),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  color: #1a2a22;
+  font-family: var(--font-sans, 'Poppins', sans-serif);
+  overflow: hidden;
+  animation: disclaimer-zoom-in 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+html[data-theme="dark"] .disclaimer-popup {
+  background: rgba(16, 24, 40, 0.95);
+  border-color: rgba(107, 209, 148, 0.32);
+  box-shadow:
+    0 32px 70px -16px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 0 40px rgba(63, 192, 115, 0.15);
+  color: #e2e8f0;
+}
+
+.disclaimer-popup--closing {
+  animation: disclaimer-zoom-out 200ms ease forwards;
+}
+
+/* Gradient accent bar on top */
+.disclaimer-popup__bar {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #4D9AA1, #65A859);
+}
+
+.disclaimer-popup__inner {
+  padding: 22px 24px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Header with badge, title and close button */
+.disclaimer-popup__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.disclaimer-popup__identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.disclaimer-popup__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, rgba(77, 154, 161, 0.18), rgba(101, 168, 89, 0.22));
+  border: 1px solid rgba(107, 209, 148, 0.35);
+  color: #2b824e;
+  flex-shrink: 0;
+}
+
+html[data-theme="dark"] .disclaimer-popup__icon-wrap {
+  background: linear-gradient(135deg, rgba(77, 154, 161, 0.25), rgba(101, 168, 89, 0.3));
+  border-color: rgba(107, 209, 148, 0.45);
+  color: #6bd194;
+}
+
+.disclaimer-popup__titles {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.disclaimer-popup__badge {
+  font-size: 0.688rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #2b824e;
+}
+
+html[data-theme="dark"] .disclaimer-popup__badge {
+  color: #6bd194;
+}
+
+.disclaimer-popup__title {
+  margin: 3px 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+.disclaimer-popup__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 160ms ease;
+  padding: 0;
+}
+
+.disclaimer-popup__close:hover,
+.disclaimer-popup__close:focus-visible {
+  background: rgba(0, 0, 0, 0.06);
+  color: #0f172a;
+  outline: none;
+}
+
+html[data-theme="dark"] .disclaimer-popup__close {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .disclaimer-popup__close:hover,
+html[data-theme="dark"] .disclaimer-popup__close:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+/* Body disclaimer copy */
+.disclaimer-popup__body {
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: #475569;
+  margin: 0;
+}
+
+html[data-theme="dark"] .disclaimer-popup__body {
+  color: #94a3b8;
+}
+
+.disclaimer-popup__body strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+html[data-theme="dark"] .disclaimer-popup__body strong {
+  color: #f1f5f9;
+}
+
+/* Actions footer */
+.disclaimer-popup__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 6px;
+  padding-top: 4px;
+}
+
+.disclaimer-popup__details-link {
+  font-size: 0.813rem;
+  font-weight: 500;
+  color: #2b824e;
+  background: transparent;
+  border: 0;
+  padding: 6px 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 160ms ease;
+}
+
+.disclaimer-popup__details-link:hover,
+.disclaimer-popup__details-link:focus-visible {
+  color: #1d492f;
+  outline: none;
+}
+
+html[data-theme="dark"] .disclaimer-popup__details-link {
+  color: #6bd194;
+}
+
+html[data-theme="dark"] .disclaimer-popup__details-link:hover,
+html[data-theme="dark"] .disclaimer-popup__details-link:focus-visible {
+  color: #b3e6c7;
+}
+
+.disclaimer-popup__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 22px;
+  border-radius: 9999px;
+  border: 0;
+  background-image: var(--gradient-primary, linear-gradient(to right, #4D9AA1, #65A859));
+  color: #ffffff;
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(63, 192, 115, 0.32);
+  transition: transform 180ms ease, box-shadow 180ms ease, background-image 180ms ease;
+  white-space: nowrap;
+}
+
+.disclaimer-popup__btn:hover {
+  background-image: var(--gradient-primary-hover, linear-gradient(to right, #3D7B80, #4A7D3F));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(63, 192, 115, 0.42);
+}
+
+.disclaimer-popup__btn:active {
+  transform: translateY(0);
+}
+
+.disclaimer-popup__btn:focus-visible {
+  outline: 2px solid var(--color-primary-500, #3fc073);
+  outline-offset: 2px;
+}
+
+/* Keyframes */
+@keyframes disclaimer-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes disclaimer-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes disclaimer-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes disclaimer-zoom-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .disclaimer-overlay {
+    padding: 16px;
+  }
+
+  .disclaimer-popup__inner {
+    padding: 18px 18px 18px 18px;
+    gap: 12px;
+  }
+
+  .disclaimer-popup__body {
+    font-size: 0.78rem;
+    line-height: 1.55;
+  }
+
+  .disclaimer-popup__actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .disclaimer-popup__btn {
+    width: 100%;
+    height: 38px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disclaimer-overlay,
+  .disclaimer-overlay--closing,
+  .disclaimer-popup,
+  .disclaimer-popup--closing {
+    animation: none;
+    transition: opacity 150ms ease;
+  }
+}

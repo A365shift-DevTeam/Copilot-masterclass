@@ -35,8 +35,14 @@ export default function ThankYou() {
     if (robots) robots.setAttribute('content', 'noindex, nofollow')
 
     // index.html has already loaded the pixel and sent the PageView.
-    if (typeof window.fbq === 'function') {
+    // shortcut: once per tab session so a refresh doesn't repeat the Purchase;
+    // still unverified, upgrade to a server-side (Conversions API) event from
+    // the payment webhook if a backend is added.
+    let sent = false
+    try { sent = sessionStorage.getItem('ty-purchase-sent') === '1' } catch { /* storage blocked */ }
+    if (!sent && typeof window.fbq === 'function') {
       window.fbq('track', 'Purchase', { value: SEAT_PRICE_INR, currency: 'INR' })
+      try { sessionStorage.setItem('ty-purchase-sent', '1') } catch { /* storage blocked */ }
     }
   }, [])
 

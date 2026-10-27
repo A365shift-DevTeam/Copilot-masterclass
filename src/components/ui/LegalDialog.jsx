@@ -58,10 +58,10 @@ export default function LegalDialog({ doc, open, onOpenChange }) {
             className="legal-dialog__body"
             data-lenis-prevent
           >
-            <p className="legal-dialog__intro">{doc.intro}</p>
-            {doc.sections.map((s) => (
-              <section key={s.heading} className="legal-dialog__section">
-                <h3>{s.heading}</h3>
+            {doc.intro && <p className="legal-dialog__intro">{doc.intro}</p>}
+            {(doc.sections || []).map((s, idx) => (
+              <section key={s.heading || idx} className="legal-dialog__section">
+                {s.heading && <h3>{s.heading}</h3>}
                 <p>
                   {s.body}
                   {s.email && (

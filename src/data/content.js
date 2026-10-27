@@ -202,7 +202,7 @@ export const FOOTER = {
   legal: [
     { href: '/legal/terms-and-conditions.html', label: 'Terms & Conditions', dialog: 'terms' },
     { href: '/legal/privacy-policy.html', label: 'Privacy Policy', dialog: 'privacy' },
-    { href: '#', label: 'Disclaimer' },
+    { href: '/legal/disclaimer.html', label: 'Disclaimer', dialog: 'disclaimer' },
     { href: '#', label: 'Cookie Policy' },
   ],
   social: [
@@ -246,3 +246,12 @@ export const LEARN_FLOW_APPS = [
   { id: 'outlook', name: 'Outlook', mono: 'O', file: 'microsoft-365/outlook.svg' },
   { id: 'teams', name: 'Teams', mono: 'T', file: 'microsoft-365/teams.svg' },
 ]
+
+export const DISCLAIMER = {
+  badge: 'Independent Webinar',
+  title: 'Disclaimer',
+  text: 'Microsoft, Microsoft 365, Copilot, Excel, Word, PowerPoint, Outlook, and their respective logos/icons are trademarks of Microsoft Corporation. This webinar is independently delivered by Ambot365 and is not affiliated with, endorsed by, sponsored by, or authorized by Microsoft Corporation.',
+  acceptLabel: 'I Understand',
+  moreLabel: 'Read full disclaimer',
+}
+

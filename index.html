@@ -1,52 +1,47 @@
 <!doctype html>
 <html lang="en-IN" data-theme="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/assets/logo-icon.png" />
-    <link rel="apple-touch-icon" href="/assets/logo-icon.png" />
-    <!-- Scroll-sequence frames come from here; warm the connection early. -->
-    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
 
-    <title>Copilot AmBot365</title>
-    <meta
-      name="description"
-      content="Live online masterclass on Microsoft 365 Copilot — use it across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting."
-    />
-    <!-- One page, one URL: the canonical keeps tracking parameters on shared
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/assets/logo-icon.png" />
+  <link rel="apple-touch-icon" href="/assets/logo-icon.png" />
+  <!-- Scroll-sequence frames come from here; warm the connection early. -->
+  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+
+  <title>Copilot AmBot365</title>
+  <meta name="description"
+    content="Live online masterclass on Microsoft 365 Copilot — use it across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting." />
+  <!-- One page, one URL: the canonical keeps tracking parameters on shared
          links from splitting this page's ranking signals across duplicates. -->
-    <link rel="canonical" href="https://copilot.ambot365.com/" />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
-    <meta name="theme-color" content="#0A0F1D" />
+  <link rel="canonical" href="https://copilot.ambot365.com/" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#0A0F1D" />
 
-    <!-- Social preview. The crawlers that read these (LinkedIn, WhatsApp,
+  <!-- Social preview. The crawlers that read these (LinkedIn, WhatsApp,
          Slack, X) do not run the page's JavaScript, so every value a shared
          link shows has to be spelled out here rather than set at runtime. -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="AmBot365" />
-    <meta property="og:locale" content="en_IN" />
-    <meta property="og:url" content="https://copilot.ambot365.com/" />
-    <meta property="og:title" content="Microsoft 365 Copilot Masterclass — Live Session" />
-    <meta
-      property="og:description"
-      content="Use Copilot across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting. Live online session by AmBot365."
-    />
-    <meta property="og:image" content="https://copilot.ambot365.com/assets/og-cover.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Microsoft 365 Copilot Masterclass — a live online session from AmBot365" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Microsoft 365 Copilot Masterclass — Live Session" />
-    <meta
-      name="twitter:description"
-      content="Use Copilot across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting. Live online session by AmBot365."
-    />
-    <meta name="twitter:image" content="https://copilot.ambot365.com/assets/og-cover.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AmBot365" />
+  <meta property="og:locale" content="en_IN" />
+  <meta property="og:url" content="https://copilot.ambot365.com/" />
+  <meta property="og:title" content="Microsoft 365 Copilot Masterclass — Live Session" />
+  <meta property="og:description"
+    content="Use Copilot across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting. Live online session by AmBot365." />
+  <meta property="og:image" content="https://copilot.ambot365.com/assets/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Microsoft 365 Copilot Masterclass — a live online session from AmBot365" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Microsoft 365 Copilot Masterclass — Live Session" />
+  <meta name="twitter:description"
+    content="Use Copilot across Word, Excel, Outlook and Teams, build your own Copilot agents, and master prompting. Live online session by AmBot365." />
+  <meta name="twitter:image" content="https://copilot.ambot365.com/assets/og-cover.png" />
 
-    <!-- Organisation and site identity only. Event schema is deliberately
+  <!-- Organisation and site identity only. Event schema is deliberately
          absent: it requires a real startDate and this session has no confirmed
          date yet, and an invented one is a structured-data violation. -->
-    <script type="application/ld+json">
+  <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@graph": [
@@ -90,45 +85,51 @@
       }
     </script>
 
-    <script>
-      // Apply the saved theme before first paint to avoid a flash.
-      // The page is dark by default; light is opt-in via the toggle.
-      try {
-        var t = localStorage.getItem('theme')
-        if (t !== 'dark' && t !== 'light') t = 'dark'
-        document.documentElement.setAttribute('data-theme', t)
-      } catch (e) {
-        document.documentElement.setAttribute('data-theme', 'dark')
-      }
-    </script>
+  <script>
+    // Apply the saved theme before first paint to avoid a flash.
+    // The page is dark by default; light is opt-in via the toggle.
+    try {
+      var t = localStorage.getItem('theme')
+      if (t !== 'dark' && t !== 'light') t = 'dark'
+      document.documentElement.setAttribute('data-theme', t)
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'dark')
+    }
+  </script>
 
-    <!-- Meta Pixel Code
+  <!-- Meta Pixel Code
          One-page site, so the single PageView here is the only page view
          needed; there are no client-side routes. The no-JS fallback image
          is at the top of <body>, where <noscript><img> is valid HTML. -->
-    <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
+  <script>
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () {
+        n.callMethod ?
+        n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+      };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script',
       'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '1761804135952458');
-      fbq('track', 'PageView');
-    </script>
-    <!-- End Meta Pixel Code -->
-  </head>
-  <body>
-    <noscript>
-      <img height="1" width="1" style="display:none" alt=""
-        src="https://www.facebook.com/tr?id=1761804135952458&ev=PageView&noscript=1" />
-    </noscript>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    fbq('init', '2083794112497728');
+    fbq('track', 'PageView');
+  </script>
+  <!-- End Meta Pixel Code -->
+</head>
 
-    <elevenlabs-convai agent-id="agent_7401m33zq90ee7ptrh6gp3yv96kb"></elevenlabs-convai><script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
- 
-  </body>
+<body>
+  <noscript>
+    <img height="1" width="1" style="display:none" alt=""
+      src="https://www.facebook.com/tr?id=2083794112497728&ev=PageView&noscript=1" />
+  </noscript>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+
+  <elevenlabs-convai agent-id="agent_7401m33zq90ee7ptrh6gp3yv96kb"></elevenlabs-convai>
+  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+
+</body>
+
 </html>

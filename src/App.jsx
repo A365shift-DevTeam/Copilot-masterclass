@@ -18,6 +18,7 @@ import SeatScrollExperience from './components/SeatScrollExperience.jsx'
 import TicketScrollExperience from './components/TicketScrollExperience.jsx'
 import Preloader from './components/Preloader.jsx'
 import LogoTraveller from './components/LogoTraveller.jsx'
+import DisclaimerPopup from './components/DisclaimerPopup.jsx'
 import useLenis from './hooks/useLenis.js'
 import useSitePreload from './hooks/useSitePreload.js'
 
@@ -57,6 +58,8 @@ export default function App() {
       {/* Outside .page-stack and any transformed ancestor, so its document
           coordinates are the page's own. */}
       <LogoTraveller />
+
+      <DisclaimerPopup preloaderDone={done} />
 
       <StickyRevealFooter>
         <Footer />

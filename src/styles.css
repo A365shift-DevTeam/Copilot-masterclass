@@ -5966,6 +5966,10 @@ html[data-theme="dark"] {
   color: var(--legal-text);
 }
 
+.legal-dialog__intro:last-child {
+  margin-bottom: 0;
+}
+
 .legal-dialog__section + .legal-dialog__section {
   margin-top: 16px;
 }

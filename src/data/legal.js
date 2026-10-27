@@ -92,4 +92,15 @@ export const LEGAL = {
       },
     ],
   },
+
+  disclaimer: {
+    id: 'disclaimer',
+    title: 'Disclaimer',
+    intro:
+      'Microsoft, Microsoft 365, Copilot, Excel, Word, PowerPoint, Outlook, and their respective logos/icons are trademarks of Microsoft Corporation. This webinar is independently delivered by Ambot365 and is not affiliated with, endorsed by, sponsored by, or authorized by Microsoft Corporation.',
+    agreeLabel: 'I understand',
+    hint: 'Read the full disclaimer.',
+    sections: [],
+  },
 }
+
