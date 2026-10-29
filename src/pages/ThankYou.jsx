@@ -3,9 +3,6 @@ import { Check, ChevronRight, Mail } from 'lucide-react'
 import { FOOTER, WHATSAPP_COMMUNITY_URL } from '../data/content.js'
 import Confetti from '../components/ui/motion-confetti.tsx'
 
-// Seat price, reported to the Meta Pixel as the Purchase value.
-const SEAT_PRICE_INR = 499
-
 // Matches Confetti's duration so the redirect starts when the burst ends.
 const CONFETTI_MS = 2500
 
@@ -33,21 +30,6 @@ export default function ThankYou() {
     // Post-payment page: keep it out of search results.
     const robots = document.querySelector('meta[name="robots"]')
     if (robots) robots.setAttribute('content', 'noindex, nofollow')
-
-    // index.html has already loaded the pixel and sent the PageView.
-    // shortcut: once per tab session so a refresh doesn't repeat the Purchase;
-    // still unverified, upgrade to a server-side (Conversions API) event from
-    // the payment webhook if a backend is added.
-    let sent = false
-    try { sent = sessionStorage.getItem('ty-purchase-sent') === '1' } catch { /* storage blocked */ }
-    if (!sent && typeof window.fbq === 'function') {
-      window.fbq('track', 'Purchase', {
-        value: SEAT_PRICE_INR,
-        currency: 'INR',
-        page_url: 'https://learnai.ambot365.com/thank-you',
-      })
-      try { sessionStorage.setItem('ty-purchase-sent', '1') } catch { /* storage blocked */ }
-    }
   }, [])
 
   function joinCommunity(event) {

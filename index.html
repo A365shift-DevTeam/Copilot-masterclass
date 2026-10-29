@@ -98,9 +98,8 @@
   </script>
 
   <!-- Meta Pixel Code
-         One-page site, so the single PageView here is the only page view
-         needed; there are no client-side routes. The no-JS fallback image
-         is at the top of <body>, where <noscript><img> is valid HTML. -->
+         Base code only: all events are created in Events Manager
+         (Event Setup Tool), so nothing is tracked from here. -->
   <script>
     !function (f, b, e, v, n, t, s) {
       if (f.fbq) return; n = f.fbq = function () {
@@ -114,21 +113,16 @@
     }(window, document, 'script',
       'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '2083794112497728');
-    fbq('track', 'PageView');
   </script>
   <!-- End Meta Pixel Code -->
 </head>
 
 <body>
-  <noscript>
-    <img height="1" width="1" style="display:none" alt=""
-      src="https://www.facebook.com/tr?id=2083794112497728&ev=PageView&noscript=1" />
-  </noscript>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 
-  <elevenlabs-convai agent-id="agent_7401m33zq90ee7ptrh6gp3yv96kb"></elevenlabs-convai>
-  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+  <!-- <elevenlabs-convai agent-id="agent_7401m33zq90ee7ptrh6gp3yv96kb"></elevenlabs-convai>
+  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script> -->
 
 </body>
 
