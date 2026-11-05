@@ -80,7 +80,7 @@ export default function VideoPopup({ ready }) {
           <video
             ref={videoRef}
             className="video-popup__video"
-            src={`${VIDEO_BASE}/w_540,q_auto:eco/videos/webinar-ad02.mp4`}
+            src={`${VIDEO_BASE}/v1793862752/Learn_AI_whats_App_cb9zpe.mp4`}
             poster={`${VIDEO_BASE}/so_0,w_540,q_auto,f_jpg/videos/webinar-ad02.jpg`}
             playsInline
             controls
