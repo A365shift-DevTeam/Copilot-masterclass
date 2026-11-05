@@ -6,7 +6,7 @@ import Confetti from '../components/ui/motion-confetti.tsx'
 // Matches Confetti's duration so the redirect starts when the burst ends.
 const CONFETTI_MS = 2500
 
-function WhatsAppIcon() {
+export function WhatsAppIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path

@@ -98,8 +98,9 @@
   </script>
 
   <!-- Meta Pixel Code
-         Base code only: all events are created in Events Manager
-         (Event Setup Tool), so nothing is tracked from here. -->
+         The site's only two events: PageView on the home page, Purchase on
+         /thank-you (same route test as src/main.jsx). Nothing is set up in
+         the Event Setup Tool; its URL rules need a PageView on the page. -->
   <script>
     !function (f, b, e, v, n, t, s) {
       if (f.fbq) return; n = f.fbq = function () {
@@ -113,6 +114,23 @@
     }(window, document, 'script',
       'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '2083794112497728');
+    function trackPage() {
+      if (!/^\/thank-you\/?$/.test(location.pathname)) return fbq('track', 'PageView');
+      // Skip inside an iframe, and skip if this browser already sent a
+      // Purchase in the last 30 min (refresh, second tab, second page load).
+      var last = 0;
+      try { last = +localStorage.getItem('ty-purchase-at') || 0 } catch (e) { }
+      if (window.top !== window.self || Date.now() - last < 30 * 60 * 1000) return;
+      try { localStorage.setItem('ty-purchase-at', String(Date.now())) } catch (e) { }
+      fbq('track', 'Purchase', { value: 499, currency: 'INR' });
+    }
+    // Chrome prerenders pages while the URL is being typed; that hidden copy
+    // runs this script too, so wait until the page is actually shown.
+    if (document.prerendering) {
+      document.addEventListener('prerenderingchange', trackPage, { once: true });
+    } else {
+      trackPage();
+    }
   </script>
   <!-- End Meta Pixel Code -->
 </head>

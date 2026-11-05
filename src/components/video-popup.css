@@ -1,0 +1,163 @@
+/* Promo video popup: portrait video beside the class summary.
+   Card shell, overlay and close button come from disclaimer-popup.css. */
+
+.video-popup {
+  width: min(820px, calc(100vw - 32px));
+  max-height: calc(100vh - 40px);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  /* Visible so the border beam can sit outside the edge; the media clips its own corners. */
+  overflow: visible;
+}
+
+.video-popup__video {
+  display: block;
+  height: min(78vh, 640px);
+  aspect-ratio: 9 / 16;
+  background: #000;
+  object-fit: cover;
+}
+
+.video-popup__media {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px 0 0 20px;
+}
+
+/* Same lap as the speaker card; lifted so the video doesn't paint over it. */
+.video-popup .video-popup__beam {
+  z-index: 2;
+  inset: calc(-1px - var(--bb-width, 1.5px));
+  border-radius: calc(20px + var(--bb-width, 1.5px));
+}
+
+.video-popup__unmute {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.video-popup__info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px 28px;
+  overflow-y: auto;
+}
+
+.video-popup__info .disclaimer-popup__badge { font-size: 0.72rem; }
+
+.video-popup__title {
+  margin: 0;
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.video-popup__subtitle {
+  margin: -8px 0 0;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+html[data-theme="dark"] .video-popup__subtitle { color: #94a3b8; }
+
+.video-popup__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+
+.video-popup__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.video-popup__list svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #2b824e;
+}
+
+html[data-theme="dark"] .video-popup__list svg { color: #6bd194; }
+
+.video-popup__day {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.video-popup__points {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+html[data-theme="dark"] .video-popup__points { color: #94a3b8; }
+
+.video-popup__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #25d366;
+  text-decoration: none;
+}
+
+.video-popup__whatsapp:hover,
+.video-popup__whatsapp:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+
+.video-popup__whatsapp svg { width: 20px; height: 20px; }
+
+.video-popup__info .section-cta { margin: 4px 0 0; justify-content: center; }
+
+.video-popup .disclaimer-popup__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+@media (max-width: 640px) {
+  .video-popup {
+    grid-template-columns: 1fr;
+    /* The info panel scrolls, not the card, so the outer beam isn't clipped. */
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .video-popup__media { border-radius: 20px 20px 0 0; }
+
+  .video-popup__video {
+    width: 100%;
+    height: auto;
+    max-height: 55vh;
+    aspect-ratio: auto;
+  }
+
+  /* On mobile the close button sits over the video, so give it a backing. */
+  .video-popup .disclaimer-popup__close { background: rgba(255, 255, 255, 0.85); color: #0f172a; }
+
+  .video-popup__info { padding: 20px 18px; gap: 12px; }
+  .video-popup__title { font-size: 1.25rem; }
+}

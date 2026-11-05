@@ -13,10 +13,14 @@ const STORAGE_KEY = 'ambot365_disclaimer_ack'
  * localStorage, handles Escape key and outside backdrop clicks, and can be reopened
  * at any time from the footer "Disclaimer" link.
  */
-export default function DisclaimerPopup({ preloaderDone }) {
+export default function DisclaimerPopup({ preloaderDone, onOpenChange }) {
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false)
   const closeTimerRef = useRef(null)
+
+  useEffect(() => {
+    onOpenChange?.(open)
+  }, [open, onOpenChange])
 
   useEffect(() => {
     // Listen for manual trigger to reopen disclaimer popup

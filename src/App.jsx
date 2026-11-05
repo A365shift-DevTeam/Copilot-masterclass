@@ -19,6 +19,8 @@ import TicketScrollExperience from './components/TicketScrollExperience.jsx'
 import Preloader from './components/Preloader.jsx'
 import LogoTraveller from './components/LogoTraveller.jsx'
 import DisclaimerPopup from './components/DisclaimerPopup.jsx'
+import VideoPopup from './components/VideoPopup.jsx'
+import { useState } from 'react'
 import useLenis from './hooks/useLenis.js'
 import useSitePreload from './hooks/useSitePreload.js'
 
@@ -27,6 +29,7 @@ export default function App() {
   // while it holds the page, and hooks in one component run in call order.
   useLenis()
   const { progress, done } = useSitePreload()
+  const [disclaimerOpen, setDisclaimerOpen] = useState(false)
 
   return (
     <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
@@ -59,7 +62,8 @@ export default function App() {
           coordinates are the page's own. */}
       <LogoTraveller />
 
-      <DisclaimerPopup preloaderDone={done} />
+      <DisclaimerPopup preloaderDone={done} onOpenChange={setDisclaimerOpen} />
+      <VideoPopup ready={done && !disclaimerOpen} />
 
       <StickyRevealFooter>
         <Footer />
