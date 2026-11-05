@@ -8,7 +8,7 @@ import './disclaimer-popup.css'
 import './video-popup.css'
 
 /**
- * Promo video popup — opens 3s after the page is ready (preloader gone and
+ * Promo video popup — opens 2s after the page is ready (preloader gone and
  * no disclaimer on screen), once per page load. Portrait video on the left,
  * class summary on the right. Reuses the disclaimer modal shell.
  */
@@ -40,7 +40,7 @@ export default function VideoPopup({ ready }) {
     const timer = setTimeout(() => {
       setOpen(true)
       setShown(true)
-    }, 3000)
+    }, 2000)
     return () => clearTimeout(timer)
   }, [ready, shown])
 

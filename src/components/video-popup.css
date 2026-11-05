@@ -137,13 +137,16 @@ html[data-theme="dark"] .video-popup__points { color: #94a3b8; }
   top: 10px;
   right: 10px;
   z-index: 1;
+  color: #1e293b;
 }
 
+/* Mobile: just the video, the seat button and WhatsApp. The card is sized
+   from the viewport height so the whole thing fits on any phone without scrolling. */
 @media (max-width: 640px) {
   .video-popup {
+    /* ~190px is the button + WhatsApp row below the video. */
+    width: min(calc(100vw - 32px), max(300px, calc((100dvh - 190px) * 9 / 16)));
     grid-template-columns: 1fr;
-    /* The info panel scrolls, not the card, so the outer beam isn't clipped. */
-    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .video-popup__media { border-radius: 20px 20px 0 0; }
@@ -151,13 +154,24 @@ html[data-theme="dark"] .video-popup__points { color: #94a3b8; }
   .video-popup__video {
     width: 100%;
     height: auto;
-    max-height: 55vh;
-    aspect-ratio: auto;
+    max-height: calc(100dvh - 190px);
   }
+
+  .video-popup__info .disclaimer-popup__badge,
+  .video-popup__title,
+  .video-popup__subtitle,
+  .video-popup__list { display: none; }
 
   /* On mobile the close button sits over the video, so give it a backing. */
   .video-popup .disclaimer-popup__close { background: rgba(255, 255, 255, 0.85); color: #0f172a; }
 
-  .video-popup__info { padding: 20px 18px; gap: 12px; }
-  .video-popup__title { font-size: 1.25rem; }
+  .video-popup__info { padding: 14px 12px 16px; gap: 10px; overflow: visible; }
+
+  /* Keep the pill on one line: drop the bot and tighten the pill. */
+  .video-popup__info .btn-bot { display: none; }
+  .video-popup__info .btn-primary {
+    padding: 10px 18px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
 }
