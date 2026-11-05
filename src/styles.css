@@ -1189,10 +1189,15 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 @media (max-width: 480px) {
-  .hero .btn-primary {
-    padding: 15px 24px;
-    font-size: 15.5px;
-    width: 100%;
+  /* Every seat pill (hero + section CTAs) stays one line on phones: text
+     scales with the viewport and the bot shrinks. */
+  .hero .seat-cta-row,
+  .section-cta .seat-cta-row { --bot-size: 38px; --seat-cta-gap: 8px; }
+  .hero .btn-primary,
+  .seat-cta-row .btn-primary {
+    padding: 12px 18px;
+    font-size: clamp(12px, 3.7vw, 15.5px);
+    white-space: nowrap;
     justify-content: center;
     text-align: center;
   }
