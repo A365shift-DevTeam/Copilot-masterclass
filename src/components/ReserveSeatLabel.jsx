@@ -31,7 +31,7 @@ export function LiveSessionsLabel({ amount = SEAT_PRICE }) {
 export function RecordedVideosLabel({ amount = RECORDED_PRICE }) {
   return (
     <>
-      Recorded Videos{' '}
+      Recorded Video{' '}
       <span className="btn-price-highlight">&#8377;{amount}</span>
     </>
   )
