@@ -1,4 +1,5 @@
 export const SEAT_PRICE = 499
+export const RECORDED_PRICE = 1999
 export const BOT_LOGO = '/assets/ambot-bot.png'
 
 /**
@@ -13,6 +14,24 @@ export default function ReserveSeatLabel({ amount = SEAT_PRICE }) {
   return (
     <>
       Reserve your seat for just{' '}
+      <span className="btn-price-highlight">&#8377;{amount}</span>
+    </>
+  )
+}
+
+export function LiveSessionsLabel({ amount = SEAT_PRICE }) {
+  return (
+    <>
+      Live Sessions{' '}
+      <span className="btn-price-highlight">&#8377;{amount}</span>
+    </>
+  )
+}
+
+export function RecordedVideosLabel({ amount = RECORDED_PRICE }) {
+  return (
+    <>
+      Recorded Videos{' '}
       <span className="btn-price-highlight">&#8377;{amount}</span>
     </>
   )

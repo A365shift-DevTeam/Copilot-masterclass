@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import CopilotOrbit from './CopilotOrbit.jsx'
-import ReserveSeatLabel, { ReserveSeatBot } from './ReserveSeatLabel.jsx'
-import { HERO_CHECKS, HERO_TITLE_PHRASES, PAYMENT_URL } from '../data/content.js'
+import { LiveSessionsLabel, RecordedVideosLabel, ReserveSeatBot } from './ReserveSeatLabel.jsx'
+import { HERO_CHECKS, HERO_TITLE_PHRASES, PAYMENT_URL, RECORDED_PAYMENT_URL } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 
 export default function Hero() {
@@ -97,7 +97,11 @@ export default function Hero() {
           <div className="hero__ctas">
             <span className="seat-cta-row">
               <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>
-                <ReserveSeatLabel />
+                <LiveSessionsLabel />
+                <span className="btn-shine" />
+              </a>
+              <a href={RECORDED_PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>
+                <RecordedVideosLabel />
                 <span className="btn-shine" />
               </a>
               <ReserveSeatBot />

@@ -994,7 +994,9 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 .seat-cta-row {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--seat-cta-gap);
+  row-gap: 12px;
 }
 .btn-bot {
   width: var(--bot-size);
@@ -1112,8 +1114,8 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 .hero .btn-primary {
-  padding: 12px 38px;
-  font-size: clamp(17px, 1.35vw, 19.5px);
+  padding: 12px 28px;
+  font-size: clamp(15px, 1.2vw, 17.5px);
   font-weight: 700;
   border-radius: 50px;
   box-shadow: 0 14px 34px rgba(var(--gradient-primary-rgb), 0.35);
@@ -1189,14 +1191,13 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 @media (max-width: 480px) {
-  /* Every seat pill (hero + section CTAs) stays one line on phones: text
-     scales with the viewport and the bot shrinks. */
+  /* Every seat pill (hero + section CTAs) scales with the viewport and the bot shrinks. */
   .hero .seat-cta-row,
   .section-cta .seat-cta-row { --bot-size: 38px; --seat-cta-gap: 8px; }
   .hero .btn-primary,
   .seat-cta-row .btn-primary {
-    padding: 12px 18px;
-    font-size: clamp(12px, 3.7vw, 15.5px);
+    padding: 10px 16px;
+    font-size: clamp(12px, 3.4vw, 14.5px);
     white-space: nowrap;
     justify-content: center;
     text-align: center;

@@ -4,6 +4,7 @@
    any more (Register.jsx is commented out of App.jsx), so this is the single
    place the checkout URL lives. */
 export const PAYMENT_URL = 'https://link.trym.co.in/widget/form/NkftkuuLIgwagCAj0LQL'
+export const RECORDED_PAYMENT_URL = 'https://link.trym.co.in/widget/form/NkftkuuLIgwagCAj0LQL'
 
 /* Thank-you page. Paste the real WhatsApp Community invite over this placeholder. */
 export const WHATSAPP_COMMUNITY_URL = 'https://chat.whatsapp.com/Fe1uU0KfSq86Hdk4wX0zhr'
