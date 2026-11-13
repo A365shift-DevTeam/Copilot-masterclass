@@ -1268,7 +1268,6 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 /* under the hero checks; align-self keeps the column's flex from stretching it full width */
 .hero__pricing-btn {
   align-self: flex-start;
-  margin-left: clamp(28px, 3.5vw, 60px);
   gap: 8px;
 }
 

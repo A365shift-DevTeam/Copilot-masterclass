@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-IN" data-theme="dark">
+<html lang="en-IN" data-theme="light">
 
 <head>
   <meta charset="UTF-8" />
@@ -16,7 +16,7 @@
          links from splitting this page's ranking signals across duplicates. -->
   <link rel="canonical" href="https://copilot.ambot365.com/" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
-  <meta name="theme-color" content="#0A0F1D" />
+  <meta name="theme-color" content="#FDFDFE" />
 
   <!-- Social preview. The crawlers that read these (LinkedIn, WhatsApp,
          Slack, X) do not run the page's JavaScript, so every value a shared
@@ -87,13 +87,14 @@
 
   <script>
     // Apply the saved theme before first paint to avoid a flash.
-    // The page is dark by default; light is opt-in via the toggle.
+    // The page is light by default; dark is opt-in via the toggle.
+    // 'theme-pref': the old 'theme' key holds an auto-saved 'dark' for every past visitor.
     try {
-      var t = localStorage.getItem('theme')
-      if (t !== 'dark' && t !== 'light') t = 'dark'
+      var t = localStorage.getItem('theme-pref')
+      if (t !== 'dark' && t !== 'light') t = 'light'
       document.documentElement.setAttribute('data-theme', t)
     } catch (e) {
-      document.documentElement.setAttribute('data-theme', 'dark')
+      document.documentElement.setAttribute('data-theme', 'light')
     }
   </script>
 

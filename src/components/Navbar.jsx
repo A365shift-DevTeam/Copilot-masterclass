@@ -20,12 +20,12 @@ function MoonIcon() {
 
 function initialTheme() {
   try {
-    const saved = localStorage.getItem('theme')
+    const saved = localStorage.getItem('theme-pref')
     if (saved === 'dark' || saved === 'light') return saved
   } catch { /* storage unavailable */ }
-  // Dark by default, matching the pre-paint script in index.html. Keep the two
+  // Light by default, matching the pre-paint script in index.html. Keep the two
   // in step: if they disagree, the page flips theme on mount.
-  return 'dark'
+  return 'light'
 }
 
 export default function Navbar() {
@@ -35,7 +35,7 @@ export default function Navbar() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
-    try { localStorage.setItem('theme', theme) } catch { /* storage unavailable */ }
+    try { localStorage.setItem('theme-pref', theme) } catch { /* storage unavailable */ }
   }, [theme])
 
   useEffect(() => {
