@@ -1,5 +1,5 @@
 export const SEAT_PRICE = 499
-export const RECORDED_PRICE = 1999
+export const RECORDED_PRICE = 999
 export const BOT_LOGO = '/assets/ambot-bot.png'
 
 /**

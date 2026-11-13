@@ -853,6 +853,48 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   vertical-align: baseline;
 }
 
+/* Breathes like the button price; scales from its left edge so it stays aligned with the heading. */
+.hero__date {
+  --price-color: #FFB000;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  width: fit-content;
+  margin: 0;
+  /* shifts down into the gap below without adding layout space; transform is taken by the animation */
+  position: relative;
+  top: 30px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(16px, 1.8vw, 24px);
+  letter-spacing: -0.01em;
+  color: var(--price-color);
+  transform-origin: left center;
+  animation: date-breathe 2.4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.hero__date svg {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+/* a gentler price-breathe: a full sentence at 1.34x crowded the heading */
+@keyframes date-breathe {
+
+  0%,
+  100% {
+    transform: scale(1);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  50% {
+    transform: scale(1.04);
+    text-shadow: 0 0 12px var(--price-color), 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+
 @keyframes hero-cursor-blink {
 
   0%,
@@ -4662,6 +4704,11 @@ html[data-theme="light"] .hero__quote-gradient {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* bright yellow washes out on the light background, so the date takes dark amber */
+html[data-theme="light"] .hero__date {
+  --price-color: #A16207;
 }
 
 html[data-theme="light"] .hero__title {

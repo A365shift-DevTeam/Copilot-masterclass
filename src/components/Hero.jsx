@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
+import { CalendarDays } from 'lucide-react'
 import CopilotOrbit from './CopilotOrbit.jsx'
 import { LiveSessionsLabel, RecordedVideosLabel, ReserveSeatBot } from './ReserveSeatLabel.jsx'
-import { HERO_CHECKS, HERO_TITLE_PHRASES, PAYMENT_URL, RECORDED_PAYMENT_URL } from '../data/content.js'
+import { WEBINAR_DATE, HERO_CHECKS, HERO_TITLE_PHRASES, PAYMENT_URL, RECORDED_PAYMENT_URL } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 
 export default function Hero() {
@@ -67,12 +68,19 @@ export default function Hero() {
             <span className="hero__badge-text">LIVE INTERACTIVE WEBINAR</span>
           </div> */}
 
-          <p className="hero__quote" aria-label="“AI won’t replace you. Someone using AI will.”">
-            <span className="hero__quote-line">Master Microsoft Copilot</span>
-            <span className="hero__quote-line">
-              <span className="hero__quote-gradient">Join the Webinar</span>
-            </span>
-          </p>
+          {/* Wrapped so the column's gap doesn't land between the heading and the date. */}
+          <div>
+            <p className="hero__quote" aria-label="“AI won’t replace you. Someone using AI will.”">
+              <span className="hero__quote-line">Master Microsoft Copilot</span>
+              <span className="hero__quote-line">
+                <span className="hero__quote-gradient">Join the Webinar</span>
+              </span>
+            </p>
+            <p className="hero__date">
+              <CalendarDays aria-hidden="true" />
+              {WEBINAR_DATE}
+            </p>
+          </div>
 
           {/* The visible line types itself a character at a time, so the only
               text inside the h1 was animation state — empty on first paint and
