@@ -20,6 +20,7 @@
  * off, the finished staircase is shown, and the steps are listed.
  */
 import { useEffect, useRef, useState } from 'react'
+import { TrendingDown, TrendingUp } from 'lucide-react'
 import { CAREER_STEPS } from '../data/content.js'
 import AttendLearn from './AttendLearn.jsx'
 import ReserveSeatButton from './ReserveSeatButton.jsx'
@@ -152,6 +153,18 @@ export default function Benefits() {
             <p>
               One professional builds Microsoft Copilot skills. The other continues working the same way. See how one decision can change the direction.​
             </p>
+            <div className="career__outcomes">
+              <div className="career__outcome career__outcome--up">
+                <span className="career__outcome-icon"><TrendingUp aria-hidden="true" /></span>
+                <div><strong>Copilot user</strong><span>Learning and adapting</span></div>
+                <em>Career value ↑</em>
+              </div>
+              <div className="career__outcome career__outcome--down">
+                <span className="career__outcome-icon"><TrendingDown aria-hidden="true" /></span>
+                <div><strong>Manual user</strong><span>Same skills, same routine</span></div>
+                <em>Career risk ↓</em>
+              </div>
+            </div>
           </div>
 
           <div className="stairs-panel">

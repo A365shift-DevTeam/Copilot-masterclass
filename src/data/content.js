@@ -17,6 +17,31 @@ export const NAV_LINKS = [
   { href: '#learn', label: "What You'll Learn" },
   { href: '#benefits', label: 'Benefits' },
   { href: '#speaker', label: 'Speaker' },
+  { href: '#pricing', label: 'Pricing' },
+]
+
+/* 1:1 coaching programmes shown after the Speaker section.
+   An empty `url` hides that card's Enrol button. */
+export const PROGRAMMES = [
+  {
+    name: 'AI Skill Builder',
+    tagline: 'Build hands-on Copilot skills with a personal coach.',
+    points: ['15-day programme', '2.5 hours of 1:1 coaching', '5 calls of 30 minutes'],
+    pkg: '₹16,249',
+    save: '₹11,250',
+    price: '₹4,999',
+    url: 'https://rzp.io/rzp/8b0AZrP',
+  },
+  {
+    name: 'AI Project Builder',
+    tagline: 'Ship a real AI project with guided reviews.',
+    points: ['30-day programme', '5 hours of 1:1 coaching', 'Project guidance and review'],
+    pkg: '₹32,499',
+    save: '₹22,500',
+    price: '₹9,999',
+    url: 'https://rzp.io/rzp/OMsvnqoC',
+    featured: true,
+  },
 ]
 
 /* Shown under "Join the Webinar" in the hero. Change it before each session,

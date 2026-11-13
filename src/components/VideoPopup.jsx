@@ -106,7 +106,7 @@ export default function VideoPopup({ ready }) {
           <h2 id="video-popup-title" className="video-popup__title">
             Microsoft 365 Copilot Masterclass
           </h2>
-          <p className="video-popup__subtitle">2-Day Live Online Program</p>
+          <p className="video-popup__subtitle">1-Day Live Online Program</p>
 
           <ul className="video-popup__list">
             {DAYS.map((day) => {

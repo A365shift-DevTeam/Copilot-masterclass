@@ -8,6 +8,7 @@ import UseCases from './components/UseCases.jsx'
 import LiveDemo from './components/LiveDemo.jsx'
 import Benefits from './components/Benefits.jsx'
 import Speaker from './components/Speaker.jsx'
+import Pricing from './components/Pricing.jsx'
 import Ecosystem from './components/Ecosystem.jsx'
 import Register from './components/Register.jsx'
 import Faq from './components/Faq.jsx'
@@ -52,6 +53,7 @@ export default function App() {
         {/* Feedback is no longer its own section — it runs as a strip at the
             bottom of Speaker. */}
         <Speaker />
+        <Pricing />
         {/* <Ecosystem /> */}
         {/* <Register /> */}
         {/* <Faq /> */}

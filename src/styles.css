@@ -1265,6 +1265,23 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   transform: translateY(-2px);
 }
 
+/* under the hero checks; align-self keeps the column's flex from stretching it full width */
+.hero__pricing-btn {
+  align-self: flex-start;
+  margin-left: clamp(28px, 3.5vw, 60px);
+  gap: 8px;
+}
+
+.hero__pricing-btn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 220ms;
+}
+
+.hero__pricing-btn:hover svg {
+  transform: translateX(3px);
+}
+
 .hero__checks {
   display: flex;
   flex-wrap: wrap;
@@ -3226,6 +3243,57 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 @keyframes career-bob { 50% { transform: translateY(5px); } }
 
+/* Outcome cards: the legend, told as a summary beside the chart on wide screens. */
+.career__outcomes { display: none; }
+.career__outcome {
+  --c: var(--up); --c-rgb: var(--up-rgb);
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px;
+  background: var(--fork-card); border: 1px solid var(--fork-line); border-left: 4px solid var(--c);
+  box-shadow: var(--fork-shadow);
+}
+.career__outcome--down { --c: var(--down); --c-rgb: var(--down-rgb); }
+.career__outcome-icon {
+  flex-shrink: 0; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px;
+  background: rgba(var(--c-rgb), .14); color: var(--c);
+}
+.career__outcome-icon svg { width: 20px; height: 20px; }
+.career__outcome div { flex: 1; min-width: 0; }
+.career__outcome strong { display: block; font-size: 15px; font-weight: 800; color: var(--fork-ink); }
+.career__outcome div span { font-size: 13px; color: var(--fork-ink-3); }
+.career__outcome em {
+  font-style: normal; white-space: nowrap; padding: 5px 10px; border-radius: 999px;
+  background: rgba(var(--c-rgb), .14); color: var(--c); font-size: 12px; font-weight: 800;
+}
+
+/* Wide screens: heading and outcomes on the left, a larger chart on the right,
+   breaking out of the 1240px column so the fold is not mostly empty margin. */
+@media (min-width: 1200px) and (min-height: 640px) {
+  .career {
+    width: min(1480px, 100vw - 64px);
+    margin-inline: calc((100% - min(1480px, 100vw - 64px)) / 2);
+  }
+  .career__stage {
+    display: grid; grid-template-columns: 360px minmax(0, 1fr); column-gap: 56px;
+    align-content: center; align-items: center; padding: 96px 0 24px;
+  }
+  .career__head { text-align: left; margin: 0; }
+  .career__head .h2 { font-size: clamp(32px, 2.5vw, 42px); }
+  .career__outcomes { display: grid; gap: 12px; margin-top: 28px; }
+  .stairs-panel { justify-self: center; width: min(100%, calc((100vh - 170px) * 1060 / 620)); }
+  .stairs__legend { display: none; }
+  .career__hint { grid-column: 2; justify-self: center; }
+}
+
+/* Light theme: soft brand glows behind the chart, so the fold is not bare white. */
+html[data-theme="light"] .career__stage {
+  background:
+    radial-gradient(38% 45% at 18% 35%, rgba(76, 153, 160, 0.12), transparent 70%),
+    radial-gradient(40% 50% at 85% 65%, rgba(101, 168, 89, 0.13), transparent 70%);
+}
+html[data-theme="light"] .stairs-panel {
+  box-shadow: 0 2px 6px rgba(0, 32, 96, 0.05), 0 30px 70px rgba(0, 32, 96, 0.12);
+}
+
 /* Phones: no scroll drive; the finished staircase, and the steps as lists. */
 @media (max-width: 719px) {
   .career { height: auto; }
@@ -3716,6 +3784,198 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   border: 1px solid rgba(255, 255, 255, 0.14);
   font-size: 13.5px;
   color: rgba(255, 255, 255, 0.78);
+}
+
+/* ============================================================
+   PRICING — 1:1 coaching plans (dark is the base, light overrides below)
+   ============================================================ */
+.pricing {
+  --plan-bg: #101828;
+  --plan-line: #1E2939;
+  --plan-title: #FFFFFF;
+  --plan-body: rgba(255, 255, 255, 0.72);
+  --plan-muted: rgba(255, 255, 255, 0.45);
+  --plan-price: #6BD194;
+  --plan-check: #6BD194;
+  --plan-check-bg: rgba(107, 209, 148, 0.14);
+}
+
+.plans {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+  gap: clamp(20px, 3vw, 32px);
+  align-items: stretch;
+}
+
+.plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(24px, 3vw, 36px);
+  border-radius: 22px;
+  background: var(--plan-bg);
+  border: 1px solid var(--plan-line);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.plan--featured {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--plan-bg), var(--plan-bg)) padding-box,
+    var(--gradient-primary) border-box;
+  border-width: 2px;
+  box-shadow: 0 28px 70px rgba(77, 154, 161, 0.28);
+}
+
+.plan__badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 16px;
+  border-radius: 999px;
+  background-image: var(--gradient-primary);
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(77, 154, 161, 0.35);
+}
+
+.plan__head {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.plan__icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--plan-line);
+  box-shadow: 0 6px 16px rgba(0, 32, 96, 0.10);
+}
+
+.plan__icon img {
+  width: 28px;
+  height: 28px;
+}
+
+.plan__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.3vw, 26px);
+  font-weight: 700;
+  color: var(--plan-title);
+}
+
+.plan__tagline {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--plan-body);
+}
+
+.plan__price-block {
+  margin: 26px 0 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--plan-line);
+}
+
+.plan__was {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--plan-muted);
+}
+
+.plan__save {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--plan-check-bg);
+  color: var(--plan-check);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.plan__price {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: clamp(40px, 4.6vw, 54px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--plan-price);
+}
+
+.plan__features {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.plan__features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--plan-title);
+}
+
+.plan__features svg {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--plan-check-bg);
+  color: var(--plan-check);
+  stroke-width: 3;
+}
+
+/* pinned to the bottom so both cards' buttons line up */
+.plan__cta {
+  margin-top: auto;
+  justify-content: center;
+  width: 100%;
+}
+
+html[data-theme="light"] .pricing {
+  --plan-bg: #FFFFFF;
+  --plan-line: #E3E8EF;
+  --plan-title: var(--ref-navy);
+  --plan-body: var(--ref-body);
+  --plan-muted: var(--ref-micro);
+  --plan-price: #00924A;
+  --plan-check: #00843D;
+  --plan-check-bg: rgba(0, 176, 80, 0.12);
+  max-width: none;
+  background:
+    radial-gradient(60% 50% at 15% 10%, rgba(76, 153, 160, 0.12), transparent 70%),
+    radial-gradient(50% 50% at 90% 90%, rgba(101, 168, 89, 0.12), transparent 70%),
+    linear-gradient(180deg, #EEF3FA, #E8F0F8);
+}
+
+html[data-theme="light"] .plan {
+  box-shadow: 0 2px 6px rgba(0, 32, 96, 0.05), 0 24px 50px rgba(0, 32, 96, 0.10);
+}
+
+html[data-theme="light"] .plan--featured {
+  box-shadow: 0 4px 10px rgba(0, 32, 96, 0.06), 0 30px 70px rgba(77, 154, 161, 0.25);
 }
 
 .register-card {
@@ -6499,3 +6759,32 @@ html:has(.ty) body {
   .ty__wa:hover { transform: none; }
 }
 
+
+/* ============================================================
+   LIGHT THEME — section bands
+   Each section gets its own soft brand tint so the page reads as
+   distinct bands, not one white sheet. .section is capped at 1240px,
+   so its band is painted with a border-image outset to reach full width
+   (body clips the overflow).
+   ============================================================ */
+html[data-theme="light"] #overview,
+html[data-theme="light"] #benefits {
+  border-image-slice: 0 fill;
+  border-image-outset: 0 100vw;
+}
+
+html[data-theme="light"] #overview {
+  border-image-source: linear-gradient(180deg, #E6F0F7, #F1F7FB);
+}
+
+html[data-theme="light"] #learn {
+  background: linear-gradient(180deg, #E8F4EA, #F2F9F1);
+}
+
+html[data-theme="light"] #benefits {
+  border-image-source: linear-gradient(180deg, #F3F6FB, #E9EFF8);
+}
+
+html[data-theme="light"] .speaker-section {
+  background: linear-gradient(150deg, #E3F0F2, #EEF6F0);
+}

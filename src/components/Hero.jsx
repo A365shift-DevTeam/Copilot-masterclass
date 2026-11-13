@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react'
-import { CalendarDays } from 'lucide-react'
+import { ArrowRight, CalendarDays } from 'lucide-react'
 import CopilotOrbit from './CopilotOrbit.jsx'
 import { LiveSessionsLabel, RecordedVideosLabel, ReserveSeatBot } from './ReserveSeatLabel.jsx'
 import { WEBINAR_DATE, HERO_CHECKS, HERO_TITLE_PHRASES, PAYMENT_URL, RECORDED_PAYMENT_URL } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
+import { scrollToTarget } from '../hooks/useLenis.js'
 
 export default function Hero() {
   const scaleRef = useRef(null)
@@ -87,7 +88,7 @@ export default function Hero() {
               partial after. The static phrase below is the page's real heading
               for crawlers and screen readers; the typed line stays decorative. */}
           <h1 className="hero__title">
-            <span className="sr-only">Microsoft 365 Copilot Masterclass — 2-Day Live Online Program</span>
+            <span className="sr-only">Microsoft 365 Copilot Masterclass — 1-Day Live Online Program</span>
             <br />
             <span className="hero__title-typed" aria-hidden="true">
               <span className="hero__title-gradient">{titleText || '\u200B'}</span>
@@ -95,7 +96,7 @@ export default function Hero() {
             </span>
           </h1>
 
-          <p className="hero__subtitle">2-Day Live Online Program</p>
+          <p className="hero__subtitle">1-Day Live Online Program</p>
 
           {/* <p className="hero__desc">
             Discover how Microsoft Copilot, Microsoft 365 and intelligent automation help professionals
@@ -122,6 +123,15 @@ export default function Hero() {
               <span key={c} className="check-item"><span className="tick">✓</span> {c}</span>
             ))}
           </div>
+
+          <a
+            href="#pricing"
+            className="btn-primary hero__pricing-btn"
+            onClick={(e) => { e.preventDefault(); handleBtnClick(e); scrollToTarget('#pricing') }}
+          >
+            View 1:1 Coaching Plans <ArrowRight aria-hidden="true" />
+            <span className="btn-shine" />
+          </a>
         </div>
 
         <div className="hero__orbit-wrap">
