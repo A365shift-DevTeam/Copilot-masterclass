@@ -4708,7 +4708,23 @@ html[data-theme="light"] .hero__quote-gradient {
 
 /* bright yellow washes out on the light background, so the date takes dark amber */
 html[data-theme="light"] .hero__date {
-  --price-color: #A16207;
+  --price-color: #D97706;
+  animation-name: date-breathe-light;
+}
+
+/* the dark drop shadow muddies amber on a white background, so light theme gets a soft glow only */
+@keyframes date-breathe-light {
+
+  0%,
+  100% {
+    transform: scale(1);
+    text-shadow: none;
+  }
+
+  50% {
+    transform: scale(1.04);
+    text-shadow: 0 0 10px rgba(217, 119, 6, 0.35);
+  }
 }
 
 html[data-theme="light"] .hero__title {
