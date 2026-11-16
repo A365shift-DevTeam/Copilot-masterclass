@@ -1266,19 +1266,52 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 }
 
 /* under the hero checks; align-self keeps the column's flex from stretching it full width */
-.hero__pricing-btn {
-  align-self: flex-start;
-  gap: 8px;
+/* Spreadsheet-style grid: hairline borders on every cell. */
+.hero__price-table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 520px;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.hero__pricing-btn svg {
-  width: 18px;
-  height: 18px;
-  transition: transform 220ms;
+.hero__price-table th,
+.hero__price-table td {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 7px 12px;
+  text-align: left;
 }
 
-.hero__pricing-btn:hover svg {
-  transform: translateX(3px);
+.hero__price-table th {
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+}
+
+.hero__price-table th:first-child,
+.hero__price-table td:first-child {
+  width: 36px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.hero__price-table th:last-child,
+.hero__price-table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 700;
+  color: #fcd34d;
+}
+
+.hero .hero__price-table .btn-primary {
+  gap: 6px;
+  padding: 5px 14px;
+  font-size: 13.5px;
+  box-shadow: 0 6px 16px rgba(var(--gradient-primary-rgb), 0.28);
+}
+
+.hero__price-table .btn-primary svg {
+  width: 14px;
+  height: 14px;
 }
 
 .hero__checks {
@@ -5005,6 +5038,27 @@ html[data-theme="light"] .hero__subtitle {
 html[data-theme="light"] .hero__desc,
 html[data-theme="light"] .hero__checks {
   color: var(--ref-body);
+}
+
+html[data-theme="light"] .hero__price-table {
+  color: var(--ref-navy);
+}
+
+html[data-theme="light"] .hero__price-table th,
+html[data-theme="light"] .hero__price-table td {
+  border-color: rgba(0, 32, 96, 0.2);
+}
+
+html[data-theme="light"] .hero__price-table th {
+  background: rgba(0, 32, 96, 0.06);
+}
+
+html[data-theme="light"] .hero__price-table td:first-child {
+  color: var(--ref-body);
+}
+
+html[data-theme="light"] .hero__price-table td:last-child {
+  color: #b45309;
 }
 
 html[data-theme="light"] .btn-outline {

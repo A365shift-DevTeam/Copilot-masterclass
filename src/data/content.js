@@ -50,6 +50,15 @@ export const WEBINAR_DATE = 'Sun 29 Nov 2026 · 9:00 AM IST'
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
 
+export const HERO_PRICES = [
+  // Third item is where the price button links.
+  ['Live Session', 499, PAYMENT_URL],
+  ['Office Apps (Excel, PPT, Word) Copilot Focused Webinar', 799, PAYMENT_URL], // TODO: replace with this program's own form link
+  ['Recorded Videos', 999, RECORDED_PAYMENT_URL],
+  ['1 to 1 Coaching', 4999, PROGRAMMES[0].url], // same Razorpay link as the ₹4,999 AI Skill Builder card
+  ['Offline Live Workshop – Chennai', 9999, 'https://rzp.io/rzp/OMsvnqoC'], // TODO: replace with this program's own form link
+]
+
 export const HERO_TITLE_PHRASES = ['Master Prompt', 'Develop AI Skills', 'Build Intelligent Agents']
 
 // The Overview deck. Six stages in order; `stage` is the one-word beat of

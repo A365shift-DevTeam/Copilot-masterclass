@@ -1,10 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { ArrowRight, CalendarDays } from 'lucide-react'
 import CopilotOrbit from './CopilotOrbit.jsx'
-import { LiveSessionsLabel, RecordedVideosLabel, ReserveSeatBot } from './ReserveSeatLabel.jsx'
-import { WEBINAR_DATE, HERO_CHECKS, HERO_TITLE_PHRASES, PAYMENT_URL, RECORDED_PAYMENT_URL } from '../data/content.js'
+import { WEBINAR_DATE, HERO_PRICES, HERO_TITLE_PHRASES } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
-import { scrollToTarget } from '../hooks/useLenis.js'
 
 export default function Hero() {
   const scaleRef = useRef(null)
@@ -103,35 +101,26 @@ export default function Hero() {
             automate repetitive work, analyse information faster, create content and improve everyday productivity.
           </p> */}
 
-          <div className="hero__ctas">
-            <span className="seat-cta-row">
-              <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>
-                <LiveSessionsLabel />
-                <span className="btn-shine" />
-              </a>
-              <a href={RECORDED_PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>
-                <RecordedVideosLabel />
-                <span className="btn-shine" />
-              </a>
-              <ReserveSeatBot />
-            </span>
-            {/* <a href="#agenda" className="btn-outline">View Webinar Agenda</a> */}
-          </div>
-
-          <div className="hero__checks">
-            {HERO_CHECKS.map((c) => (
-              <span key={c} className="check-item"><span className="tick">✓</span> {c}</span>
-            ))}
-          </div>
-
-          <a
-            href="#pricing"
-            className="btn-primary hero__pricing-btn"
-            onClick={(e) => { e.preventDefault(); handleBtnClick(e); scrollToTarget('#pricing') }}
-          >
-            View 1:1 Coaching Plans <ArrowRight aria-hidden="true" />
-            <span className="btn-shine" />
-          </a>
+          <table className="hero__price-table">
+            <thead>
+              <tr><th>#</th><th>Program</th><th>Price</th></tr>
+            </thead>
+            <tbody>
+              {HERO_PRICES.map(([name, price, href], i) => {
+                const text = `₹${price.toLocaleString('en-IN')}`
+                const label = <>{text} <ArrowRight aria-hidden="true" /></>
+                return (
+                  <tr key={name}>
+                    <td>{i + 1}</td>
+                    <td>{name}</td>
+                    <td>
+                      <a href={href} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>{label}</a>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
 
         <div className="hero__orbit-wrap">
