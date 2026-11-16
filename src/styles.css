@@ -1297,7 +1297,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 
 .hero .hero__price-table .btn-primary {
   gap: 6px;
-  min-width: 112px; /* fits ₹9,999 →, so every price button is the same width */
+  min-width: 168px; /* fits "Register ₹9,999 →", so every price button is the same width */
   justify-content: center;
   padding: 5px 14px;
   font-size: 13.5px;
@@ -1323,8 +1323,42 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   border-color: rgba(255, 255, 255, 0.6);
 }
 
+/* Featured row (the ad offer): tinted background and a badge. */
+.hero__price-table .hero__price-row--featured {
+  background: rgba(var(--gradient-primary-rgb), 0.14);
+}
+
+.hero__price-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 50px;
+  background: #fcd34d;
+  color: #1f2937;
+  font-size: 11px;
+  font-weight: 700;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+html[data-theme="light"] .hero__price-table .hero__price-row--featured {
+  background: rgba(101, 168, 89, 0.12);
+}
+
 /* Phones: each program becomes a card — name on top, the two buttons side by side under it. */
 @media (max-width: 560px) {
+  /* 44px is the recommended minimum thumb target. */
+  .hero .hero__price-table .btn-primary,
+  .hero__details-btn {
+    min-height: 44px;
+  }
+
+  /* Fills the space beside "View details", so every card's button is the same width. */
+  .hero .hero__price-table .btn-primary {
+    min-width: 0;
+    width: 100%;
+  }
+
   .hero__price-table,
   .hero__price-table tbody {
     display: block;
@@ -1336,7 +1370,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 
   .hero__price-table tr {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr;
     align-items: center;
     gap: 8px 10px;
     padding: 10px 12px;

@@ -89,14 +89,13 @@ export default function Hero() {
               for crawlers and screen readers; the typed line stays decorative. */}
           <h1 className="hero__title">
             <span className="sr-only">Microsoft 365 Copilot Masterclass — 1-Day Live Online Program</span>
-            <br />
             <span className="hero__title-typed" aria-hidden="true">
               <span className="hero__title-gradient">{titleText || '\u200B'}</span>
               <span className="hero__title-cursor" />
             </span>
           </h1>
 
-          <p className="hero__subtitle">1-Day Live Online Program</p>
+          <p className="hero__subtitle">Copilot 365 Programs</p>
 
           {/* <p className="hero__desc">
             Discover how Microsoft Copilot, Microsoft 365 and intelligent automation help professionals
@@ -110,17 +109,22 @@ export default function Hero() {
             <tbody>
               {HERO_PRICES.map(([name, price, href], i) => {
                 const text = `₹${price.toLocaleString('en-IN')}`
-                const label = <>{text} <ArrowRight aria-hidden="true" /></>
+                const label = <>Register {text} <ArrowRight aria-hidden="true" /></>
+                // The first row is the offer the Meta ads promote, so it gets the highlight.
+                const featured = i === 0
                 return (
-                  <tr key={name}>
-                    <td>{name}</td>
+                  <tr key={name} className={featured ? 'hero__price-row--featured' : undefined}>
+                    <td>
+                      {name}
+                      {featured && <span className="hero__price-badge">Most popular</span>}
+                    </td>
                     <td>
                       <button type="button" className="hero__details-btn" onClick={() => setOpenRow(i)}>
                         View details
                       </button>
                     </td>
                     <td>
-                      <a href={href} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>{label}</a>
+                      <a href={href} className="btn-primary" onClick={handleBtnClick}>{label}</a>
                     </td>
                   </tr>
                 )
@@ -151,7 +155,7 @@ export default function Hero() {
                     </div>
                     <footer className="legal-dialog__footer">
                       <Dialog.Close className="legal-dialog__btn legal-dialog__btn--ghost">Close</Dialog.Close>
-                      <a href={href} target="_blank" rel="noopener noreferrer" className="legal-dialog__btn legal-dialog__btn--primary">
+                      <a href={href} className="legal-dialog__btn legal-dialog__btn--primary">
                         Pay / Register ₹{price.toLocaleString('en-IN')}
                       </a>
                     </footer>
