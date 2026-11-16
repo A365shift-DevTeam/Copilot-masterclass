@@ -103,7 +103,7 @@ export default function Hero() {
 
           <table className="hero__price-table">
             <thead>
-              <tr><th>#</th><th>Program</th><th>Price</th></tr>
+              <tr><th>No</th><th>Program</th><th>Price</th></tr>
             </thead>
             <tbody>
               {HERO_PRICES.map(([name, price, href], i) => {
