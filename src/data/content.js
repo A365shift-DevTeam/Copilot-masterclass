@@ -1,10 +1,13 @@
+// Microsoft Copilot icon used by the pricing cards and the hero course popup.
+export const COPILOT_ICON = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/copilot/copilot-365.svg'
+
 /* Every "Reserve a seat" CTA on the page — nav, hero, the ticket and seat
    reveals, the repeating section pill and the footer link — sends the viewer
    straight to the hosted payment page. There is no on-page registration form
    any more (Register.jsx is commented out of App.jsx), so this is the single
    place the checkout URL lives. */
 export const PAYMENT_URL = 'https://link.trym.co.in/widget/form/NkftkuuLIgwagCAj0LQL'
-export const RECORDED_PAYMENT_URL = 'https://link.trym.co.in/widget/form/ReFyIZcuV1fqoj2H4tyl'
+export const RECORDED_PAYMENT_URL = 'https://link.trym.co.in/widget/form/Py8Ql9ccGxzsI9b63vRs'
 
 /* Thank-you page. Paste the real WhatsApp Community invite over this placeholder. */
 export const WHATSAPP_COMMUNITY_URL = 'https://chat.whatsapp.com/Fe1uU0KfSq86Hdk4wX0zhr'
@@ -50,15 +53,91 @@ export const WEBINAR_DATE = 'Sun 29 Nov 2026 · 9:00 AM IST'
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
 
+/* Hero price table. `name` is the table row and `url` is where Register goes.
+   The rest fills the "View details" popup; every popup field is optional:
+   `meta` bold line, `facts` [label, value] lines, `descLead` bold start of
+   `desc`, `pointsHeading` above the `points` list.
+   The first entry gets the row highlight. */
 export const HERO_PRICES = [
-  // [name, price, link the price button opens, points shown under "View details"]
-  ['Live Session', 499, PAYMENT_URL, [WEBINAR_DATE, ...HERO_CHECKS]],
-  ['Office Apps (Excel, PPT, Word) Copilot Focused Webinar', 799, PAYMENT_URL, // TODO: replace with this program's own form link
-    ['TODO: add details for this webinar']],
-  ['Recorded Videos', 999, RECORDED_PAYMENT_URL, ['TODO: add details for the recorded videos']],
-  ['1 to 1 Coaching', 4999, PROGRAMMES[0].url, PROGRAMMES[0].points], // same Razorpay link as the ₹4,999 AI Skill Builder card
-  ['Offline Live Workshop – Chennai', 9999, 'https://rzp.io/rzp/OMsvnqoC', // TODO: replace with this program's own form link
-    ['TODO: add details for the Chennai workshop']],
+  {
+    name: 'Live Session',
+    price: 499,
+    url: PAYMENT_URL,
+    title: 'Microsoft Copilot Live Webinar – Tamil',
+    meta: 'Saturday, 28 November 2026 · 9:00 AM IST · Tamil',
+    desc: 'Explore Microsoft 365 apps, AI tips and tricks through live Copilot product demonstrations.',
+    pointsHeading: 'What you will explore',
+    points: [
+      'Copilot fundamentals',
+      'Building AI agents and skills',
+      'Excel, Word and PowerPoint',
+      'Copilot Notebook',
+      'AI image generation',
+      'Building AI apps',
+      'Practical demonstrations and Q&A',
+    ],
+  },
+  {
+    name: 'Microsoft Excel with Copilot',
+    price: 799,
+    url: 'https://rzp.io/rzp/eSGn4gb', // TODO: replace with this program's own form link
+    title: 'Microsoft Excel with Copilot',
+    descLead: 'End-to-end Excel with Copilot',
+    desc: 'training with practical examples, demonstrations and sample datasets.',
+    points: [
+      '80% Excel: Copilot in Excel, end-to-end workflows, data analysis, practical exercises and sample data',
+      '10% PowerPoint: Copilot tips for presentations',
+      '10% Word: Copilot tips for documents',
+      'Building Copilot skills and agents',
+    ],
+  },
+  {
+    name: 'Recorded Videos',
+    price: 999,
+    url: RECORDED_PAYMENT_URL,
+    title: 'Copilot Recorded Videos',
+    facts: [['Languages', 'Tamil / English']],
+    desc: 'One-time recorded videos for flexible, self-paced viewing of Microsoft Copilot demonstrations and workflows.',
+  },
+  {
+    name: '1 to 1 Coaching',
+    price: 4999,
+    url: PROGRAMMES[0].url, // same Razorpay link as the ₹4,999 AI Skill Builder card
+    title: '1-to-1 Project Support – 15 Days',
+    facts: [
+      ['Languages', 'Tamil / English'],
+      ['Duration', '15 days'],
+      ['One-to-one calls', '3 hours total'],
+    ],
+    points: [
+      'Identify and define your real-world problem',
+      'Receive access to a personalized tool to monitor project progress',
+      'Build your Copilot project with guided one-to-one support',
+      'Schedule calls flexibly based on project requirements',
+      'Work through implementation and delivery',
+    ],
+  },
+  {
+    name: 'Offline Live Workshop – Chennai',
+    price: 9999,
+    url: 'https://rzp.io/rzp/OMsvnqoC', // TODO: replace with this program's own form link
+    title: 'Offline Copilot Workshop – Chennai',
+    facts: [
+      ['Language', 'Tamil'],
+      ['Date', '23 January 2029'],
+      ['Format', 'One-day, in-person workshop'],
+      ['Venue', 'Chennai; exact venue to be announced'],
+    ],
+    desc: 'Hands-on Copilot demonstrations covering:',
+    points: [
+      'Excel, Word and PowerPoint',
+      'Building Copilot agents and skills',
+      'Copilot Notebook',
+      'OneDrive and SharePoint',
+      'Microsoft Forms and To Do',
+      'Microsoft Bookings',
+    ],
+  },
 ]
 
 export const HERO_TITLE_PHRASES = ['Master Prompt', 'Develop AI Skills', 'Build Intelligent Agents']

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { ArrowRight, CalendarDays, X } from 'lucide-react'
+import { ArrowRight, CalendarDays, Check, X } from 'lucide-react'
 import CopilotOrbit from './CopilotOrbit.jsx'
-import { WEBINAR_DATE, HERO_PRICES, HERO_TITLE_PHRASES } from '../data/content.js'
+import { COPILOT_ICON, WEBINAR_DATE, HERO_PRICES, HERO_TITLE_PHRASES } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 
 export default function Hero() {
@@ -107,24 +107,20 @@ export default function Hero() {
               <tr><th>Program</th><th>Details</th><th>Price</th></tr>
             </thead>
             <tbody>
-              {HERO_PRICES.map(([name, price, href], i) => {
-                const text = `₹${price.toLocaleString('en-IN')}`
-                const label = <>Register {text} <ArrowRight aria-hidden="true" /></>
+              {HERO_PRICES.map(({ name, price, url }, i) => {
+                const label = <>Register ₹{price.toLocaleString('en-IN')} <ArrowRight aria-hidden="true" /></>
                 // The first row is the offer the Meta ads promote, so it gets the highlight.
                 const featured = i === 0
                 return (
                   <tr key={name} className={featured ? 'hero__price-row--featured' : undefined}>
-                    <td>
-                      {name}
-                      {featured && <span className="hero__price-badge">Most popular</span>}
-                    </td>
+                    <td>{name}</td>
                     <td>
                       <button type="button" className="hero__details-btn" onClick={() => setOpenRow(i)}>
                         View details
                       </button>
                     </td>
                     <td>
-                      <a href={href} className="btn-primary" onClick={handleBtnClick}>{label}</a>
+                      <a href={url} className="btn-primary" onClick={handleBtnClick}>{label}</a>
                     </td>
                   </tr>
                 )
@@ -132,32 +128,53 @@ export default function Hero() {
             </tbody>
           </table>
 
-          {/* Looks and behaves like LegalDialog (same .legal-dialog styles). */}
+          {/* Built on LegalDialog's base styles (.legal-dialog) for theming, focus and animation;
+              .course-dialog restyles the inside. */}
           <Dialog.Root open={openRow !== null} onOpenChange={(o) => { if (!o) setOpenRow(null) }}>
             {openRow !== null && (() => {
-              const [name, price, href, details] = HERO_PRICES[openRow]
+              const { title, meta, facts, descLead, desc, pointsHeading, points, price, url } = HERO_PRICES[openRow]
               return (
                 <Dialog.Portal>
                   <Dialog.Overlay className="legal-dialog__overlay" />
-                  <Dialog.Content className="legal-dialog" aria-describedby={undefined}>
-                    <header className="legal-dialog__header">
-                      <Dialog.Title className="legal-dialog__title">{name}</Dialog.Title>
-                      <Dialog.Close className="legal-dialog__close" aria-label="Close">
-                        <X size={16} aria-hidden />
-                      </Dialog.Close>
-                    </header>
-                    <div className="legal-dialog__body" data-lenis-prevent>
-                      <section className="legal-dialog__section">
-                        <ul>
-                          {details.map((d) => <li key={d}>{d}</li>)}
+                  <Dialog.Content className="legal-dialog course-dialog" aria-describedby={undefined}>
+                    <Dialog.Close className="course-dialog__close" aria-label="Close">
+                      <X size={18} aria-hidden />
+                    </Dialog.Close>
+                    <div className="course-dialog__body" data-lenis-prevent>
+                      <div className="eyebrow eyebrow--green">AMBOT365 · COURSE DETAILS</div>
+                      <header className="plan__head">
+                        <span className="plan__icon"><img src={COPILOT_ICON} alt="" /></span>
+                        <Dialog.Title className="plan__name">{title}</Dialog.Title>
+                      </header>
+                      {meta && <p className="course-dialog__meta">{meta}</p>}
+                      {facts?.map(([label, value]) => (
+                        <p key={label} className="course-dialog__fact"><strong>{label}:</strong> {value}</p>
+                      ))}
+                      {desc && (
+                        <p className="course-dialog__desc">
+                          {descLead && <><strong>{descLead}</strong>{' '}</>}
+                          {desc}
+                        </p>
+                      )}
+                      {pointsHeading && <h3 className="course-dialog__heading">{pointsHeading}</h3>}
+                      {points && (
+                        <ul className="plan__features">
+                          {points.map((p) => <li key={p}><Check aria-hidden="true" />{p}</li>)}
                         </ul>
-                      </section>
+                      )}
                     </div>
-                    <footer className="legal-dialog__footer">
-                      <Dialog.Close className="legal-dialog__btn legal-dialog__btn--ghost">Close</Dialog.Close>
-                      <a href={href} className="legal-dialog__btn legal-dialog__btn--primary">
-                        Pay / Register ₹{price.toLocaleString('en-IN')}
-                      </a>
+                    <footer className="course-dialog__footer">
+                      <div>
+                        <p className="course-dialog__fee-label">Program fee</p>
+                        <p className="plan__price course-dialog__fee">₹{price.toLocaleString('en-IN')}</p>
+                      </div>
+                      <div className="course-dialog__actions">
+                        <Dialog.Close className="course-dialog__ghost">Close</Dialog.Close>
+                        <a href={url} className="btn-primary" onClick={handleBtnClick}>
+                          Register <ArrowRight aria-hidden="true" />
+                          <span className="btn-shine" />
+                        </a>
+                      </div>
                     </footer>
                   </Dialog.Content>
                 </Dialog.Portal>

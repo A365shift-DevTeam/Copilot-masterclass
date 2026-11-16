@@ -1,10 +1,7 @@
 import { Check } from 'lucide-react'
 import useReveal from '../hooks/useReveal.js'
-import { PROGRAMMES } from '../data/content.js'
+import { COPILOT_ICON, PROGRAMMES } from '../data/content.js'
 import BorderBeam from './ui/BorderBeam.jsx'
-
-// same Microsoft Copilot icon the rest of the page uses
-const COPILOT_ICON = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/copilot/copilot-365.svg'
 
 function PlanCard({ name, tagline, points, pkg, save, price, url, featured }) {
   const ref = useReveal()

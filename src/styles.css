@@ -936,6 +936,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
    fixed height to keep the subtitle and CTA below it from jumping. */
 .hero__title-typed {
   display: block;
+  margin-top: 12px; /* breathing room below the date line */
   height: 1.2em;
   min-height: 1.2em;
   line-height: 1.2;
@@ -1270,7 +1271,7 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 .hero__price-table {
   border-collapse: collapse;
   width: 100%;
-  max-width: 520px;
+  max-width: 600px;
   font-size: 13.5px;
   color: rgba(255, 255, 255, 0.85);
 }
@@ -1287,9 +1288,23 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   font-weight: 700;
 }
 
+/* Button columns shrink to their buttons, so the Program column gets the rest. */
+.hero__price-table th:not(:first-child),
+.hero__price-table td:not(:first-child) {
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.hero__price-table td {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  vertical-align: middle;
+}
+
 .hero__price-table th:last-child,
 .hero__price-table td:last-child {
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
   font-weight: 700;
   color: #fcd34d;
@@ -1323,23 +1338,11 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Featured row (the ad offer): tinted background and a badge. */
+/* Featured row (the ad offer): tinted background. */
 .hero__price-table .hero__price-row--featured {
   background: rgba(var(--gradient-primary-rgb), 0.14);
 }
 
-.hero__price-badge {
-  display: inline-block;
-  margin-left: 8px;
-  padding: 2px 8px;
-  border-radius: 50px;
-  background: #fcd34d;
-  color: #1f2937;
-  font-size: 11px;
-  font-weight: 700;
-  vertical-align: middle;
-  white-space: nowrap;
-}
 
 html[data-theme="light"] .hero__price-table .hero__price-row--featured {
   background: rgba(101, 168, 89, 0.12);
@@ -1385,6 +1388,11 @@ html[data-theme="light"] .hero__price-table .hero__price-row--featured {
   .hero__price-table td {
     border: 0;
     padding: 0;
+  }
+
+  /* Undo the desktop shrink-to-fit width, which would squash grid cells. */
+  .hero__price-table td:not(:first-child) {
+    width: auto;
   }
 
   .hero__price-table td:first-child {
@@ -3909,7 +3917,9 @@ html[data-theme="light"] .stairs-panel {
 /* ============================================================
    PRICING — 1:1 coaching plans (dark is the base, light overrides below)
    ============================================================ */
-.pricing {
+/* .course-dialog is the hero "View details" popup, styled as a pricing card. */
+.pricing,
+.course-dialog {
   --plan-bg: #101828;
   --plan-line: #1E2939;
   --plan-title: #FFFFFF;
@@ -4072,6 +4082,17 @@ html[data-theme="light"] .stairs-panel {
   margin-top: auto;
   justify-content: center;
   width: 100%;
+}
+
+html[data-theme="light"] .course-dialog {
+  --plan-bg: #FFFFFF;
+  --plan-line: #E3E8EF;
+  --plan-title: var(--ref-navy);
+  --plan-body: var(--ref-body);
+  --plan-muted: var(--ref-micro);
+  --plan-price: #00924A;
+  --plan-check: #00843D;
+  --plan-check-bg: rgba(0, 176, 80, 0.12);
 }
 
 html[data-theme="light"] .pricing {
@@ -6929,4 +6950,185 @@ html[data-theme="light"] #benefits {
 
 html[data-theme="light"] .speaker-section {
   background: linear-gradient(150deg, #E3F0F2, #EEF6F0);
+}
+
+/* ── Course details popup (hero "View details") ─────────────────────────────
+   Styled as a featured pricing card: same --plan-* tokens (set on
+   .course-dialog next to .pricing), .plan__head / .plan__features /
+   .plan__price, gradient border and btn-primary. .legal-dialog supplies only
+   the fixed centring, overlay and open/close animation. */
+.legal-dialog.course-dialog {
+  width: min(100vw - 32px, 600px);
+  max-height: min(760px, 100vh - 32px);
+  border: 2px solid transparent;
+  border-radius: 22px;
+  background:
+    linear-gradient(var(--plan-bg), var(--plan-bg)) padding-box,
+    var(--gradient-primary) border-box;
+  color: var(--plan-body);
+  box-shadow: 0 28px 70px rgba(77, 154, 161, 0.28);
+}
+
+html[data-theme="light"] .legal-dialog.course-dialog {
+  box-shadow: 0 4px 10px rgba(0, 32, 96, 0.06), 0 30px 70px rgba(77, 154, 161, 0.25);
+}
+
+.course-dialog__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--plan-line);
+  border-radius: 50%;
+  background: var(--plan-bg);
+  color: var(--plan-title);
+  cursor: pointer;
+  transition: border-color 160ms, transform 160ms;
+}
+
+.course-dialog__close:hover,
+.course-dialog__close:focus-visible {
+  border-color: var(--ref-teal);
+  transform: rotate(90deg);
+  outline: none;
+}
+
+.course-dialog__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: clamp(24px, 3vw, 34px) clamp(20px, 3vw, 34px) 8px;
+}
+
+.course-dialog__body .eyebrow {
+  margin-right: 48px;
+}
+
+.course-dialog__body .plan__head {
+  margin: 0 48px 18px 0;
+}
+
+.course-dialog__meta {
+  margin: 0 0 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--plan-title);
+}
+
+.course-dialog__fact {
+  margin: 0 0 8px;
+  font-size: 14.5px;
+  color: var(--plan-body);
+}
+
+.course-dialog__fact strong,
+.course-dialog__desc strong {
+  font-weight: 700;
+  color: var(--plan-title);
+}
+
+.course-dialog__desc {
+  margin: 14px 0 20px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--plan-body);
+}
+
+.course-dialog__heading {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--plan-muted);
+}
+
+.course-dialog__body .plan__features {
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.course-dialog__body .plan__features li {
+  align-items: flex-start;
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+
+.course-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 12px clamp(20px, 3vw, 34px) 0;
+  padding: 18px 0 clamp(20px, 3vw, 28px);
+  border-top: 1px solid var(--plan-line);
+}
+
+.course-dialog__fee-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--plan-muted);
+}
+
+.course-dialog .plan__price.course-dialog__fee {
+  margin: 2px 0 0;
+  font-size: clamp(30px, 4vw, 38px);
+}
+
+.course-dialog__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.course-dialog__actions .btn-primary {
+  gap: 8px;
+  padding: 11px 26px;
+}
+
+.course-dialog__actions .btn-primary svg {
+  width: 16px;
+  height: 16px;
+}
+
+.course-dialog__ghost {
+  padding: 11px 20px;
+  border: 1px solid var(--plan-line);
+  border-radius: 50px;
+  background: transparent;
+  color: var(--plan-title);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 160ms;
+}
+
+.course-dialog__ghost:hover,
+.course-dialog__ghost:focus-visible {
+  border-color: var(--ref-teal);
+  outline: none;
+}
+
+@media (max-width: 560px) {
+  .course-dialog__footer {
+    flex-wrap: wrap;
+  }
+
+  .course-dialog__actions {
+    width: 100%;
+  }
+
+  .course-dialog__actions > * {
+    flex: 1;
+    justify-content: center;
+    min-height: 44px;
+  }
 }
