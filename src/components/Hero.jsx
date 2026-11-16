@@ -1,11 +1,13 @@
-import { useEffect, useRef } from 'react'
-import { ArrowRight, CalendarDays } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import * as Dialog from '@radix-ui/react-dialog'
+import { ArrowRight, CalendarDays, X } from 'lucide-react'
 import CopilotOrbit from './CopilotOrbit.jsx'
 import { WEBINAR_DATE, HERO_PRICES, HERO_TITLE_PHRASES } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 
 export default function Hero() {
   const scaleRef = useRef(null)
+  const [openRow, setOpenRow] = useState(null)
   const { displayedText: titleText } = useTypewriter({
     text: HERO_TITLE_PHRASES,
     typingSpeed: 65,
@@ -103,7 +105,7 @@ export default function Hero() {
 
           <table className="hero__price-table">
             <thead>
-              <tr><th>No</th><th>Program</th><th>Price</th></tr>
+              <tr><th>Program</th><th>Details</th><th>Price</th></tr>
             </thead>
             <tbody>
               {HERO_PRICES.map(([name, price, href], i) => {
@@ -111,8 +113,12 @@ export default function Hero() {
                 const label = <>{text} <ArrowRight aria-hidden="true" /></>
                 return (
                   <tr key={name}>
-                    <td>{i + 1}</td>
                     <td>{name}</td>
+                    <td>
+                      <button type="button" className="hero__details-btn" onClick={() => setOpenRow(i)}>
+                        View details
+                      </button>
+                    </td>
                     <td>
                       <a href={href} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>{label}</a>
                     </td>
@@ -121,6 +127,39 @@ export default function Hero() {
               })}
             </tbody>
           </table>
+
+          {/* Looks and behaves like LegalDialog (same .legal-dialog styles). */}
+          <Dialog.Root open={openRow !== null} onOpenChange={(o) => { if (!o) setOpenRow(null) }}>
+            {openRow !== null && (() => {
+              const [name, price, href, details] = HERO_PRICES[openRow]
+              return (
+                <Dialog.Portal>
+                  <Dialog.Overlay className="legal-dialog__overlay" />
+                  <Dialog.Content className="legal-dialog" aria-describedby={undefined}>
+                    <header className="legal-dialog__header">
+                      <Dialog.Title className="legal-dialog__title">{name}</Dialog.Title>
+                      <Dialog.Close className="legal-dialog__close" aria-label="Close">
+                        <X size={16} aria-hidden />
+                      </Dialog.Close>
+                    </header>
+                    <div className="legal-dialog__body" data-lenis-prevent>
+                      <section className="legal-dialog__section">
+                        <ul>
+                          {details.map((d) => <li key={d}>{d}</li>)}
+                        </ul>
+                      </section>
+                    </div>
+                    <footer className="legal-dialog__footer">
+                      <Dialog.Close className="legal-dialog__btn legal-dialog__btn--ghost">Close</Dialog.Close>
+                      <a href={href} target="_blank" rel="noopener noreferrer" className="legal-dialog__btn legal-dialog__btn--primary">
+                        Pay / Register ₹{price.toLocaleString('en-IN')}
+                      </a>
+                    </footer>
+                  </Dialog.Content>
+                </Dialog.Portal>
+              )
+            })()}
+          </Dialog.Root>
         </div>
 
         <div className="hero__orbit-wrap">

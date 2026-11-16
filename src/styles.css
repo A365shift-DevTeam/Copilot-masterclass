@@ -1287,13 +1287,6 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   font-weight: 700;
 }
 
-.hero__price-table th:first-child,
-.hero__price-table td:first-child {
-  width: 36px;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.5);
-}
-
 .hero__price-table th:last-child,
 .hero__price-table td:last-child {
   text-align: right;
@@ -1304,9 +1297,70 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
 
 .hero .hero__price-table .btn-primary {
   gap: 6px;
+  min-width: 112px; /* fits ₹9,999 →, so every price button is the same width */
+  justify-content: center;
   padding: 5px 14px;
   font-size: 13.5px;
   box-shadow: 0 6px 16px rgba(var(--gradient-primary-rgb), 0.28);
+}
+
+.hero__details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.hero__details-btn:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Phones: each program becomes a card — name on top, the two buttons side by side under it. */
+@media (max-width: 560px) {
+  .hero__price-table,
+  .hero__price-table tbody {
+    display: block;
+  }
+
+  .hero__price-table thead {
+    display: none;
+  }
+
+  .hero__price-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 8px 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .hero__price-table tr + tr {
+    border-top: 0;
+  }
+
+  .hero__price-table th,
+  .hero__price-table td {
+    border: 0;
+    padding: 0;
+  }
+
+  .hero__price-table td:first-child {
+    grid-column: 1 / -1;
+    font-weight: 600;
+  }
+
+  html[data-theme="light"] .hero__price-table tr {
+    border-color: rgba(0, 32, 96, 0.2);
+  }
 }
 
 .hero__price-table .btn-primary svg {
@@ -5053,12 +5107,13 @@ html[data-theme="light"] .hero__price-table th {
   background: rgba(0, 32, 96, 0.06);
 }
 
-html[data-theme="light"] .hero__price-table td:first-child {
-  color: var(--ref-body);
-}
-
+html[data-theme="light"] .hero__price-table th:last-child,
 html[data-theme="light"] .hero__price-table td:last-child {
   color: #b45309;
+}
+
+html[data-theme="light"] .hero__details-btn {
+  border-color: rgba(0, 32, 96, 0.3);
 }
 
 html[data-theme="light"] .btn-outline {
