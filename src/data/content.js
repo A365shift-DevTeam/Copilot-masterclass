@@ -49,7 +49,7 @@ export const PROGRAMMES = [
 
 /* Shown under "Join the Webinar" in the hero. Change it before each session,
    e.g. 'Sun, 29 Nov 2026 · 7:00 PM IST' once the start time is set. */
-export const WEBINAR_DATE = 'Sun 29 Nov 2026 · 9:00 AM IST'
+export const WEBINAR_DATE = 'Sat 28 Nov 2026 · 9:00 AM IST'
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
 
