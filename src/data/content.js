@@ -60,7 +60,7 @@ export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A se
    The first entry gets the row highlight. */
 export const HERO_PRICES = [
   {
-    name: 'Live Session',
+    name: 'M365 Apps using copilot  Tamil',
     price: 499,
     url: PAYMENT_URL,
     title: 'Microsoft Copilot Live Webinar – Tamil',
@@ -92,7 +92,7 @@ export const HERO_PRICES = [
     ],
   },
   {
-    name: 'Recorded Videos',
+    name: 'M365 Copilot Recorded Videos',
     price: 999,
     url: RECORDED_PAYMENT_URL,
     title: 'Copilot Recorded Videos',
@@ -100,7 +100,7 @@ export const HERO_PRICES = [
     desc: 'One-time recorded videos for flexible, self-paced viewing of Microsoft Copilot demonstrations and workflows.',
   },
   {
-    name: '1 to 1 Coaching',
+    name: 'M365 copilot 1 to 1 Project support',
     price: 4999,
     url: PROGRAMMES[0].url, // same Razorpay link as the ₹4,999 AI Skill Builder card
     title: '1-to-1 Project Support – 15 Days',
@@ -118,13 +118,13 @@ export const HERO_PRICES = [
     ],
   },
   {
-    name: 'Offline Live Workshop – Chennai',
+    name: 'M365Copilot offline Workshop',
     price: 9999,
     url: 'https://rzp.io/rzp/OMsvnqoC', // TODO: replace with this program's own form link
     title: 'Offline Copilot Workshop – Chennai',
     facts: [
       ['Language', 'Tamil'],
-      ['Date', '23 January 2029'],
+      ['Date', '23 January 2027'],
       ['Format', 'One-day, in-person workshop'],
       ['Venue', 'Chennai; exact venue to be announced'],
     ],
