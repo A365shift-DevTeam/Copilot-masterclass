@@ -49,7 +49,7 @@ export const PROGRAMMES = [
 
 /* Shown under "Join the Webinar" in the hero. Change it before each session,
    e.g. 'Sun, 29 Nov 2026 · 7:00 PM IST' once the start time is set. */
-export const WEBINAR_DATE = 'Sat 28 Nov 2026 · 9:00 AM IST'
+export const WEBINAR_DATE = 'Sat 28 Nov 2026 · 9:00 AM IST in Tamil'
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
 
@@ -139,6 +139,31 @@ export const HERO_PRICES = [
     ],
   },
 ]
+
+/* The founder profile: the hero "know your trainer" chip, its popup, and the
+   Speaker section's bio all read from here. Public LinkedIn shows only the
+   location, current company, the 14 years at TCS and the services list. */
+export const TRAINER = {
+  name: 'Ambrose Denny',
+  photo: '/assets/fonunder.jpeg',
+  role: 'Founder & CEO, AmBot365',
+  tags: 'AI • Automation • Microsoft 365 Solutions',
+  location: 'Dubai, UAE · Coimbatore, India',
+  linkedin: 'https://www.linkedin.com/in/ambrose-denny-39320692/',
+  // Cycled by the typewriter beside the photo.
+  typed: ['Know your trainer', 'Ambrose Denny', '18+ years in automation', 'Microsoft 365 & Copilot trainer'],
+  bio: [
+    'Ambrose brings extensive experience across Microsoft 365, Business Automation, Lean Transformation, AI and Digital Transformation. His journey spans corporate transformation, large-scale automation delivery, product development and building AmBot365 across India and the UAE, with experience presenting solutions to VPs, Directors, senior business leaders and Ministers.',
+    'Today, he transforms this real-world experience into structured, visual and practical learning, helping professionals learn, apply and replicate Microsoft Copilot, AI and automation solutions in their workplace.',
+  ],
+  // In order: where he started, what he built, what he does now.
+  path: [
+    { org: 'Tata Consultancy Services', role: '14 years of global experience', note: 'Specialised automation skills, built on global delivery.' },
+    { org: 'AmBot365', role: 'Founder & CEO', note: 'RPA, Microsoft 365, AI and analytics solutions across India and the UAE.' },
+    { org: 'Copilot trainer', role: 'Today', note: 'Structured, visual, practical learning you can repeat at work.' },
+  ],
+  services: ['Data reporting', 'Application development', 'IT consulting', 'Custom software development', 'Business analytics', 'Business consulting'],
+}
 
 export const HERO_TITLE_PHRASES = ['Master Prompt', 'Develop AI Skills', 'Build Intelligent Agents']
 

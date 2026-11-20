@@ -7013,10 +7013,38 @@ html[data-theme="light"] .legal-dialog.course-dialog {
 }
 
 .course-dialog__meta {
-  margin: 0 0 12px;
-  font-size: 14.5px;
+  /* Matches the hero date: same amber, icon and breathing animation.
+     Scales from its left edge so it stays aligned with the title. */
+  --price-color: #FFB000;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  width: fit-content;
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: 16px;
   font-weight: 600;
-  color: var(--plan-title);
+  letter-spacing: -0.01em;
+  color: var(--price-color);
+  transform-origin: left center;
+  animation: date-breathe 2.4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.course-dialog__meta svg {
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+}
+
+/* the hero date's light-theme amber and glow */
+html[data-theme="light"] .course-dialog__meta {
+  --price-color: #D97706;
+  animation-name: date-breathe-light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-dialog__meta { animation: none; }
 }
 
 .course-dialog__fact {

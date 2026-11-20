@@ -2,11 +2,29 @@ import { useEffect, useRef, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowRight, CalendarDays, Check, X } from 'lucide-react'
 import CopilotOrbit from './CopilotOrbit.jsx'
+import TrainerProfile from './TrainerProfile.jsx'
 import { COPILOT_ICON, WEBINAR_DATE, HERO_PRICES, HERO_TITLE_PHRASES } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 
 export default function Hero() {
   const scaleRef = useRef(null)
+  const colRef = useRef(null)
+  const orbitRef = useRef(null)
+  // True when the hero shows two columns side by side. The grid stacks on
+  // available width (auto-fit), not a fixed breakpoint, so measure it: the
+  // trainer chip sits above the orbit when side by side, under the table when stacked.
+  const [sideBySide, setSideBySide] = useState(false)
+
+  useEffect(() => {
+    const col = colRef.current
+    const orbit = orbitRef.current
+    if (!col || !orbit) return
+    const check = () => setSideBySide(orbit.offsetLeft > col.offsetLeft + 40)
+    const ro = new ResizeObserver(check)
+    ro.observe(col.parentElement)
+    check()
+    return () => ro.disconnect()
+  }, [])
   const [openRow, setOpenRow] = useState(null)
   const { displayedText: titleText } = useTypewriter({
     text: HERO_TITLE_PHRASES,
@@ -63,7 +81,7 @@ export default function Hero() {
       <div className="hero__glow" />
 
       <div className="hero__grid">
-        <div className="hero__col">
+        <div className="hero__col" ref={colRef}>
           {/* <div className="hero__badge">
             <span className="hero__badge-dot" />
             <span className="hero__badge-text">LIVE INTERACTIVE WEBINAR</span>
@@ -128,6 +146,8 @@ export default function Hero() {
             </tbody>
           </table>
 
+          {!sideBySide && <TrainerProfile />}
+
           {/* Built on LegalDialog's base styles (.legal-dialog) for theming, focus and animation;
               .course-dialog restyles the inside. */}
           <Dialog.Root open={openRow !== null} onOpenChange={(o) => { if (!o) setOpenRow(null) }}>
@@ -146,7 +166,7 @@ export default function Hero() {
                         <span className="plan__icon"><img src={COPILOT_ICON} alt="" /></span>
                         <Dialog.Title className="plan__name">{title}</Dialog.Title>
                       </header>
-                      {meta && <p className="course-dialog__meta">{meta}</p>}
+                      {meta && <p className="course-dialog__meta"><CalendarDays aria-hidden="true" />{meta}</p>}
                       {facts?.map(([label, value]) => (
                         <p key={label} className="course-dialog__fact"><strong>{label}:</strong> {value}</p>
                       ))}
@@ -183,7 +203,8 @@ export default function Hero() {
           </Dialog.Root>
         </div>
 
-        <div className="hero__orbit-wrap">
+        <div className="hero__orbit-wrap" ref={orbitRef}>
+          {sideBySide && <TrainerProfile />}
           <div className="hero__orbit-scale" ref={scaleRef}>
             <CopilotOrbit />
           </div>

@@ -16,12 +16,11 @@ import FinalCta from './components/FinalCta.jsx'
 import Footer from './components/Footer.jsx'
 import StickyRevealFooter from './components/ui/StickyRevealFooter.jsx'
 import SeatScrollExperience from './components/SeatScrollExperience.jsx'
-import TicketScrollExperience from './components/TicketScrollExperience.jsx'
+// import TicketScrollExperience from './components/TicketScrollExperience.jsx'
 import Preloader from './components/Preloader.jsx'
 import LogoTraveller from './components/LogoTraveller.jsx'
-import DisclaimerPopup from './components/DisclaimerPopup.jsx'
-import VideoPopup from './components/VideoPopup.jsx'
-import { useState } from 'react'
+// import DisclaimerPopup from './components/DisclaimerPopup.jsx'
+// import VideoPopup from './components/VideoPopup.jsx'
 import useLenis from './hooks/useLenis.js'
 import useSitePreload from './hooks/useSitePreload.js'
 
@@ -30,7 +29,6 @@ export default function App() {
   // while it holds the page, and hooks in one component run in call order.
   useLenis()
   const { progress, done } = useSitePreload()
-  const [disclaimerOpen, setDisclaimerOpen] = useState(false)
 
   return (
     <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
@@ -41,7 +39,9 @@ export default function App() {
           without both, the footer would show through the whole page. */}
       <div className="page-stack">
         <Hero />
-        <TicketScrollExperience />
+        {/* Laptop scroll scene hidden. To bring it back, uncomment this and
+            set TICKET_STAGE_ON to true in hooks/useSitePreload.js. */}
+        {/* <TicketScrollExperience /> */}
         <Overview />
         <CopilotStudio />
         <SeatScrollExperience />
@@ -64,8 +64,9 @@ export default function App() {
           coordinates are the page's own. */}
       <LogoTraveller />
 
-      <DisclaimerPopup preloaderDone={done} onOpenChange={setDisclaimerOpen} />
-      <VideoPopup ready={done && !disclaimerOpen} />
+      {/* Both entry popups are switched off. Uncomment to bring them back. */}
+      {/* <DisclaimerPopup preloaderDone={done} onOpenChange={setDisclaimerOpen} /> */}
+      {/* <VideoPopup ready={done && !disclaimerOpen} /> */}
 
       <StickyRevealFooter>
         <Footer />

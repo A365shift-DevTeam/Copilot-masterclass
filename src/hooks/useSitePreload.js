@@ -33,8 +33,14 @@ const SEAT_RUNGS = 16
 // Only the ticket stage is held for. It sits directly below the fold, so its
 // frames are needed within a second of release. The seat stage is five sections
 // down; holding the loading screen for it just made everyone wait longer.
+// Off while the ticket section is commented out of App.jsx: holding the
+// loading screen for frames nobody sees only slows the first paint.
+const TICKET_STAGE_ON = false
+
 const TASKS = [
-  ...ladderIndices('ticket', TICKET_RUNGS).map((index) => ({ type: 'ticket', index })),
+  ...(TICKET_STAGE_ON
+    ? ladderIndices('ticket', TICKET_RUNGS).map((index) => ({ type: 'ticket', index }))
+    : []),
   { type: 'static', url: '/assets/logo-horizontal.png' },
 ]
 

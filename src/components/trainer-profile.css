@@ -1,0 +1,645 @@
+/* ── Hero "know your trainer" chip ──────────────────────────────────────────
+   The photo sits inside a conic brand ring that turns slowly; the line beside
+   it types who he is. One button, so the whole chip is the click target. */
+.trainer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 7px 8px 7px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  text-align: left;
+  cursor: pointer;
+  transition: background 200ms var(--ease), border-color 200ms var(--ease);
+}
+
+.trainer-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(107, 209, 148, 0.5);
+}
+
+.trainer-chip:focus-visible {
+  outline: 2px solid #6BD194;
+  outline-offset: 3px;
+}
+
+.trainer-chip__avatar {
+  position: relative;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  padding: 3px;
+  isolation: isolate;
+}
+
+.trainer-chip__avatar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #4D9AA1, #6BD194, #FFB000, #65A859, #4D9AA1);
+  animation: trainer-ring 6s linear infinite;
+}
+
+/* Live dot: he teaches this session live. */
+.trainer-chip__avatar::after {
+  content: '';
+  position: absolute;
+  right: 1px;
+  bottom: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #3FC073;
+  border: 2px solid #1A3E4C;
+}
+
+.trainer-chip__avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 22%;
+  border: 2px solid #1A3E4C;
+}
+
+@keyframes trainer-ring {
+  to { transform: rotate(360deg); }
+}
+
+.trainer-chip__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.trainer-chip__lead {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.trainer-chip__typed {
+  display: block;
+  /* Wide enough for the longest phrase so the chip doesn't resize as it types. */
+  min-width: 16em;
+  height: 1.3em;
+  line-height: 1.3;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #FFFFFF;
+}
+
+.trainer-chip__cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.95em;
+  margin-left: 2px;
+  background: #6BD194;
+  border-radius: 2px;
+  vertical-align: -0.1em;
+  animation: hero-cursor-blink 0.9s ease-in-out infinite;
+}
+
+.trainer-chip__cta {
+  padding: 9px 16px;
+  border-radius: 999px;
+  background-image: var(--gradient-primary-hover);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .trainer-chip { gap: 11px; padding-right: 18px; }
+  .trainer-chip__typed { min-width: 0; font-size: 14.5px; }
+  .trainer-chip__cta { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trainer-chip__avatar::before { animation: none; }
+}
+
+/* Desktop: the chip heads the orbit column, centred above the animation and
+   stacked over it, so the orbit's glow can't cover it. */
+.hero__orbit-wrap > .trainer-chip {
+  position: relative;
+  z-index: 2;
+  justify-self: center;
+  margin-bottom: clamp(4px, 1.5vh, 16px);
+}
+
+/* Light theme: the hero turns pale, so the chip's white text flips to navy. */
+html[data-theme="light"] .trainer-chip {
+  color: var(--ref-navy);
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(0, 32, 96, 0.12);
+  box-shadow: 0 6px 18px rgba(0, 32, 96, 0.06);
+}
+
+html[data-theme="light"] .trainer-chip:hover {
+  background: #FFFFFF;
+  border-color: rgba(76, 153, 160, 0.55);
+}
+
+html[data-theme="light"] .trainer-chip__lead { color: var(--ref-slate); }
+html[data-theme="light"] .trainer-chip__typed { color: var(--ref-navy); }
+html[data-theme="light"] .trainer-chip__cursor { background: #4D9AA1; }
+
+html[data-theme="light"] .trainer-chip__avatar::after,
+html[data-theme="light"] .trainer-chip__avatar img {
+  border-color: #FFFFFF;
+}
+
+html[data-theme="light"] .trainer-chip__cta { color: #FFFFFF; }
+
+/* ── Trainer profile popup: an assistant conversation ──────────────────────
+   .course-dialog supplies the --plan-* tokens, gradient border and theming;
+   .legal-dialog the centring, overlay and open animation. The reply builds
+   itself in one sequence (TrainerProfile.jsx); each block animates on mount. */
+.legal-dialog.tp {
+  --tp-amber: #FFB000;
+  --tp-bubble: var(--gradient-primary-hover);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(100vw - 32px, 640px);
+  height: min(720px, 100vh - 32px);
+  max-height: none;
+  overflow: hidden;
+}
+
+/* bright yellow washes out on white, so light theme takes dark amber */
+html[data-theme="light"] .legal-dialog.tp { --tp-amber: #B45309; }
+
+/* Header: identity over a slowly drifting brand glow */
+.tp-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 20px 20px 22px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background: linear-gradient(150deg, #112831 0%, #1A3E4C 55%, #1D5368 100%);
+  isolation: isolate;
+}
+
+.tp-head__aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.tp-head__aurora i {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  filter: blur(42px);
+  opacity: 0.55;
+}
+
+.tp-head__aurora i:nth-child(1) { left: -40px; top: -90px; background: #3FC073; animation: tp-drift-a 9s ease-in-out infinite alternate; }
+.tp-head__aurora i:nth-child(2) { right: 10%; top: -120px; background: #379FC8; animation: tp-drift-b 11s ease-in-out infinite alternate; }
+.tp-head__aurora i:nth-child(3) { right: -60px; bottom: -150px; background: #FFB000; opacity: 0.22; animation: tp-drift-a 13s ease-in-out infinite alternate-reverse; }
+
+@keyframes tp-drift-a { to { transform: translate(90px, 40px) scale(1.15); } }
+@keyframes tp-drift-b { to { transform: translate(-80px, 50px) scale(0.9); } }
+
+.tp-head__ring {
+  position: relative;
+  flex: none;
+  width: 76px;
+  height: 76px;
+  padding: 3px;
+  border-radius: 50%;
+  isolation: isolate;
+}
+
+.tp-head__ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #4D9AA1, #6BD194, #FFB000, #65A859, #4D9AA1);
+  animation: trainer-ring 6s linear infinite;
+}
+
+/* live dot, as on the hero chip */
+.tp-head__ring::after {
+  content: '';
+  position: absolute;
+  right: 2px;
+  bottom: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #3FC073;
+  border: 2px solid #112831;
+}
+
+.tp-head__ring img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #112831;
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+.tp-head__text { min-width: 0; flex: 1; }
+
+.tp-head__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.6vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #FFFFFF;
+}
+
+.tp-head__role {
+  margin: 2px 0 0;
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #6BD194;
+}
+
+.tp-head__place {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.tp-head__place svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+.tp-close {
+  align-self: flex-start;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: background 160ms, transform 160ms;
+}
+
+.tp-close:hover,
+.tp-close:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
+  transform: rotate(90deg);
+  outline: none;
+}
+
+.tp-close:focus-visible { box-shadow: 0 0 0 2px #6BD194; }
+
+/* Thread */
+.tp-thread {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 22px clamp(16px, 3vw, 26px) 18px;
+}
+
+.tp-ask {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.tp-ask__bubble {
+  max-width: 80%;
+  margin: 0;
+  padding: 11px 16px;
+  border-radius: 18px 18px 4px 18px;
+  background-image: var(--tp-bubble);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.45;
+  animation: tp-pop 260ms var(--ease) both;
+  transform-origin: right bottom;
+}
+
+.tp-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  vertical-align: -0.15em;
+  animation: hero-cursor-blink 0.8s ease-in-out infinite;
+}
+
+.tp-reply {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tp-reply__bot {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: var(--plan-check-bg);
+  padding: 3px;
+  animation: tp-pop 260ms var(--ease) both;
+}
+
+.tp-reply__body { flex: 1; min-width: 0; }
+
+.tp-thinking {
+  display: inline-flex;
+  gap: 5px;
+  padding: 14px 16px;
+  border-radius: 4px 18px 18px 18px;
+  background: var(--plan-check-bg);
+}
+
+.tp-thinking i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--plan-check);
+  animation: tp-think 1s ease-in-out infinite;
+}
+
+.tp-thinking i:nth-child(2) { animation-delay: 0.15s; }
+.tp-thinking i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes tp-think {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes tp-pop {
+  from { opacity: 0; transform: scale(0.92) translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.tp-block + .tp-block { margin-top: 22px; }
+
+.tp-block h3 {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--plan-title);
+  animation: tp-fade 300ms var(--ease) both;
+}
+
+.tp-bio p {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--plan-body);
+}
+
+.tp-bio p + p { margin-top: 10px; }
+.tp-bio .tp-lead { font-size: 15px; color: var(--plan-title); }
+.tp-bio .tp-caret { color: var(--plan-check); }
+
+@keyframes tp-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Career path: the rail draws down, each step lands as it reaches it. */
+.tp-path {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tp-path::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 10px;
+  bottom: 24px;
+  width: 2px;
+  background: linear-gradient(var(--plan-check), var(--tp-amber));
+  transform-origin: top;
+  animation: tp-rail 550ms var(--ease) both;
+}
+
+@keyframes tp-rail { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+.tp-path li {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding-bottom: 16px;
+  animation: tp-step 420ms var(--ease) both;
+  animation-delay: calc(var(--i) * 150ms);
+}
+
+.tp-path li:last-child { padding-bottom: 0; }
+
+@keyframes tp-step {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.tp-path__step {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-image: var(--gradient-primary-hover);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 0 0 4px var(--plan-bg);
+}
+
+/* the last step is where he is now: it pulses */
+.tp-path li:last-child .tp-path__step { animation: tp-now 2s ease-in-out 1.2s infinite; }
+
+@keyframes tp-now {
+  0%, 100% { box-shadow: 0 0 0 4px var(--plan-bg), 0 0 0 4px rgba(63, 192, 115, 0.45); }
+  50% { box-shadow: 0 0 0 4px var(--plan-bg), 0 0 0 11px rgba(63, 192, 115, 0); }
+}
+
+.tp-path p { margin: 0; }
+
+.tp-path__org {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--plan-title);
+}
+
+.tp-path__role { font-size: 13px; font-weight: 600; color: var(--plan-check); }
+.tp-path .tp-path__note { margin-top: 2px; font-size: 13.5px; line-height: 1.5; color: var(--plan-body); }
+
+/* Track record: amber figures that count up */
+.tp-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px 18px;
+}
+
+.tp-stats li {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0 8px 12px;
+  border-left: 2px solid var(--tp-amber);
+  animation: tp-step 380ms var(--ease) both;
+  animation-delay: calc(var(--i) * 45ms);
+}
+
+.tp-stats b {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--tp-amber);
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-stats span { font-size: 12.5px; line-height: 1.35; color: var(--plan-muted); }
+
+.tp-tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tp-tags li {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--plan-check-bg);
+  color: var(--plan-title);
+  font-size: 13px;
+  animation: tp-pop 300ms var(--ease) both;
+  animation-delay: calc(var(--i) * 40ms);
+}
+
+/* Suggestion chips, the way an assistant offers next steps */
+.tp-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 70px;
+  align-items: center;
+  padding: 12px clamp(16px, 3vw, 26px) 16px;
+  border-top: 1px solid var(--plan-line);
+}
+
+.tp-skip {
+  padding: 9px 16px;
+  border: 1px solid var(--plan-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--plan-title);
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tp-skip:hover { border-color: var(--ref-teal); }
+
+.tp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--plan-line);
+  background: transparent;
+  color: var(--plan-title);
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  animation: tp-pop 300ms var(--ease) both;
+  transition: border-color 160ms, background 160ms;
+}
+
+.tp-chip:nth-child(2) { animation-delay: 80ms; }
+.tp-chip:nth-child(4) { animation-delay: 160ms; }
+
+.tp-chip svg { width: 16px; height: 16px; flex-shrink: 0; }
+.tp-chip:hover { border-color: var(--ref-teal); }
+
+.tp-skip:focus-visible,
+.tp-chip:focus-visible {
+  outline: 2px solid var(--ref-teal);
+  outline-offset: 2px;
+}
+
+.tp-chip--voice svg { color: var(--plan-check); }
+.tp-chip--voice.is-playing { animation: speaker-voice-pulse 1.8s ease-in-out infinite; }
+.tp-chip--li svg { color: #0A66C2; }
+html:not([data-theme="light"]) .tp-chip--li svg { color: #70B5F9; }
+
+.tp-chip--cta {
+  border: 0;
+  background-image: var(--gradient-primary-hover);
+  color: #FFFFFF;
+}
+
+.tp-chip--cta:hover { filter: brightness(1.08); }
+
+@media (max-width: 560px) {
+  .tp-head { gap: 12px; padding: 16px 14px 16px 16px; }
+  .tp-head__ring { width: 60px; height: 60px; }
+  .tp-ask__bubble { max-width: 92%; }
+  .tp-reply__bot { width: 30px; height: 30px; }
+  .tp-suggest { justify-content: stretch; }
+  .tp-chip { flex: 1 1 auto; justify-content: center; }
+  .tp-chip--cta { flex-basis: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-head__aurora i,
+  .tp-head__ring::before,
+  .tp-path li:last-child .tp-path__step,
+  .tp-chip--voice.is-playing { animation: none; }
+
+  .tp-ask__bubble, .tp-reply__bot, .tp-block h3, .tp-path::before, .tp-path li,
+  .tp-stats li, .tp-tags li, .tp-chip { animation: none; }
+}
