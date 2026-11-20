@@ -21,18 +21,17 @@ import Preloader from './components/Preloader.jsx'
 import LogoTraveller from './components/LogoTraveller.jsx'
 // import DisclaimerPopup from './components/DisclaimerPopup.jsx'
 // import VideoPopup from './components/VideoPopup.jsx'
+import { memo } from 'react'
 import useLenis from './hooks/useLenis.js'
 import useSitePreload from './hooks/useSitePreload.js'
 
-export default function App() {
-  // Order matters: useLenis creates the instance that useSitePreload stops
-  // while it holds the page, and hooks in one component run in call order.
-  useLenis()
-  const { progress, done } = useSitePreload()
-
+/* Everything except the preloader. useSitePreload updates `progress` on each
+   loaded asset and flips `done` at release; without memo every one of those
+   re-rendered the whole page, which showed up as a 1s main-thread task on
+   mobile. Nothing in here reads that state. */
+const Page = memo(function Page() {
   return (
-    <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
-      <Preloader progress={progress} done={done} />
+    <>
       <Navbar />
 
       {/* Opaque and stacked above the footer, which is pinned behind it —
@@ -64,13 +63,28 @@ export default function App() {
           coordinates are the page's own. */}
       <LogoTraveller />
 
-      {/* Both entry popups are switched off. Uncomment to bring them back. */}
+      {/* Both entry popups are switched off. To bring them back, render them
+          in App (they need `done`) and restore their imports. */}
       {/* <DisclaimerPopup preloaderDone={done} onOpenChange={setDisclaimerOpen} /> */}
       {/* <VideoPopup ready={done && !disclaimerOpen} /> */}
 
       <StickyRevealFooter>
         <Footer />
       </StickyRevealFooter>
+    </>
+  )
+})
+
+export default function App() {
+  // Order matters: useLenis creates the instance that useSitePreload stops
+  // while it holds the page, and hooks in one component run in call order.
+  useLenis()
+  const { progress, done } = useSitePreload()
+
+  return (
+    <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
+      <Preloader progress={progress} done={done} />
+      <Page />
     </div>
   )
 }

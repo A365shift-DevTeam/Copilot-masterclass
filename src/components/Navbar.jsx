@@ -60,7 +60,7 @@ export default function Navbar() {
       <nav className={`nav${solid ? ' solid' : ''}`}>
         <a href="#top" aria-label="AmBot365 home" style={{ display: 'flex', alignItems: 'center' }}>
           <span className="nav__logo-plate">
-            <img src="/assets/logo-horizontal.png" alt="AmBot365 — RPA & Digital IT Solutions" />
+            <img src="/assets/logo-horizontal.webp" alt="AmBot365 — RPA & Digital IT Solutions" width="124" height="30" fetchpriority="high" />
           </span>
         </a>
         <div className="nav__right">

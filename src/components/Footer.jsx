@@ -85,7 +85,7 @@ export default function Footer() {
         <div className="footer__grid">
           <div className="footer__brand">
             <span className="footer__logo-plate">
-              <img src="/assets/logo-horizontal.png" alt="AmBot365 — RPA & Digital IT Solutions" />
+              <img src="/assets/logo-horizontal.webp" alt="AmBot365 — RPA & Digital IT Solutions" width="108" height="26" loading="lazy" decoding="async" />
             </span>
             <p className="footer__company">{FOOTER.company}</p>
             <p className="footer__tagline">{FOOTER.tagline}</p>

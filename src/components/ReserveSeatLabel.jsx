@@ -1,6 +1,6 @@
 export const SEAT_PRICE = 499
 export const RECORDED_PRICE = 999
-export const BOT_LOGO = '/assets/ambot-bot.png'
+export const BOT_LOGO = '/assets/ambot-bot.webp'
 
 /**
  * The label inside every "reserve your seat" pill: the hero's, the two scroll

@@ -23,4 +23,9 @@ function thankYouRoute() {
 
 export default defineConfig({
   plugins: [react(), thankYouRoute()],
+  build: {
+    // Hashed JS/CSS go to static/, apart from the fixed-name files in
+    // public/assets, so web.config can cache them for a year.
+    assetsDir: 'static',
+  },
 })

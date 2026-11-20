@@ -7,7 +7,7 @@ import { LinkedinIcon } from './ui/SocialIcons.jsx'
 import FounderVoice from './ui/FounderVoice.jsx'
 import './trainer-profile.css'
 
-const BOT_AVATAR = '/assets/ambot-bot.png'
+const BOT_AVATAR = '/assets/ambot-bot.webp'
 const QUESTION = `Who is ${TRAINER.name}, my trainer?`
 
 // The bio streams word by word, paragraph breaks kept.

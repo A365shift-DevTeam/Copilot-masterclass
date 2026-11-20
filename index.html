@@ -4,10 +4,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/png" href="/assets/logo-icon.png" />
-  <link rel="apple-touch-icon" href="/assets/logo-icon.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/assets/icon-48.png" />
+  <link rel="apple-touch-icon" href="/assets/icon-180.png" />
   <!-- Scroll-sequence frames come from here; warm the connection early. -->
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+
+  <!-- Poppins, loaded without blocking the first paint: the text shows in the
+       fallback face and swaps when the font lands. Only the weights the CSS
+       uses (300 and 900 were never needed). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" media="print" onload="this.media='all'"
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" />
+  </noscript>
 
   <title>Copilot AmBot365</title>
   <meta name="description"
@@ -109,9 +122,10 @@
         n.callMethod.apply(n, arguments) : n.queue.push(arguments)
       };
       if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
-      n.queue = []; t = b.createElement(e); t.async = !0;
-      t.src = v; s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s)
+      n.queue = [];
+      // The library itself loads after the page does (see afterPageLoad below);
+      // until then fbq() calls queue up and are sent when it arrives.
+      window.__deferredScripts = (window.__deferredScripts || []).concat(v);
     }(window, document, 'script',
       'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '2083794112497728');
@@ -137,10 +151,39 @@
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        c.__deferredScripts=(c.__deferredScripts||[]).concat("https://www.clarity.ms/tag/"+i);
     })(window, document, "clarity", "script", "zcxyumzxc5");
 </script>
+
+  <!-- Analytics after load. Meta Pixel and Clarity were ~1s of main-thread
+       work during start-up on mobile. Their queues above already record
+       events, so nothing is lost: the scripts load once the page has finished
+       loading and the browser is idle, or at the visitor's first interaction,
+       whichever comes first. -->
+  <script>
+    (function () {
+      var done = false;
+      function load() {
+        if (done) return; done = true;
+        (window.__deferredScripts || []).forEach(function (src) {
+          var s = document.createElement('script'); s.async = true; s.src = src;
+          document.head.appendChild(s);
+        });
+      }
+      function afterPageLoad() {
+        var idle = window.requestIdleCallback || function (f) { setTimeout(f, 1500); };
+        setTimeout(function () { idle(load, { timeout: 4000 }); }, 3500);
+      }
+      // The thank-you page sends the Purchase event: a buyer may close it
+      // within seconds, so there the scripts load straight away.
+      if (/^\/thank-you\/?$/.test(location.pathname)) load();
+      else if (document.readyState === 'complete') afterPageLoad();
+      else window.addEventListener('load', afterPageLoad, { once: true });
+      ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function (ev) {
+        window.addEventListener(ev, load, { once: true, passive: true });
+      });
+    })();
+  </script>
 
 </head>
 

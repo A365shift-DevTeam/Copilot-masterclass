@@ -145,7 +145,7 @@ export const HERO_PRICES = [
    location, current company, the 14 years at TCS and the services list. */
 export const TRAINER = {
   name: 'Ambrose Denny',
-  photo: '/assets/fonunder.jpeg',
+  photo: '/assets/fonunder-200.webp',
   role: 'Founder & CEO, AmBot365',
   tags: 'AI • Automation • Microsoft 365 Solutions',
   location: 'Dubai, UAE · Coimbatore, India',

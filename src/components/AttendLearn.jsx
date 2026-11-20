@@ -240,7 +240,7 @@ function Badge({ index, held, onHold }) {
       <span className="st__clip" />
       <div className="st__badge-card">
         <div className="st__badge-top">
-          <img className="st__badge-logo" src="/assets/logo-icon.png" alt="" />
+          <img className="st__badge-logo" src="/assets/logo-icon.webp" alt="" width="34" height="34" loading="lazy" decoding="async" />
           <span className="st__badge-event">Copilot<br />Masterclass</span>
         </div>
         <div className="st__badge-body">
