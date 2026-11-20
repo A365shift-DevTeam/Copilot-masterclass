@@ -3,8 +3,10 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowRight, CalendarDays, Check, X } from 'lucide-react'
 import CopilotOrbit from './CopilotOrbit.jsx'
 import TrainerProfile from './TrainerProfile.jsx'
-import { COPILOT_ICON, WEBINAR_DATE, HERO_PRICES, HERO_TITLE_PHRASES } from '../data/content.js'
+import { COPILOT_ICON, WEBINAR_DATE, HERO_PRICES } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
+
+const DAYS_NOTE = 'Now together in one session'
 
 export default function Hero() {
   const scaleRef = useRef(null)
@@ -26,15 +28,20 @@ export default function Hero() {
     return () => ro.disconnect()
   }, [])
   const [openRow, setOpenRow] = useState(null)
-  const { displayedText: titleText } = useTypewriter({
-    text: HERO_TITLE_PHRASES,
-    typingSpeed: 65,
-    deletingSpeed: 30,
-    pauseDuration: 1600,
-    deletePauseDuration: 350,
-    loop: true,
+  const [reducedMotion] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
+  const { displayedText, isDeleting } = useTypewriter({
+    text: DAYS_NOTE,
+    typingSpeed: 60,
+    deletingSpeed: 25,
+    pauseDuration: 3800,
+    deletePauseDuration: 900,
+    loop: !reducedMotion,
   })
-
+  // Reduced motion skips the typing and shows the merged end state.
+  const noteText = reducedMotion ? DAYS_NOTE : displayedText || '​'
+  const merged = reducedMotion || (displayedText === DAYS_NOTE && !isDeleting)
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) return
@@ -92,26 +99,38 @@ export default function Hero() {
             <p className="hero__quote" aria-label="“AI won’t replace you. Someone using AI will.”">
               <span className="hero__quote-line">Master Microsoft Copilot</span>
               <span className="hero__quote-line">
-                <span className="hero__quote-gradient">Join the Webinar</span>
+                <span className="hero__quote-gradient">Register for the Webinar Now</span>
               </span>
             </p>
-            <p className="hero__date">
-              <CalendarDays aria-hidden="true" />
-              {WEBINAR_DATE}
-            </p>
+            <div className="hero__when">
+              <p className="hero__date">
+                <CalendarDays aria-hidden="true" />
+                {WEBINAR_DATE}
+              </p>
+              {/* The note types itself out; when it finishes, Day 2 tucks in
+                  behind Day 1 and that chip flips to "1 Day". Deleting the
+                  note undoes it, so the merge replays with every cycle. */}
+              <p className={`hero__days${merged ? ' is-merged' : ''}`}>
+                <span className="hero__days-pill" aria-hidden="true">
+                  <span className="hero__flip">
+                    <span className="hero__chip">Day 1</span>
+                    <span className="hero__chip hero__chip--one hero__flip-back">1 Day</span>
+                  </span>
+                  <span className="hero__days-plus">+</span>
+                  <span className="hero__chip hero__chip--2">Day 2</span>
+                </span>
+                <span className="sr-only">Day 1 and Day 2 {DAYS_NOTE.toLowerCase()}</span>
+                <span className="hero__days-note" aria-hidden="true">
+                  {noteText}
+                  {!reducedMotion && <span className="hero__days-cursor" />}
+                </span>
+              </p>
+            </div>
           </div>
 
-          {/* The visible line types itself a character at a time, so the only
-              text inside the h1 was animation state — empty on first paint and
-              partial after. The static phrase below is the page's real heading
-              for crawlers and screen readers; the typed line stays decorative. */}
-          <h1 className="hero__title">
-            <span className="sr-only">Microsoft 365 Copilot Masterclass — 1-Day Live Online Program</span>
-            <span className="hero__title-typed" aria-hidden="true">
-              <span className="hero__title-gradient">{titleText || '\u200B'}</span>
-              <span className="hero__title-cursor" />
-            </span>
-          </h1>
+          {/* The page's real heading for crawlers and screen readers; the visible
+              lines above say the same thing in the hero's own voice. */}
+          <h1 className="sr-only">Microsoft 365 Copilot Masterclass — 1-Day Live Online Program</h1>
 
           <p className="hero__subtitle">Copilot 365 Programs</p>
 
@@ -138,7 +157,7 @@ export default function Hero() {
                       </button>
                     </td>
                     <td>
-                      <a href={url} className="btn-primary" onClick={handleBtnClick}>{label}</a>
+                      <a href={url} className="btn-primary" onClick={handleBtnClick}>{label}<span className="btn-shine" aria-hidden="true" /></a>
                     </td>
                   </tr>
                 )

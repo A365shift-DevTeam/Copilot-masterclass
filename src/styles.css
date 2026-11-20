@@ -860,9 +860,6 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   gap: 0.4em;
   width: fit-content;
   margin: 0;
-  /* shifts down into the gap below without adding layout space; transform is taken by the animation */
-  position: relative;
-  top: 30px;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: clamp(16px, 1.8vw, 24px);
@@ -877,6 +874,149 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   width: 1em;
   height: 1em;
   flex-shrink: 0;
+}
+
+/* Date plus the merged-days pill. Spaced from the heading with a margin now
+   that it has two lines; the date's own transform belongs to its animation. */
+.hero__when {
+  margin-top: 18px;
+}
+
+/* The merged-days pill, driven by the typed note beside it. While the note
+   types, Day 1 and Day 2 sit apart. When it finishes (.is-merged), Day 2
+   tucks in behind Day 1 and the Day 1 chip flips over to "1 Day". When the
+   note deletes, the chip flips back first and then Day 2 slides out again. */
+.hero__days {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  min-height: 1.9em;
+  margin: 10px 0 0;
+}
+
+.hero__days-pill {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hero__chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid rgba(63, 192, 115, 0.55);
+  border-radius: 999px;
+  background: rgba(63, 192, 115, 0.14);
+  color: #B3E6C7;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* "1 Day" takes the date's amber, so the result reads as part of the date */
+.hero__chip--one {
+  border-color: rgba(255, 176, 0, 0.65);
+  background: rgba(255, 176, 0, 0.16);
+  color: #FFC94D;
+}
+
+/* Day 1's two faces. Unmerging flips back at once; merging waits for Day 2. */
+.hero__flip {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.5, 0, 0.2, 1.3);
+}
+
+.hero__flip > * {
+  grid-area: 1 / 1;
+  text-align: center;
+  backface-visibility: hidden;
+}
+
+.hero__flip-back {
+  transform: rotateX(180deg);
+}
+
+.hero__days-plus,
+.hero__chip--2 {
+  overflow: hidden;
+  max-width: 5em;
+  transition:
+    max-width 0.45s cubic-bezier(0.6, 0, 0.2, 1) 0.35s,
+    opacity 0.3s ease 0.35s,
+    transform 0.45s cubic-bezier(0.6, 0, 0.2, 1) 0.35s,
+    padding 0.45s cubic-bezier(0.6, 0, 0.2, 1) 0.35s;
+}
+
+.hero__days-plus {
+  display: inline-block;
+  padding: 0 6px;
+  color: #6BD194;
+  font-weight: 700;
+}
+
+.is-merged .hero__flip {
+  transform: rotateX(180deg);
+  transition-delay: 0.4s;
+}
+
+.is-merged .hero__days-plus,
+.is-merged .hero__chip--2 {
+  max-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  opacity: 0;
+  transform: translateX(-60%) scale(0.85);
+  transition-delay: 0s;
+}
+
+/* one amber ring as "1 Day" lands */
+.is-merged .hero__chip--one {
+  animation: one-day-ring 0.9s ease-out 0.9s;
+}
+
+@keyframes one-day-ring {
+  from { box-shadow: 0 0 0 0 rgba(255, 176, 0, 0.6); }
+  to   { box-shadow: 0 0 0 10px rgba(255, 176, 0, 0); }
+}
+
+.hero__days-note {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.hero__days-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  border-radius: 2px;
+  background: #6BD194;
+  vertical-align: -0.15em;
+  animation: hero-cursor-blink 0.9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__flip,
+  .hero__days-plus,
+  .hero__chip--2 {
+    transition: none;
+  }
+
+  .is-merged .hero__chip--one,
+  .hero__days-cursor {
+    animation: none;
+  }
+}
+
+/* "Register for the Webinar Now" is longer than the old line, so let it
+   wrap on narrow screens instead of running off the edge. */
+.hero__quote-line:last-child {
+  white-space: normal;
+  text-wrap: balance;
 }
 
 /* a gentler price-breathe: a full sentence at 1.34x crowded the heading */
@@ -1316,6 +1456,8 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   padding: 5px 14px;
   font-size: 13.5px;
   box-shadow: 0 6px 16px rgba(var(--gradient-primary-rgb), 0.28);
+  /* the site's heading navy; !important to beat .btn-primary's white */
+  color: var(--ref-navy) !important;
 }
 
 .hero__details-btn {
@@ -5125,6 +5267,30 @@ html[data-theme="light"] .hero__date {
     transform: scale(1.04);
     text-shadow: 0 0 10px rgba(217, 119, 6, 0.35);
   }
+}
+
+html[data-theme="light"] .hero__days-plus {
+  color: var(--color-primary-600);
+}
+
+html[data-theme="light"] .hero__chip {
+  border-color: var(--color-primary-300);
+  background: var(--color-primary-100);
+  color: var(--color-primary-800);
+}
+
+html[data-theme="light"] .hero__chip--one {
+  border-color: rgba(217, 119, 6, 0.5);
+  background: #FEF3C7;
+  color: #B45309;
+}
+
+html[data-theme="light"] .hero__days-cursor {
+  background: var(--color-primary-600);
+}
+
+html[data-theme="light"] .hero__days-note {
+  color: var(--ref-slate);
 }
 
 html[data-theme="light"] .hero__title {

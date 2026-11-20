@@ -49,7 +49,7 @@ export const PROGRAMMES = [
 
 /* Shown under "Join the Webinar" in the hero. Change it before each session,
    e.g. 'Sun, 29 Nov 2026 · 7:00 PM IST' once the start time is set. */
-export const WEBINAR_DATE = 'Sat 28 Nov 2026 · 9:00 AM IST in Tamil'
+export const WEBINAR_DATE = 'Sat 28 Nov 2026 · 9 AM – 1 PM IST in Tamil'
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
 
@@ -64,7 +64,7 @@ export const HERO_PRICES = [
     price: 499,
     url: PAYMENT_URL,
     title: 'Microsoft Copilot Live Webinar – Tamil',
-    meta: 'Saturday, 28 November 2026 · 9:00 AM IST · Tamil',
+    meta: 'Saturday, 28 November 2026 · 9:00 AM – 1:00 PM IST · Tamil',
     desc: 'Explore Microsoft 365 apps, AI tips and tricks through live Copilot product demonstrations.',
     pointsHeading: 'What you will explore',
     points: [
@@ -202,13 +202,13 @@ export const AGENT_APPS = [
   { id: 'sharepoint', name: 'SharePoint', mono: 'S', file: 'microsoft-365/sharepoint.svg', side: 'out' },
 ]
 
-// The agenda deck: four cards over two days, each one a title and the three
+// The agenda deck: four cards in one 9 AM – 1 PM session, each one a title and the three
 // things it covers.
 export const AGENDA = [
-  { n: '01', day: 'Day 1', t: 'Understand Copilot', points: ['How Copilot Works', 'Copilot Architecture', 'Security & Your Data'] },
-  { n: '02', day: 'Day 1', t: 'Smart Prompting', points: ['How to Talk to Copilot', 'Build Better Prompts', 'Use the Same Prompting Skills Across Copilot'] },
-  { n: '03', day: 'Day 2', t: 'Copilot in Microsoft 365', points: ['Excel • Word • PowerPoint', 'Outlook • Teams', 'Work Faster with Copilot'] },
-  { n: '04', day: 'Day 2', t: 'Build with Copilot', points: ['Connect Your Daily Work', 'Create Smart Workflows', 'Build Practical Copilot Skills'] },
+  { n: '01', day: 'First half', t: 'Understand Copilot', points: ['How Copilot Works', 'Copilot Architecture', 'Security & Your Data'] },
+  { n: '02', day: 'First half', t: 'Smart Prompting', points: ['How to Talk to Copilot', 'Build Better Prompts', 'Use the Same Prompting Skills Across Copilot'] },
+  { n: '03', day: 'Second half', t: 'Copilot in Microsoft 365', points: ['Excel • Word • PowerPoint', 'Outlook • Teams', 'Work Faster with Copilot'] },
+  { n: '04', day: 'Second half', t: 'Build with Copilot', points: ['Connect Your Daily Work', 'Create Smart Workflows', 'Build Practical Copilot Skills'] },
 ]
 
 export const AUDIENCE = [
@@ -312,6 +312,7 @@ export const FAQS = [
   { q: 'Will the webinar include live demonstrations?', a: 'Yes. Capabilities are shown live inside the actual applications, followed by a walkthrough of how to reproduce them.' },
   { q: 'Will Copilot Studio be covered?', a: 'Yes. We cover how AI agents are built, connected to business data and published to your teams.' },
   { q: 'Can businesses use Copilot for automation?', a: 'Yes. Copilot combined with Power Automate handles approvals, notifications, reporting and other repetitive processes across Microsoft 365.' },
+  { q: 'Was the program shortened to fit one day?', a: 'No. Day 1 and Day 2 now run together in one session on Saturday, 28 November, from 9 AM to 1 PM IST. All four modules are covered.' },
   { q: 'How do I join the webinar?', a: 'Register on this page and the joining link is sent to your email, along with a calendar invitation and a reminder before the session.' },
   { q: 'Will learning resources be provided?', a: 'Practical checklists and reference material are shared with registered participants where applicable.' },
 ]
