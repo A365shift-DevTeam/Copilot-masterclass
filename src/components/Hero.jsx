@@ -99,7 +99,7 @@ export default function Hero() {
             <p className="hero__quote" aria-label="“AI won’t replace you. Someone using AI will.”">
               <span className="hero__quote-line">Master Microsoft Copilot</span>
               <span className="hero__quote-line">
-                <span className="hero__quote-gradient">Register for the Webinar Now</span>
+                <span className="hero__quote-gradient">Register Webinar Now</span>
               </span>
             </p>
             <div className="hero__when">
@@ -126,13 +126,23 @@ export default function Hero() {
                 </span>
               </p>
             </div>
+            {/* The main offer (the one the Meta ads promote) sits up here, not in the table. */}
+            <div className="hero__cta">
+              <a href={HERO_PRICES[0].url} className="btn-primary" onClick={handleBtnClick}>
+                Register <span className="btn-price-highlight">₹{HERO_PRICES[0].price.toLocaleString('en-IN')}</span>
+                <span className="btn-shine" aria-hidden="true" />
+              </a>
+              <button type="button" className="hero__details-btn" onClick={() => setOpenRow(0)}>
+                View details
+              </button>
+            </div>
           </div>
 
           {/* The page's real heading for crawlers and screen readers; the visible
               lines above say the same thing in the hero's own voice. */}
           <h1 className="sr-only">Microsoft 365 Copilot Masterclass — 1-Day Live Online Program</h1>
 
-          <p className="hero__subtitle">Copilot 365 Programs</p>
+          <p className="hero__subtitle">Other Copilot 365 Programs</p>
 
           {/* <p className="hero__desc">
             Discover how Microsoft Copilot, Microsoft 365 and intelligent automation help professionals
@@ -145,11 +155,10 @@ export default function Hero() {
             </thead>
             <tbody>
               {HERO_PRICES.map(({ name, price, url }, i) => {
+                if (i === 0) return null // the main offer, shown above the table
                 const label = <>Register ₹{price.toLocaleString('en-IN')} <ArrowRight aria-hidden="true" /></>
-                // The first row is the offer the Meta ads promote, so it gets the highlight.
-                const featured = i === 0
                 return (
-                  <tr key={name} className={featured ? 'hero__price-row--featured' : undefined}>
+                  <tr key={name}>
                     <td>{name}</td>
                     <td>
                       <button type="button" className="hero__details-btn" onClick={() => setOpenRow(i)}>

@@ -60,7 +60,7 @@ export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A se
    The first entry gets the row highlight. */
 export const HERO_PRICES = [
   {
-    name: 'M365 Apps using copilot  Tamil',
+    name: 'M365 Apps using copilot',
     price: 499,
     url: PAYMENT_URL,
     title: 'Microsoft Copilot Live Webinar – Tamil',

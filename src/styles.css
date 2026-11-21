@@ -988,6 +988,31 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   white-space: nowrap;
 }
 
+/* Phones: at full size the note didn't fit beside the chips, so it kept
+   hopping to a second line and shaking the page. Shrink both and never wrap;
+   on the very narrowest screens the note's tail clips instead of wrapping. */
+@media (max-width: 560px) {
+  .hero__days {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .hero__chip {
+    padding: 3px 8px;
+    font-size: 11.5px;
+  }
+
+  .hero__days-plus {
+    padding: 0 4px;
+  }
+
+  .hero__days-note {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 12px;
+  }
+}
+
 .hero__days-cursor {
   display: inline-block;
   width: 2px;
@@ -1456,8 +1481,6 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   padding: 5px 14px;
   font-size: 13.5px;
   box-shadow: 0 6px 16px rgba(var(--gradient-primary-rgb), 0.28);
-  /* the site's heading navy; !important to beat .btn-primary's white */
-  color: var(--ref-navy) !important;
 }
 
 .hero__details-btn {
@@ -1479,14 +1502,18 @@ html[data-theme="light"] .nav-over-pass .nav.solid .theme-toggle {
   border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Featured row (the ad offer): tinted background. */
-.hero__price-table .hero__price-row--featured {
-  background: rgba(var(--gradient-primary-rgb), 0.14);
+/* The main offer's Register + View details, side by side under the date. */
+.hero__cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
 }
 
-
-html[data-theme="light"] .hero__price-table .hero__price-row--featured {
-  background: rgba(101, 168, 89, 0.12);
+.hero__cta .hero__details-btn {
+  min-height: 44px;
+  padding: 0 20px;
+  font-size: 14px;
 }
 
 /* Phones: each program becomes a card — name on top, the two buttons side by side under it. */
