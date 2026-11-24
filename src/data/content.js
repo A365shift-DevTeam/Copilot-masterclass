@@ -41,7 +41,7 @@ export const PROGRAMMES = [
     points: ['30-day programme', '5 hours of 1:1 coaching', 'Project guidance and review'],
     pkg: '₹32,499',
     save: '₹22,500',
-    price: '₹9,999',
+    price: '₹4,999',
     url: 'https://rzp.io/rzp/OMsvnqoC',
     featured: true,
   },
@@ -80,7 +80,7 @@ export const HERO_PRICES = [
   {
     name: 'Microsoft Excel with Copilot',
     price: 799,
-    url: 'https://rzp.io/rzp/eSGn4gb', // TODO: replace with this program's own form link
+    url: 'https://link.trym.co.in/widget/form/z4WbJOkIp0CdLuPuXAiE', // TODO: replace with this program's own form link
     title: 'Microsoft Excel with Copilot',
     descLead: 'End-to-end Excel with Copilot',
     desc: 'training with practical examples, demonstrations and sample datasets.',
@@ -119,8 +119,8 @@ export const HERO_PRICES = [
   },
   {
     name: 'M365Copilot offline Workshop',
-    price: 9999,
-    url: 'https://rzp.io/rzp/OMsvnqoC', // TODO: replace with this program's own form link
+    price: 4999,
+    url: 'https://rzp.io/rzp/OMsvnqoC',
     title: 'Offline Copilot Workshop – Chennai',
     facts: [
       ['Language', 'Tamil'],

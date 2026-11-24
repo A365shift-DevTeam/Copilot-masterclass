@@ -128,7 +128,7 @@ export default function Hero() {
             </div>
             {/* The main offer (the one the Meta ads promote) sits up here, not in the table. */}
             <div className="hero__cta">
-              <a href={HERO_PRICES[0].url} className="btn-primary" onClick={handleBtnClick}>
+              <a href={HERO_PRICES[0].url} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>
                 Register <span className="btn-price-highlight">₹{HERO_PRICES[0].price.toLocaleString('en-IN')}</span>
                 <span className="btn-shine" aria-hidden="true" />
               </a>
@@ -166,7 +166,7 @@ export default function Hero() {
                       </button>
                     </td>
                     <td>
-                      <a href={url} className="btn-primary" onClick={handleBtnClick}>{label}<span className="btn-shine" aria-hidden="true" /></a>
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>{label}<span className="btn-shine" aria-hidden="true" /></a>
                     </td>
                   </tr>
                 )
@@ -218,7 +218,7 @@ export default function Hero() {
                       </div>
                       <div className="course-dialog__actions">
                         <Dialog.Close className="course-dialog__ghost">Close</Dialog.Close>
-                        <a href={url} className="btn-primary" onClick={handleBtnClick}>
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>
                           Register <ArrowRight aria-hidden="true" />
                           <span className="btn-shine" />
                         </a>
