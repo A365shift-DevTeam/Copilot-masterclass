@@ -9,6 +9,7 @@ import LiveDemo from './components/LiveDemo.jsx'
 import Benefits from './components/Benefits.jsx'
 import Speaker from './components/Speaker.jsx'
 import Pricing from './components/Pricing.jsx'
+import Programs from './components/Programs.jsx'
 import Ecosystem from './components/Ecosystem.jsx'
 import Register from './components/Register.jsx'
 import Faq from './components/Faq.jsx'
@@ -52,7 +53,11 @@ const Page = memo(function Page() {
         {/* Feedback is no longer its own section — it runs as a strip at the
             bottom of Speaker. */}
         <Speaker />
-        <Pricing />
+        {/* 1:1 coaching plans ("Only Limited Seats for a Month") hidden.
+            To bring them back, uncomment this and re-add the Pricing nav link
+            in data/content.js. */}
+        {/* <Pricing /> */}
+        <Programs />
         {/* <Ecosystem /> */}
         {/* <Register /> */}
         {/* <Faq /> */}

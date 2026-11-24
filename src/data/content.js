@@ -20,7 +20,7 @@ export const NAV_LINKS = [
   { href: '#learn', label: "What You'll Learn" },
   { href: '#benefits', label: 'Benefits' },
   { href: '#speaker', label: 'Speaker' },
-  { href: '#pricing', label: 'Pricing' },
+  { href: '#programs', label: 'Programs' },
 ]
 
 /* 1:1 coaching programmes shown after the Speaker section.
@@ -57,7 +57,10 @@ export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A se
    The rest fills the "View details" popup; every popup field is optional:
    `meta` bold line, `facts` [label, value] lines, `descLead` bold start of
    `desc`, `pointsHeading` above the `points` list.
-   The first entry gets the row highlight. */
+   The first entry gets the row highlight.
+   `scene`, `format`, `summary` and `highlights` drive the Other Programs cards
+   (`formatIcon: 'excel'` puts the Excel logo in the format label)
+   (Programs.jsx); `scene` picks the animated header: excel | video | coach | workshop. */
 export const HERO_PRICES = [
   {
     name: 'M365 Apps using copilot',
@@ -82,6 +85,11 @@ export const HERO_PRICES = [
     price: 799,
     url: 'https://link.trym.co.in/widget/form/z4WbJOkIp0CdLuPuXAiE', // TODO: replace with this program's own form link
     title: 'Microsoft Excel with Copilot',
+    scene: 'excel',
+    format: 'Excel only',
+    formatIcon: 'excel',
+    summary: 'Analyse data, build workflows and practise on sample datasets with Copilot in Excel.',
+    highlights: ['80% Excel, 20% Word and PowerPoint', 'Build Copilot skills and agents'],
     descLead: 'End-to-end Excel with Copilot',
     desc: 'training with practical examples, demonstrations and sample datasets.',
     points: [
@@ -96,6 +104,10 @@ export const HERO_PRICES = [
     price: 999,
     url: RECORDED_PAYMENT_URL,
     title: 'Copilot Recorded Videos',
+    scene: 'video',
+    format: 'Self-paced',
+    summary: 'Watch the Copilot demonstrations and workflows whenever it suits you.',
+    highlights: ['Tamil and English', 'One-time payment'],
     facts: [['Languages', 'Tamil / English']],
     desc: 'One-time recorded videos for flexible, self-paced viewing of Microsoft Copilot demonstrations and workflows.',
   },
@@ -104,6 +116,10 @@ export const HERO_PRICES = [
     price: 4999,
     url: PROGRAMMES[0].url, // same Razorpay link as the ₹4,999 AI Skill Builder card
     title: '1-to-1 Project Support – 15 Days',
+    scene: 'coach',
+    format: '1-to-1, 15 days',
+    summary: 'Bring a real problem and build your Copilot project with personal guidance.',
+    highlights: ['3 hours of one-to-one calls', 'Progress tracking tool included'],
     facts: [
       ['Languages', 'Tamil / English'],
       ['Duration', '15 days'],
@@ -122,6 +138,10 @@ export const HERO_PRICES = [
     price: 4999,
     url: 'https://rzp.io/rzp/OMsvnqoC',
     title: 'Offline Copilot Workshop – Chennai',
+    scene: 'workshop',
+    format: 'In person, Chennai',
+    summary: 'A full day of hands-on Copilot demonstrations, in Tamil.',
+    highlights: ['Saturday, 23 January 2027', 'Venue to be announced'],
     facts: [
       ['Language', 'Tamil'],
       ['Date', '23 January 2027'],

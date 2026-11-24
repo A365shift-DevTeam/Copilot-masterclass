@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import * as Dialog from '@radix-ui/react-dialog'
-import { ArrowRight, CalendarDays, Check, X } from 'lucide-react'
+import { ArrowRight, CalendarDays } from 'lucide-react'
 import CopilotOrbit from './CopilotOrbit.jsx'
 import TrainerProfile from './TrainerProfile.jsx'
-import { COPILOT_ICON, WEBINAR_DATE, HERO_PRICES } from '../data/content.js'
+import CourseDialog, { rippleClick } from './CourseDialog.jsx'
+import { WEBINAR_DATE, HERO_PRICES } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
+import { scrollToTarget } from '../hooks/useLenis.js'
 
 const DAYS_NOTE = 'Now together in one session'
 
@@ -71,15 +72,11 @@ export default function Hero() {
     }
   }, [])
 
-  const handleBtnClick = (e) => {
-    const btn = e.currentTarget
-    const rect = btn.getBoundingClientRect()
-    const ripple = document.createElement('span')
-    ripple.className = 'btn-ripple'
-    ripple.style.left = `${e.clientX - rect.left}px`
-    ripple.style.top = `${e.clientY - rect.top}px`
-    btn.appendChild(ripple)
-    setTimeout(() => ripple.remove(), 700)
+  const handleBtnClick = rippleClick
+  const goToPrograms = (e) => {
+    e.preventDefault()
+    rippleClick(e)
+    scrollToTarget('#programs')
   }
 
   return (
@@ -151,12 +148,11 @@ export default function Hero() {
 
           <table className="hero__price-table">
             <thead>
-              <tr><th>Program</th><th>Details</th><th>Price</th></tr>
+              <tr><th>Program</th><th>Details</th><th>Register</th></tr>
             </thead>
             <tbody>
-              {HERO_PRICES.map(({ name, price, url }, i) => {
+              {HERO_PRICES.map(({ name }, i) => {
                 if (i === 0) return null // the main offer, shown above the table
-                const label = <>Register ₹{price.toLocaleString('en-IN')} <ArrowRight aria-hidden="true" /></>
                 return (
                   <tr key={name}>
                     <td>{name}</td>
@@ -166,7 +162,11 @@ export default function Hero() {
                       </button>
                     </td>
                     <td>
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>{label}<span className="btn-shine" aria-hidden="true" /></a>
+                      {/* Prices live on the program cards; this takes the viewer there. */}
+                      <a href="#programs" className="btn-primary" onClick={goToPrograms}>
+                        Register <ArrowRight aria-hidden="true" />
+                        <span className="btn-shine" aria-hidden="true" />
+                      </a>
                     </td>
                   </tr>
                 )
@@ -176,59 +176,7 @@ export default function Hero() {
 
           {!sideBySide && <TrainerProfile />}
 
-          {/* Built on LegalDialog's base styles (.legal-dialog) for theming, focus and animation;
-              .course-dialog restyles the inside. */}
-          <Dialog.Root open={openRow !== null} onOpenChange={(o) => { if (!o) setOpenRow(null) }}>
-            {openRow !== null && (() => {
-              const { title, meta, facts, descLead, desc, pointsHeading, points, price, url } = HERO_PRICES[openRow]
-              return (
-                <Dialog.Portal>
-                  <Dialog.Overlay className="legal-dialog__overlay" />
-                  <Dialog.Content className="legal-dialog course-dialog" aria-describedby={undefined}>
-                    <Dialog.Close className="course-dialog__close" aria-label="Close">
-                      <X size={18} aria-hidden />
-                    </Dialog.Close>
-                    <div className="course-dialog__body" data-lenis-prevent>
-                      <div className="eyebrow eyebrow--green">AMBOT365 · COURSE DETAILS</div>
-                      <header className="plan__head">
-                        <span className="plan__icon"><img src={COPILOT_ICON} alt="" /></span>
-                        <Dialog.Title className="plan__name">{title}</Dialog.Title>
-                      </header>
-                      {meta && <p className="course-dialog__meta"><CalendarDays aria-hidden="true" />{meta}</p>}
-                      {facts?.map(([label, value]) => (
-                        <p key={label} className="course-dialog__fact"><strong>{label}:</strong> {value}</p>
-                      ))}
-                      {desc && (
-                        <p className="course-dialog__desc">
-                          {descLead && <><strong>{descLead}</strong>{' '}</>}
-                          {desc}
-                        </p>
-                      )}
-                      {pointsHeading && <h3 className="course-dialog__heading">{pointsHeading}</h3>}
-                      {points && (
-                        <ul className="plan__features">
-                          {points.map((p) => <li key={p}><Check aria-hidden="true" />{p}</li>)}
-                        </ul>
-                      )}
-                    </div>
-                    <footer className="course-dialog__footer">
-                      <div>
-                        <p className="course-dialog__fee-label">Program fee</p>
-                        <p className="plan__price course-dialog__fee">₹{price.toLocaleString('en-IN')}</p>
-                      </div>
-                      <div className="course-dialog__actions">
-                        <Dialog.Close className="course-dialog__ghost">Close</Dialog.Close>
-                        <a href={url} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>
-                          Register <ArrowRight aria-hidden="true" />
-                          <span className="btn-shine" />
-                        </a>
-                      </div>
-                    </footer>
-                  </Dialog.Content>
-                </Dialog.Portal>
-              )
-            })()}
-          </Dialog.Root>
+          <CourseDialog course={openRow !== null ? HERO_PRICES[openRow] : null} onClose={() => setOpenRow(null)} />
         </div>
 
         <div className="hero__orbit-wrap" ref={orbitRef}>
