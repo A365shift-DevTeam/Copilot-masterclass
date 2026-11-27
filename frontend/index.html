@@ -137,7 +137,9 @@
       try { last = +localStorage.getItem('ty-purchase-at') || 0 } catch (e) { }
       if (window.top !== window.self || Date.now() - last < 30 * 60 * 1000) return;
       try { localStorage.setItem('ty-purchase-at', String(Date.now())) } catch (e) { }
-      fbq('track', 'Purchase', { value: 499, currency: 'INR' });
+      // Website checkout passes the amount paid (?value=); payment-link buyers arrive without it.
+      var paid = +new URLSearchParams(location.search).get('value');
+      fbq('track', 'Purchase', { value: paid > 0 ? paid : 499, currency: 'INR' });
     }
     // Chrome prerenders pages while the URL is being typed; that hidden copy
     // runs this script too, so wait until the page is actually shown.

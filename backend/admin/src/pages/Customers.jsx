@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Search } from 'lucide-react'
 import { api, fmtDate, fmtDateTime, money } from '../api.js'
-import { Drawer, ErrorNote, StatusPill } from '../ui.jsx'
+import { Drawer, ErrorNote, StatusPill, Pagination } from '../ui.jsx'
+import { Entity, ListTable, ListToolbar, RowActions } from '../list.jsx'
 
-const SIZE = 25
 
 // wa.me needs the country code; a bare 10-digit number is taken as Indian.
 const waNumber = (phone) => { const d = phone.replace(/\D/g, ''); return d.length === 10 ? `91${d}` : d }
@@ -11,69 +10,44 @@ const waNumber = (phone) => { const d = phone.replace(/\D/g, ''); return d.lengt
 export default function Customers() {
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
+  const [size, setSize] = useState(25)
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
   const [open, setOpen] = useState(null)
 
   useEffect(() => {
     const t = setTimeout(() => {
-      const query = new URLSearchParams({ page, size: SIZE, ...(q.trim() && { q: q.trim() }) })
+      const query = new URLSearchParams({ page, size, ...(q.trim() && { q: q.trim() }) })
       api(`/customers?${query}`).then((d) => { setData(d); setError('') }, (e) => setError(e.message))
     }, 200)
     return () => clearTimeout(t)
-  }, [q, page])
+  }, [q, page, size])
 
-  const pages = data ? Math.max(1, Math.ceil(data.total / SIZE)) : 1
 
   return (
     <>
-      <header className="page-head">
-        <div>
-          <h1>Customers</h1>
-          {data && <p>{data.total} people, {data.repeat} of them bought more than once</p>}
-        </div>
-      </header>
-
-      <div className="toolbar" role="search">
-        <label className="search">
-          <Search size={16} aria-hidden="true" />
-          <input type="search" placeholder="Search name, email or phone" value={q} onChange={(e) => { setQ(e.target.value); setPage(1) }} aria-label="Search customers" />
-        </label>
-      </div>
+      <ListToolbar title="Customers" count={data?.total} search={q} onSearch={(v) => { setQ(v); setPage(1) }} placeholder="Search name, email or phone" />
 
       <ErrorNote>{error}</ErrorNote>
 
-      <section className="panel panel--flush">
-        {!data ? (
-          <div className="loading" aria-busy="true">Loading customers…</div>
-        ) : data.items.length === 0 ? (
-          <div className="empty"><p>{q ? 'Nobody matches that search.' : 'Customers appear here once payments are recorded.'}</p></div>
-        ) : (
-          <div className="table-wrap">
-            <table className="table table--rows table--click">
-              <thead><tr><th>Customer</th><th>Programs</th><th>Payments</th><th>Last payment</th><th className="num">Paid in total</th></tr></thead>
-              <tbody>
-                {data.items.map((c) => (
-                  <tr key={c.key} tabIndex={0} onClick={() => setOpen(c)} onKeyDown={(e) => e.key === 'Enter' && setOpen(c)}>
-                    <td><strong>{c.name}</strong><small>{[c.email, c.phone].filter(Boolean).join(', ')}</small></td>
-                    <td>{c.programs.length ? c.programs.map((p) => <span key={p} className="tag">{p}</span>) : <span className="muted">Unassigned</span>}</td>
-                    <td>{c.payments}</td>
-                    <td className="nowrap">{fmtDate(c.lastPaidAt)}</td>
-                    <td className="num">{money(c.paid)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {data && pages > 1 && (
-          <nav className="pager" aria-label="Pages">
-            <button type="button" className="btn" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
-            <span>Page {page} of {pages}</span>
-            <button type="button" className="btn" disabled={page >= pages} onClick={() => setPage(page + 1)}>Next</button>
-          </nav>
-        )}
-      </section>
+      <div className="slv-container">
+        <ListTable
+          rows={data?.items ?? []}
+          rowKey={(c) => c.key}
+          offset={(page - 1) * size}
+          onRowClick={setOpen}
+          state={!data ? 'Loading customers…' : data.items.length === 0 ? (q ? 'Nobody matches that search.' : 'Customers appear here once payments are recorded.') : null}
+          columns={[
+            { key: 'name', label: 'Customer', render: (c) => <Entity name={c.name} meta={[c.email, c.phone].filter(Boolean).join(', ')} /> },
+            { key: 'programs', label: 'Programs', render: (c) => c.programs.length ? <span className="slv-cell" title={c.programs.join(', ')}>{c.programs.join(', ')}</span> : <span className="text-muted">None paid</span> },
+            { key: 'payments', label: 'Payments', render: (c) => c.payments },
+            { key: 'last', label: 'Last payment', render: (c) => fmtDate(c.lastPaidAt) },
+            { key: 'paid', label: 'Paid in total', className: 'num', render: (c) => money(c.paid) },
+          ]}
+          actions={(c) => <RowActions name={c.name} onView={() => setOpen(c)} />}
+        />
+        {data && <Pagination page={page} size={size} total={data.total} onPage={setPage} onSize={(n) => { setSize(n); setPage(1) }} noun="customers" />}
+      </div>
 
       <CustomerDrawer customer={open} onClose={() => setOpen(null)} />
     </>

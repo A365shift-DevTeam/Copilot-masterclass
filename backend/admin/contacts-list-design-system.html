@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>A365 CRM List Design System</title>
+<!--
+  A365 CRM — List page design system (taken from the Contacts page)
+  ==================================================================
+  Self-contained reference: design tokens + component CSS + live demo markup.
+  Open in a browser to see it; copy the <style> block into another project.
+
+  Components (CSS prefix → source in frontend/src/components):
+    .page-header        PageHeader        slim title + description, one line
+    .sg-*               StatsGrid         KPI cards (accent bar, tinted icon, optional ring, skeleton)
+    .page-toolbar/.pt-* PageToolbar       title + count, search, Filter/Sort/Export/Columns, view toggle, actions
+    .lf-chips/.lf-chip  ListFilters       applied filter chips (second toolbar row)
+    .lf-drawer/.lf-*    ListFilters       right-side filter drawer: pills, inputs, footer
+    .bulk-bar           BulkActionBar     strip shown while rows are selected
+    .slv-*              StandardListView  table card: sticky header, select, S.No, sticky name col, row actions
+    .status-badge       StatusBadge       22px pill with dot, tinted from one --sb-color
+    .crm-pagination     Pagination        footer attached to the table card
+
+  Layout: .crm-page-shell (100% height flex column) > chrome + .crm-page-body.
+  The table card fills the leftover height, rows scroll inside it, pagination stays pinned.
+
+  Fonts: Outfit (page title), DM Sans (body/table/pagination), Nunito via --font-sf (KPI cards, toolbar, filters).
+  Icons: lucide (https://lucide.dev) — 15px in rows/pagination, 17px in KPI cards, stroke-width 2.
+  Dark mode: add class "dark" to <html>; every component reads the tokens.
+
+  Note: there are deliberately several blues — keep them separate:
+    --accent-primary #4361EE  row hover accent, pagination active, checkboxes, bulk bar
+    --button-brand   #5286A5  filter drawer pills / primary drawer button / links
+    --toolbar-primary #155C86 toolbar primary action ("+ New Contact")
+    --toolbar-active  #1e3a8a→#1d4ed8 active Filter button, filter chip pill, badges
+    --ios-*                   KPI card preset colours (blue/green/orange/purple/red/teal/indigo)
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ═════════════════════════ 1. DESIGN TOKENS ═════════════════════════ */
+:root {
+  /* Surfaces */
+  --bg-primary: #EEF2F8;          /* page canvas */
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FAFCFF;       /* table header, zebra rows, pagination footer */
+  --bg-input: #FFFFFF;
+  --row-hover: #F0F5FF;
+
+  /* Text */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+
+  /* Accents */
+  --accent-primary: #4361EE;
+  --accent-secondary: #8B5CF6;
+  --accent-success: #10B981;
+  --accent-danger: #F43F5E;
+  --accent-warning: #F59E0B;
+  --accent-cyan: #06B6D4;
+  --accent-soft: #EFF6FF;
+
+  /* Brand buttons (filters, drawer) */
+  --button-brand: #5286A5;
+  --button-brand-hover: #416F8A;
+  --button-brand-soft: rgba(82, 134, 165, 0.12);
+  --button-brand-shadow: 0 3px 12px rgba(82, 134, 165, 0.28);
+
+  /* Toolbar blues */
+  --toolbar-primary: #155C86;
+  --toolbar-active: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+  --toolbar-active-solid: #1d4ed8;
+
+  /* Borders */
+  --border-color: #E1E8F4;
+  --border-light: #EDF2FB;
+  --border-active: rgba(67, 97, 238, 0.35);
+  --border-field: #B9C7DE;        /* form fields: darker than card dividers */
+
+  /* iOS palette (KPI cards, toolbar greys) */
+  --ios-blue: #007AFF;
+  --ios-green: #34C759;
+  --ios-red: #FF3B30;
+  --ios-orange: #FF9500;
+  --ios-purple: #AF52DE;
+  --ios-teal: #5AC8FA;
+  --ios-indigo: #5856D6;
+  --ios-gray-1: #F2F2F7;
+  --ios-gray-2: #E5E5EA;
+  --ios-gray-4: #AEAEB2;
+  --ios-gray-5: #8E8E93;
+  --ios-sep: rgba(60,60,67,0.12);
+  --ios-bg-card: #FFFFFF;
+
+  /* Radii */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lift: 0 8px 24px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+
+  /* Type */
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sf: -apple-system, BlinkMacSystemFont, 'Nunito', 'Helvetica Neue', sans-serif;
+  --lh-tight: 1.1;
+}
+
+html.dark {
+  color-scheme: dark;
+  --bg-primary: #0B0F1A;
+  --bg-secondary: #0F1522;
+  --bg-card: #111827;
+  --bg-card-hover: #151E2E;
+  --bg-input: #0D1420;
+  --row-hover: rgba(67, 97, 238, 0.10);
+
+  --text-primary: #E6EBF4;
+  --text-secondary: #A5B3C7;
+  --text-muted: #66788F;
+  --accent-soft: rgba(67, 97, 238, 0.14);
+
+  --border-color: #1E2A3D;
+  --border-light: #182234;
+  --border-active: rgba(99, 132, 255, 0.45);
+  --border-field: #3C4F6D;
+
+  --ios-bg-card: #111827;
+  --ios-gray-1: #18202F;
+  --ios-gray-2: #202B3E;
+  --ios-gray-4: #5E718A;
+  --ios-gray-5: #8A99AF;
+  --ios-sep: rgba(148, 163, 184, 0.16);
+
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lift: 0 8px 32px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* ═════════════════════════ 2. BASE + PAGE SHELL ═════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; }
+.i { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+/* Bootstrap utilities the cells use */
+.fw-medium { font-weight: 500; }
+.text-dark { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-link { color: var(--accent-primary); text-decoration: none; font-weight: 500; }
+
+/* Chrome keeps natural height; .crm-page-body absorbs the rest so rows scroll inside the card. */
+.crm-page-shell {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 14px 18px;
+}
+.crm-page-shell > * { flex-shrink: 0; }
+.crm-page-shell > .crm-page-body {
+  flex: 1 1 auto;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* ═════════════════════════ 3. PAGE HEADER ═════════════════════════ */
+.page-header {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 14px;
+  row-gap: 2px;
+  margin-bottom: 8px;
+}
+.page-header h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.page-header h2 .i { width: 18px; height: 18px; color: #4361EE; }
+html.dark .page-header h2 .i { color: var(--text-secondary); }
+.page-header p { color: var(--text-muted); font-size: 13px; margin: 0; }
+
+/* ═════════════════════════ 4. KPI CARDS (StatsGrid) ═════════════════════════ */
+.sg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+  grid-auto-rows: 1fr;
+}
+.sg-card {
+  /* Set per card: --sg-accent (top bar + ring), --card-color (corner gradient) */
+  background: var(--ios-bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--ios-sep);
+  box-shadow: var(--shadow-card);
+  padding: 9px 14px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-sf);
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+}
+.sg-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--card-color, #007AFF) 0%, transparent 60%);
+  opacity: 0.08;
+  pointer-events: none;
+}
+.sg-card:hover { box-shadow: var(--shadow-lift); }
+.sg-card-inner { width: 100%; position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; }
+.sg-icon-wrapper {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+}
+.sg-icon-wrapper .i { width: 17px; height: 17px; }
+.sg-icon-wrapper.blue   { background: rgba(0,122,255,0.10);  color: var(--ios-blue); }
+.sg-icon-wrapper.green  { background: rgba(52,199,89,0.10);  color: var(--ios-green); }
+.sg-icon-wrapper.orange { background: rgba(255,149,0,0.10);  color: var(--ios-orange); }
+.sg-icon-wrapper.purple { background: rgba(175,82,222,0.10); color: var(--ios-purple); }
+.sg-icon-wrapper.red    { background: rgba(255,59,48,0.10);  color: var(--ios-red); }
+.sg-icon-wrapper.teal   { background: rgba(90,200,250,0.14); color: var(--ios-teal); }
+.sg-icon-wrapper.indigo { background: rgba(88,86,214,0.10);  color: var(--ios-indigo); }
+.sg-content { flex: 1; min-width: 0; }
+.sg-label {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ios-gray-4); margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sg-value {
+  font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 800; color: var(--text-primary);
+  line-height: var(--lh-tight); letter-spacing: -0.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sg-sub { font-size: 11px; color: var(--ios-gray-4); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Optional progress ring at the right edge */
+.sg-ring { position: relative; width: 40px; height: 40px; flex-shrink: 0; }
+.sg-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.sg-ring circle { fill: none; stroke-width: 5; }
+.sg-ring-track { stroke: var(--border-color); }
+.sg-ring-fill { stroke: var(--sg-accent, #007AFF); stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+.sg-ring-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: var(--text-primary); }
+/* Loading skeleton card */
+.sg-card--loading::before, .sg-card--loading::after { display: none; }
+.sg-skeleton {
+  background: linear-gradient(90deg, var(--border-color) 25%, var(--bg-card-hover) 50%, var(--border-color) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+  border-radius: 5px;
+}
+.sg-skeleton-label { width: 55%; height: 8px; margin-bottom: 7px; }
+.sg-skeleton-value { width: 35%; height: 14px; }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* ═════════════════════════ 5. TOOLBAR (PageToolbar) ═════════════════════════ */
+.page-toolbar {
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  padding: 7px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--ios-sep);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--font-sf);
+}
+.page-toolbar-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.page-toolbar-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+.page-toolbar-count {
+  background: var(--ios-gray-2); color: var(--ios-gray-5);
+  font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+.page-toolbar-search { position: relative; display: flex; align-items: center; }
+.page-toolbar-search-icon { position: absolute; left: 11px; color: var(--ios-gray-4); pointer-events: none; }
+.page-toolbar-search-input {
+  width: 260px;
+  background: var(--ios-gray-1);
+  border: none;
+  border-radius: 10px;
+  padding: 6px 12px 6px 32px;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  outline: none;
+  transition: background 0.18s, box-shadow 0.18s;
+}
+.page-toolbar-search-input::placeholder { color: var(--ios-gray-4); }
+.page-toolbar-search-input:focus { background: var(--bg-card); box-shadow: 0 0 0 3.5px rgba(0,122,255,0.20); }
+html.dark .page-toolbar-search-input:focus { background: var(--bg-input); }
+.page-toolbar-right { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.page-toolbar-icons { display: flex; align-items: center; gap: 3px; }
+
+/* Icon buttons: Filter / Sort / Group / Export / Columns */
+.pt-icon-btn {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: var(--ios-gray-1);
+  color: var(--ios-gray-5);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  padding: 0;
+}
+.pt-icon-btn:hover { background: var(--ios-gray-2); color: var(--text-primary); }
+.pt-icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,122,255,0.25); }
+.pt-icon-btn.open { background: var(--ios-gray-2); color: var(--text-primary); }
+/* Active = something applied (e.g. filters set) */
+.pt-icon-btn.active { background: var(--toolbar-active); color: #FFFFFF; box-shadow: 0 2px 8px rgba(30,58,138,0.32); }
+.pt-menu-badge {
+  position: absolute; top: -4px; right: -4px;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: 999px;
+  background: var(--toolbar-active-solid); color: #fff;
+  font-size: 10px; font-weight: 800; line-height: 1;
+  border: 2px solid var(--bg-card);
+  font-variant-numeric: tabular-nums;
+}
+.pt-menu-badge--muted { background: var(--ios-gray-5); }
+/* Labels beside icons only on wide screens */
+.pt-btn-label { display: none; }
+@media (min-width: 1400px) {
+  .page-toolbar-icons .pt-icon-btn { width: auto; padding: 0 10px; gap: 6px; }
+  .pt-btn-label { display: inline; font-size: 12.5px; font-weight: 600; line-height: 1; }
+}
+
+/* View toggle (List / Kanban / Chart) */
+.page-toolbar-views { display: flex; align-items: center; gap: 2px; padding: 2px; background: var(--ios-gray-2); border-radius: var(--r-sm); }
+.pt-view-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 8px; border: none;
+  background: transparent; color: var(--ios-gray-5); cursor: pointer; padding: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.pt-view-btn:hover:not(.active) { color: var(--text-primary); background: rgba(255,255,255,0.5); }
+.pt-view-btn.active { background: var(--bg-card); color: #1d4ed8; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+html.dark .pt-view-btn:hover:not(.active) { background: rgba(255,255,255,0.06); }
+html.dark .pt-view-btn.active { background: #24304A; color: #9DB8FF; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+
+.page-toolbar-divider { width: 1px; height: 22px; background: var(--ios-sep); flex-shrink: 0; margin: 0 3px; }
+
+/* Action buttons (primary = "+ New Contact") */
+.pt-action-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  background: var(--ios-gray-1); color: var(--text-primary);
+  border: none; border-radius: var(--r-sm);
+  padding: 6px 13px; min-height: 32px;
+  font-weight: 600; font-size: 13px; white-space: nowrap; cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.12s;
+}
+.pt-action-btn:hover { background: var(--ios-gray-2); }
+.pt-action-btn.pt-action-primary { background: var(--toolbar-primary); color: #FFFFFF; box-shadow: 0 2px 8px rgba(30,58,138,0.35); }
+.pt-action-btn.pt-action-primary:hover { box-shadow: 0 4px 14px rgba(30,58,138,0.45); transform: translateY(-1px); }
+.pt-action-btn.pt-action-primary:active { transform: scale(0.97); }
+.pt-action-btn.pt-action-purple { background: rgba(175,82,222,0.10); color: #8944AB; }
+.pt-action-btn.pt-action-purple:hover { background: rgba(175,82,222,0.17); transform: translateY(-1px); }
+.pt-view-btn:focus-visible, .pt-action-btn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+
+/* Applied filter chips — full-width second row inside the toolbar */
+.page-toolbar-chips { flex-basis: 100%; padding-top: 8px; border-top: 1px solid var(--ios-sep); }
+
+/* ═════════════════════════ 6. FILTER CHIPS ═════════════════════════ */
+.lf-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-family: var(--font-sf); }
+.lf-chips-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 6px 3px 9px; border: none; border-radius: 999px;
+  background: var(--toolbar-active); color: #fff;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.lf-chips-pill .i { width: 12px; height: 12px; stroke-width: 2.4; }
+.lf-chips-pill-count {
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+  background: rgba(255,255,255,0.22); font-size: 11px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.lf-chip {
+  display: inline-flex; align-items: center; max-width: 100%;
+  padding: 2px 4px 2px 0; border-radius: 999px;
+  background: var(--button-brand-soft); color: var(--text-primary);
+  font-size: 12px; line-height: 1.5; white-space: nowrap;
+}
+.lf-chip-body {
+  display: inline-flex; align-items: center; gap: 4px; min-width: 0;
+  padding: 1px 4px 1px 10px; border: none; border-radius: 999px;
+  background: transparent; color: inherit; cursor: pointer;
+}
+.lf-chip-body:hover .lf-chip-value { text-decoration: underline; text-underline-offset: 2px; }
+.lf-chip-label { color: var(--text-secondary); font-weight: 500; }
+.lf-chip-value { font-weight: 600; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+.lf-chip-x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border: none; border-radius: 50%;
+  background: transparent; color: var(--text-secondary); cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.lf-chip-x .i { width: 11px; height: 11px; stroke-width: 2.5; }
+.lf-chip-x:hover { background: var(--accent-danger); color: #fff; }
+.lf-chips-clear {
+  padding: 4px 8px; border: none; border-radius: 8px; background: transparent;
+  color: var(--button-brand); font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.lf-chips-clear:hover { background: var(--ios-gray-1); }
+
+/* ═════════════════════════ 7. BULK ACTION BAR ═════════════════════════ */
+.bulk-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 6px 8px 6px 14px; margin-bottom: 8px; border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--accent-primary) 7%, var(--bg-card));
+  font-size: 13px;
+  animation: bulk-in 0.16s ease-out;
+}
+.bulk-bar[hidden] { display: none; }
+@keyframes bulk-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+.bulk-bar-count { color: var(--text-secondary); white-space: nowrap; }
+.bulk-bar-count strong { color: var(--accent-primary); font-weight: 700; }
+.bulk-bar-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.bulk-bar-btn, .bulk-bar-select {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 11px; border-radius: 8px;
+  border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary);
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.bulk-bar-select { padding-right: 6px; }
+.bulk-bar-btn:hover, .bulk-bar-select:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+.bulk-bar-btn--danger { color: var(--accent-danger); }
+.bulk-bar-btn--danger:hover { border-color: var(--accent-danger); color: var(--accent-danger); background: color-mix(in srgb, var(--accent-danger) 8%, var(--bg-card)); }
+.bulk-bar-clear {
+  margin-left: auto; width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 7px; background: transparent; color: var(--text-secondary); cursor: pointer;
+}
+.bulk-bar-clear:hover { background: var(--row-hover); color: var(--text-primary); }
+
+/* ═════════════════════════ 8. TABLE (StandardListView) ═════════════════════════ */
+.slv-container { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.slv-table-wrapper {
+  background: var(--bg-card);
+  border-radius: 12px 12px 0 0;          /* bottom corners come from the attached pagination */
+  border: 1px solid var(--border-light);
+  border-bottom: 0;
+  box-shadow: 0 2px 16px rgba(15, 23, 42, 0.06), 0 1px 4px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  flex: 1 1 auto; min-height: 0;
+  display: flex; flex-direction: column;
+}
+html.dark .slv-table-wrapper { border-color: var(--border-color); box-shadow: 0 2px 16px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3); }
+.slv-scroll-container { overflow: auto; flex: 1 1 auto; min-height: 0; }
+.slv-scroll-container::-webkit-scrollbar { height: 4px; width: 8px; }
+.slv-scroll-container::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+html.dark .slv-scroll-container { scrollbar-color: #33415C transparent; }
+
+.slv-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+/* Sticky header (needs border-collapse: separate) */
+.slv-table thead th { position: sticky; top: 0; z-index: 5; }
+.slv-table th {
+  background: var(--bg-card-hover);
+  padding: 8px 12px;
+  font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap; text-align: left;
+}
+html.dark .slv-table th { background: var(--bg-secondary); color: var(--text-muted); }
+.slv-table th:first-child, .slv-table td:first-child { padding-left: 16px; }
+.slv-table th:last-child,  .slv-table td:last-child  { padding-right: 16px; }
+.slv-table th.sortable { cursor: pointer; }
+.slv-table th.sortable:hover { color: var(--text-primary); }
+.slv-sort { display: inline-flex; align-items: center; gap: 4px; }
+.slv-sort .i { width: 12px; height: 12px; opacity: 0.4; }
+.slv-sort.on .i { opacity: 1; color: var(--accent-primary); }
+
+.slv-table td {
+  padding: 5px 12px;                      /* "slv-rich" density: ~40px rows */
+  vertical-align: middle;
+  font-size: 13px; line-height: 1.35;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.12s ease;
+  white-space: nowrap;
+  background: var(--bg-card);
+}
+html.dark .slv-table td { border-bottom-color: var(--border-light); }
+.slv-table tbody tr:nth-child(even) td { background: var(--bg-card-hover); }
+html.dark .slv-table tbody tr:nth-child(even) td { background: #121a28; }
+.slv-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
+
+/* Row hover: full-row tint + 3px left accent */
+.slv-row { cursor: pointer; }
+.slv-row:hover td { background: var(--row-hover) !important; }
+html.dark .slv-row:hover td { background: var(--bg-card-hover) !important; }
+.slv-row:hover td:first-child { box-shadow: inset 3px 0 0 var(--accent-primary); }
+.slv-table tbody tr.slv-row-selected td { background: color-mix(in srgb, var(--accent-primary) 8%, var(--bg-card)) !important; }
+
+/* Select + S.No columns */
+.slv-table .slv-select-cell { width: 40px; min-width: 40px; padding-left: 14px !important; padding-right: 4px !important; text-align: center; }
+.slv-checkbox { width: 15px; height: 15px; margin: 0; vertical-align: middle; cursor: pointer; accent-color: var(--accent-primary); }
+.slv-table .slv-serial-cell { width: 56px; min-width: 56px; text-align: center; font-variant-numeric: tabular-nums; padding-left: 12px; padding-right: 8px; }
+.slv-table td.slv-serial-cell { font-size: 12px; font-weight: 600; }
+html.dark .slv-table td.slv-serial-cell { color: var(--text-muted); }
+
+/* Sticky leading columns (select, S.No, Name) — opaque so scrolled cells don't show through */
+.slv-table .slv-sticky { position: sticky; z-index: 2; }
+.slv-table thead th.slv-sticky { z-index: 6; }
+.slv-scrolled-x .slv-table .slv-sticky-edge { box-shadow: 6px 0 8px -6px rgba(15, 23, 42, 0.18); }
+html.dark .slv-scrolled-x .slv-table .slv-sticky-edge { box-shadow: 6px 0 8px -6px rgba(0,0,0,0.6); }
+
+/* Name cell: avatar + title + muted meta line */
+.slv-entity { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.slv-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  font-size: 10.5px; font-weight: 700;
+  background: color-mix(in srgb, var(--accent-primary) 14%, var(--bg-card));
+  color: var(--accent-primary);
+}
+.slv-primary { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.slv-primary-title { font-weight: 600; font-size: 13px; line-height: 1.35; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; }
+.slv-row:hover .slv-primary-title { color: var(--accent-primary); }
+.slv-primary-meta { display: flex; align-items: center; gap: 4px; font-size: 11.5px; line-height: 1.35; color: var(--text-muted); overflow: hidden; }
+.slv-primary-meta .i { width: 12px; height: 12px; }
+/* Two-line plain cell (Job Title + department) */
+.contact-cell-primary { display: flex; flex-direction: column; gap: 1px; }
+.contact-subtext { font-size: 11px; color: var(--text-muted); }
+
+/* Row actions: View / Convert / Edit / Delete */
+.slv-actions-cell { text-align: center; }
+.slv-actions { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.slv-action-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 7px; border: none;
+  background: transparent; cursor: pointer; padding: 0;
+  opacity: 0.65;
+  transition: background 0.15s, transform 0.12s;
+}
+.slv-row:hover .slv-action-icon { opacity: 1; }
+.slv-action-icon:hover { transform: translateY(-1px); opacity: 1; }
+.slv-action-icon:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 1px; opacity: 1; }
+.slv-action-icon.tone-primary { color: var(--accent-primary); }
+.slv-action-icon.tone-primary:hover { background: rgba(67,97,238,0.1); }
+.slv-action-icon.tone-info    { color: #06B6D4; }
+.slv-action-icon.tone-info:hover    { background: rgba(6,182,212,0.1); }
+.slv-action-icon.tone-success { color: #10B981; }
+.slv-action-icon.tone-success:hover { background: rgba(16,185,129,0.1); }
+.slv-action-icon.tone-warning { color: #F59E0B; }
+.slv-action-icon.tone-warning:hover { background: rgba(245,158,11,0.1); }
+.slv-action-icon.tone-danger  { color: #F43F5E; }
+.slv-action-icon.tone-danger:hover  { background: rgba(244,63,94,0.1); }
+
+/* Loading / empty / error rows */
+.slv-skeleton {
+  display: block; height: 10px; border-radius: 5px;
+  background: linear-gradient(90deg, var(--border-color) 25%, var(--bg-card-hover) 50%, var(--border-color) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+.slv-table tr.slv-skeleton-row td { padding-top: 13px; padding-bottom: 13px; }
+.slv-table td.slv-state { padding: 40px 20px; text-align: center; font-size: 13.5px; color: var(--text-muted); }
+.slv-table td.slv-state--error { color: var(--accent-danger); }
+.slv-state-retry {
+  margin-top: 10px; padding: 5px 14px; border-radius: 8px;
+  border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary);
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+.slv-state-retry:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+
+/* ═════════════════════════ 9. STATUS BADGE ═════════════════════════ */
+/* One colour in, the rest derived: tinted bg, darker text, faint border, dot. */
+.status-badge {
+  --sb-color: #64748b;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 22px; max-width: 100%; padding: 0 9px 0 8px;
+  border-radius: 999px;
+  font-size: 11.5px; font-weight: 600; line-height: 1; white-space: nowrap; vertical-align: middle;
+  color: color-mix(in srgb, var(--sb-color) 78%, #000);
+  background: color-mix(in srgb, var(--sb-color) 12%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--sb-color) 26%, transparent);
+}
+.status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--sb-color); }
+.status-badge--amber  { --sb-color: #d97706; }
+.status-badge--blue   { --sb-color: #2563eb; }
+.status-badge--green  { --sb-color: #059669; }
+.status-badge--red    { --sb-color: #dc2626; }
+.status-badge--teal   { --sb-color: #0d9488; }
+.status-badge--violet { --sb-color: #7c3aed; }
+.status-badge--gray   { --sb-color: #64748b; }
+html.dark .status-badge {
+  color: color-mix(in srgb, var(--sb-color) 55%, #fff);
+  background: color-mix(in srgb, var(--sb-color) 20%, var(--bg-card));
+  border-color: color-mix(in srgb, var(--sb-color) 38%, transparent);
+}
+
+/* ═════════════════════════ 10. PAGINATION ═════════════════════════ */
+.crm-pagination {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 8px 16px; padding: 7px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  flex-shrink: 0;
+  font-size: 12.5px; color: var(--text-secondary);
+}
+/* Attached = footer of the table card */
+.crm-pagination--attached {
+  border-top: 1px solid var(--border-color);
+  border-radius: 0 0 12px 12px;
+  background: var(--bg-card-hover);
+  box-shadow: 0 8px 14px -10px rgba(15, 23, 42, 0.12);
+}
+html.dark .crm-pagination { border-color: var(--border-color); }
+html.dark .crm-pagination--attached { background: var(--bg-secondary); box-shadow: 0 8px 14px -10px rgba(0,0,0,0.5); }
+.crm-pagination-left { display: flex; align-items: center; gap: 14px; min-width: 0; flex-wrap: wrap; }
+.crm-pagination-size { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.crm-pagination-size-label { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+.crm-pagination-select {
+  height: 28px; cursor: pointer; padding: 0 6px;
+  border: 1px solid var(--border-color); border-radius: 7px;
+  font-size: 12.5px; font-weight: 600; color: var(--text-primary); background: var(--bg-card);
+}
+.crm-pagination-info, .crm-pagination-pageof { font-size: 12.5px; color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.crm-pagination-info strong, .crm-pagination-pageof strong { font-weight: 600; color: var(--text-primary); }
+.crm-pagination-pageof { padding-left: 14px; border-left: 1px solid var(--border-color); }
+.crm-pagination-right { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.crm-pagination-pages { display: flex; align-items: center; gap: 4px; }
+.crm-pagination-btn {
+  min-width: 28px; height: 28px; padding: 0 6px;
+  border: 1px solid var(--border-color); border-radius: 7px;
+  background: var(--bg-card); color: var(--text-secondary);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.crm-pagination-btn:hover:not(:disabled):not(.active) { border-color: var(--accent-primary); color: var(--accent-primary); }
+.crm-pagination-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.22); }
+.crm-pagination-btn.active { background: var(--accent-primary); border-color: var(--accent-primary); color: #FFFFFF; cursor: default; }
+.crm-pagination-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.crm-pagination-gap { min-width: 20px; text-align: center; color: var(--text-muted); }
+.crm-pagination-compact { display: none; padding: 0 8px; font-weight: 600; white-space: nowrap; }
+.crm-pagination-jump { margin-left: 8px; padding-left: 10px; border-left: 1px solid var(--border-color); }
+.crm-pagination-jump-label { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.crm-pagination-jump-input {
+  width: 56px; height: 28px; padding: 0 6px; text-align: center;
+  border: 1px solid var(--border-color); border-radius: 7px;
+  background: var(--bg-card); color: var(--text-primary); font-size: 12.5px; font-weight: 600;
+  -moz-appearance: textfield;
+}
+.crm-pagination-select:focus-visible, .crm-pagination-jump-input:focus-visible {
+  outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.18);
+}
+
+/* ═════════════════════════ 11. FILTER DRAWER ═════════════════════════ */
+.lf-root { position: fixed; inset: 0; z-index: 1050; font-family: var(--font-sf); }
+.lf-root[hidden] { display: none; }
+.lf-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.28); backdrop-filter: blur(2px); animation: lf-fade 160ms ease-out; }
+.lf-drawer {
+  position: absolute; top: 0; right: 0; bottom: 0; width: min(420px, 100vw);
+  display: flex; flex-direction: column;
+  background: var(--bg-card); color: var(--text-primary);
+  border-left: 1px solid var(--ios-sep);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.14);
+  animation: lf-slide 220ms cubic-bezier(0.32, 0, 0, 1);
+}
+@keyframes lf-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lf-slide { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.lf-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px 14px; border-bottom: 1px solid var(--ios-sep); }
+.lf-header-left, .lf-header-right { display: flex; align-items: center; gap: 6px; }
+.lf-title { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.pop-count {
+  display: inline-flex; align-items: center; min-height: 18px; padding: 0 7px; margin-left: 8px;
+  border-radius: 999px; background: rgba(29, 78, 216, 0.10); color: #1d4ed8; font-size: 11px; font-weight: 700;
+}
+.pop-link { border: none; background: transparent; padding: 4px 6px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--button-brand); cursor: pointer; }
+.pop-link:hover { background: var(--ios-gray-1); }
+.lf-close {
+  width: 30px; height: 30px; border: none; border-radius: 50%;
+  background: var(--ios-gray-1); color: var(--text-secondary);
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.lf-close:hover { background: var(--ios-gray-2); color: var(--text-primary); }
+.lf-body { flex: 1; overflow-y: auto; padding: 4px 18px 18px; }
+.lf-section { padding: 14px 0; border-bottom: 1px solid var(--ios-sep); }
+.lf-section:last-child { border-bottom: none; }
+.lf-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.lf-section-title { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: -0.01em; }
+.lf-section--on .lf-section-title { color: var(--button-brand); }
+html.dark .lf-section--on .lf-section-title { color: #9DB8FF; }
+.lf-section-clear { border: none; background: transparent; padding: 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+.lf-section-clear:hover { color: var(--accent-danger); }
+.lf-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.lf-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+  border: 1px solid var(--border-field); border-radius: 999px;
+  background: var(--bg-card); color: var(--text-secondary);
+  font-size: 12.5px; font-weight: 600; line-height: 1.3; cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.lf-pill:hover { border-color: var(--button-brand); color: var(--text-primary); }
+.lf-pill--on, .lf-pill--on:hover { background: var(--button-brand); border-color: var(--button-brand); color: #fff; }
+.lf-pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.lf-pill--on .lf-pill-dot { box-shadow: 0 0 0 1.5px rgba(255,255,255,0.7); }
+.lf-input {
+  width: 100%; min-height: 36px; padding: 0 10px;
+  background: var(--bg-input); border: 1px solid var(--border-field); border-radius: var(--r-sm);
+  font-size: 13px; color: var(--text-primary); outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.lf-input::placeholder { color: var(--text-muted); }
+.lf-input:focus { border-color: var(--button-brand); box-shadow: 0 0 0 3px rgba(82, 134, 165, 0.16); }
+html.dark .lf-input { color-scheme: dark; }
+.lf-range { display: flex; gap: 10px; }
+.lf-range-field { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; margin: 0; }
+.lf-range-field > span { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); }
+.lf-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--ios-sep); }
+.lf-footer-right { display: flex; gap: 8px; }
+.lf-btn { min-height: 36px; padding: 0 16px; border: none; border-radius: var(--r-sm); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.12s, color 0.12s; }
+.lf-btn--primary { background: var(--button-brand); color: #fff; box-shadow: var(--button-brand-shadow); }
+.lf-btn--primary:hover { background: var(--button-brand-hover); }
+.lf-btn--secondary { background: var(--ios-gray-1); color: var(--text-primary); }
+.lf-btn--secondary:hover { background: var(--ios-gray-2); }
+.lf-btn--ghost { background: transparent; color: var(--text-secondary); padding: 0 8px; }
+.lf-btn--ghost:hover { background: var(--ios-gray-1); color: var(--text-primary); }
+
+/* ═════════════════════════ 12. RESPONSIVE ═════════════════════════ */
+@media (max-width: 1100px) { .crm-pagination-pageof { display: none; } }
+@media (max-width: 900px)  { .crm-pagination-right { margin-left: 0; } }
+@media (max-width: 768px) {
+  .sg-grid { grid-template-columns: repeat(2, 1fr); }
+  .sg-card { padding: 10px 12px; min-height: 64px; }
+  .sg-label { font-size: 9.5px; letter-spacing: 0.04em; }
+  .sg-value { font-size: 1.1rem; }
+  .page-toolbar { padding: 10px 12px; gap: 8px; flex-direction: column; align-items: stretch; }
+  .page-toolbar-left { flex-wrap: wrap; }
+  .page-toolbar-search, .page-toolbar-search-input { width: 100%; }
+  .page-toolbar-right { justify-content: flex-end; }
+  .page-toolbar-chips { flex-basis: auto; } /* 100% would be height in the column layout */
+  .slv-scroll-container { overflow-y: visible; }
+  /* Nothing pins sideways on phones — the pinned stack would fill the screen */
+  .slv-table td.slv-sticky { position: static; }
+  .slv-table .slv-sticky-edge { box-shadow: none !important; }
+}
+@media (max-width: 576px) {
+  .crm-page-shell { padding: 10px 12px; }
+  .crm-pagination { padding: 8px 10px; justify-content: center; }
+  .crm-pagination-left { width: 100%; justify-content: space-between; }
+  .crm-pagination-size-label, .crm-pagination-pages, .crm-pagination-pageof, .crm-pagination-jump { display: none; }
+  .crm-pagination-right { width: 100%; justify-content: center; }
+  .crm-pagination-compact { display: inline; }
+  .crm-pagination-btn { min-width: 34px; height: 34px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sg-skeleton, .slv-skeleton, .bulk-bar, .lf-backdrop, .lf-drawer { animation: none; }
+}
+
+/* Demo-only: theme switch in the corner */
+.demo-theme { margin-left: auto; align-self: center; min-height: 28px; padding: 4px 10px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Icon sprite (lucide paths) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="i-user-check" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-user-x" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="m21 16-4 4-4-4M17 20V4M3 8l4-4 4 4M7 4v16"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><path d="M12 15V3"/></symbol>
+  <symbol id="i-columns" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18M15 3v18"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></symbol>
+  <symbol id="i-kanban" viewBox="0 0 24 24"><path d="M6 5v11M12 5v6M18 5v14"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M7 7h10v10M7 17 17 7"/></symbol>
+  <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-chevrons-left" viewBox="0 0 24 24"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/></symbol>
+  <symbol id="i-chevrons-right" viewBox="0 0 24 24"><path d="m6 17 5-5-5-5M13 17l5-5-5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+</svg>
+
+<div class="crm-page-shell">
+
+  <!-- ── Page header ── -->
+  <div class="page-header">
+    <h2><svg class="i"><use href="#i-user"/></svg>Contacts</h2>
+    <p>Manage your people and their related data</p>
+    <button type="button" class="pt-action-btn demo-theme" id="theme"><svg class="i"><use href="#i-moon"/></svg>Toggle dark</button>
+  </div>
+
+  <!-- ── KPI cards ── set --sg-accent / --card-color per card -->
+  <div class="sg-grid">
+    <div class="sg-card" style="--sg-accent:#007AFF;--card-color:#007AFF" title="Total Contacts: 1,284">
+      <div class="sg-card-inner">
+        <div class="sg-icon-wrapper blue"><svg class="i"><use href="#i-user"/></svg></div>
+        <div class="sg-content"><div class="sg-label">Total Contacts</div><div class="sg-value">1,284</div></div>
+      </div>
+    </div>
+    <div class="sg-card" style="--sg-accent:#34C759;--card-color:#34C759">
+      <div class="sg-card-inner">
+        <div class="sg-icon-wrapper green"><svg class="i"><use href="#i-user-check"/></svg></div>
+        <div class="sg-content"><div class="sg-label">Active</div><div class="sg-value">846</div></div>
+        <div class="sg-ring" role="progressbar" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <circle class="sg-ring-track" cx="24" cy="24" r="19"/>
+            <!-- dasharray = 2πr = 119.38; dashoffset = 119.38 × (1 − pct) -->
+            <circle class="sg-ring-fill" cx="24" cy="24" r="19" stroke-dasharray="119.38" stroke-dashoffset="40.59"/>
+          </svg>
+          <span class="sg-ring-label">66%</span>
+        </div>
+      </div>
+    </div>
+    <div class="sg-card" style="--sg-accent:#FF9500;--card-color:#FF9500">
+      <div class="sg-card-inner">
+        <div class="sg-icon-wrapper orange"><svg class="i"><use href="#i-target"/></svg></div>
+        <div class="sg-content"><div class="sg-label">Lead</div><div class="sg-value">312</div><div class="sg-sub">+18 this week</div></div>
+      </div>
+    </div>
+    <div class="sg-card" style="--sg-accent:#AF52DE;--card-color:#AF52DE">
+      <div class="sg-card-inner">
+        <div class="sg-icon-wrapper purple"><svg class="i"><use href="#i-user-x"/></svg></div>
+        <div class="sg-content"><div class="sg-label">Inactive</div><div class="sg-value">126</div></div>
+      </div>
+    </div>
+    <!-- Skeleton card (loading state) -->
+    <div class="sg-card sg-card--loading" aria-hidden="true">
+      <div class="sg-card-inner">
+        <div class="sg-icon-wrapper sg-skeleton"></div>
+        <div class="sg-content"><div class="sg-skeleton sg-skeleton-label"></div><div class="sg-skeleton sg-skeleton-value"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Toolbar ── -->
+  <div class="page-toolbar">
+    <div class="page-toolbar-left">
+      <h3 class="page-toolbar-title">Contacts</h3>
+      <span class="page-toolbar-count">1,284</span>
+      <div class="page-toolbar-search">
+        <svg class="i page-toolbar-search-icon"><use href="#i-search"/></svg>
+        <input class="page-toolbar-search-input" type="text" placeholder="Search contacts..." aria-label="Search contacts" />
+      </div>
+    </div>
+    <div class="page-toolbar-right">
+      <div class="page-toolbar-icons">
+        <button type="button" class="pt-icon-btn active" id="open-filters" title="Filter" aria-label="Filter">
+          <svg class="i"><use href="#i-filter"/></svg><span class="pt-btn-label">Filter</span>
+          <span class="pt-menu-badge">2</span>
+        </button>
+        <button type="button" class="pt-icon-btn" title="Sort" aria-label="Sort">
+          <svg class="i"><use href="#i-sort"/></svg><span class="pt-btn-label">Sort</span>
+        </button>
+        <button type="button" class="pt-icon-btn" title="Export" aria-label="Export">
+          <svg class="i"><use href="#i-download"/></svg><span class="pt-btn-label">Export</span>
+        </button>
+        <button type="button" class="pt-icon-btn" title="Columns" aria-label="Columns">
+          <svg class="i"><use href="#i-columns"/></svg><span class="pt-btn-label">Columns</span>
+          <span class="pt-menu-badge pt-menu-badge--muted">1</span>
+        </button>
+      </div>
+      <div class="page-toolbar-divider"></div>
+      <div class="page-toolbar-views" role="group" aria-label="View">
+        <button type="button" class="pt-view-btn active" title="List" aria-label="List"><svg class="i"><use href="#i-list"/></svg></button>
+        <button type="button" class="pt-view-btn" title="Kanban" aria-label="Kanban"><svg class="i"><use href="#i-kanban"/></svg></button>
+        <button type="button" class="pt-view-btn" title="Chart" aria-label="Chart"><svg class="i"><use href="#i-chart"/></svg></button>
+      </div>
+      <div class="page-toolbar-divider"></div>
+      <!-- Shared primary action style (Contacts itself passes no actions; other modules do) -->
+      <button type="button" class="pt-action-btn pt-action-primary"><svg class="i"><use href="#i-plus"/></svg>New Contact</button>
+    </div>
+
+    <!-- Applied filter chips: second row -->
+    <div class="page-toolbar-chips">
+      <div class="lf-chips" aria-label="Applied filters">
+        <button type="button" class="lf-chips-pill" title="Edit filters"><svg class="i"><use href="#i-filter"/></svg>Filters<span class="lf-chips-pill-count">2</span></button>
+        <span class="lf-chip">
+          <button type="button" class="lf-chip-body"><span class="lf-chip-label">Status:</span><span class="lf-chip-value">Active, Lead</span></button>
+          <button type="button" class="lf-chip-x" aria-label="Remove Status filter"><svg class="i"><use href="#i-x"/></svg></button>
+        </span>
+        <span class="lf-chip">
+          <button type="button" class="lf-chip-body"><span class="lf-chip-label">Entity Type:</span><span class="lf-chip-value">Company</span></button>
+          <button type="button" class="lf-chip-x" aria-label="Remove Entity Type filter"><svg class="i"><use href="#i-x"/></svg></button>
+        </span>
+        <button type="button" class="lf-chips-clear">Clear all</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Bulk action bar (shown while rows are selected) ── -->
+  <div class="bulk-bar" id="bulk-bar" role="region" aria-label="Bulk actions" hidden>
+    <span class="bulk-bar-count" aria-live="polite"><strong id="bulk-count">0</strong> contacts selected</span>
+    <div class="bulk-bar-actions">
+      <select class="bulk-bar-select" aria-label="Set status"><option>Set status…</option><option>Active</option><option>Lead</option><option>Inactive</option></select>
+      <button type="button" class="bulk-bar-btn"><svg class="i"><use href="#i-download"/></svg>Export</button>
+      <button type="button" class="bulk-bar-btn bulk-bar-btn--danger"><svg class="i"><use href="#i-trash"/></svg>Delete</button>
+    </div>
+    <button type="button" class="bulk-bar-clear" id="bulk-clear" aria-label="Clear selection" title="Clear selection"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>
+
+  <!-- ── Data region: table card + attached pagination ── -->
+  <div class="crm-page-body">
+    <div class="slv-container">
+      <div class="slv-table-wrapper">
+        <div class="slv-scroll-container" id="scroller">
+          <table class="slv-table">
+            <thead>
+              <tr>
+                <th class="slv-select-cell slv-sticky" style="left:0"><input type="checkbox" class="slv-checkbox" id="select-all" aria-label="Select all" /></th>
+                <th class="slv-serial-cell slv-sticky" style="left:40px">S.No</th>
+                <th class="slv-sticky slv-sticky-edge sortable" style="left:96px;width:260px;min-width:260px"><span class="slv-sort on">Name <svg class="i"><use href="#i-sort"/></svg></span></th>
+                <th>Email</th>
+                <th>Job Title</th>
+                <th>Phone</th>
+                <th class="sortable"><span class="slv-sort">Company <svg class="i"><use href="#i-sort"/></svg></span></th>
+                <th>Location</th>
+                <th>Entity Type</th>
+                <th class="sortable"><span class="slv-sort">Status <svg class="i"><use href="#i-sort"/></svg></span></th>
+                <th style="text-align:center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <nav class="crm-pagination crm-pagination--attached" aria-label="Pagination">
+        <div class="crm-pagination-left">
+          <label class="crm-pagination-size">
+            <span class="crm-pagination-size-label">Rows per page</span>
+            <select class="crm-pagination-select" aria-label="Rows per page"><option>10</option><option selected>25</option><option>50</option><option>100</option></select>
+          </label>
+          <span class="crm-pagination-info" aria-live="polite">Showing <strong>26–50</strong> of <strong>1,284</strong> contacts</span>
+          <span class="crm-pagination-pageof">Page <strong>2</strong> of <strong>52</strong></span>
+        </div>
+        <div class="crm-pagination-right">
+          <button type="button" class="crm-pagination-btn" aria-label="First page" title="First page"><svg class="i"><use href="#i-chevrons-left"/></svg></button>
+          <button type="button" class="crm-pagination-btn" aria-label="Previous page" title="Previous page"><svg class="i"><use href="#i-chevron-left"/></svg></button>
+          <div class="crm-pagination-pages">
+            <button type="button" class="crm-pagination-btn" aria-label="Page 1">1</button>
+            <button type="button" class="crm-pagination-btn active" aria-label="Page 2" aria-current="page">2</button>
+            <button type="button" class="crm-pagination-btn" aria-label="Page 3">3</button>
+            <button type="button" class="crm-pagination-btn" aria-label="Page 4">4</button>
+            <span class="crm-pagination-gap" aria-hidden="true">…</span>
+            <button type="button" class="crm-pagination-btn" aria-label="Page 52">52</button>
+          </div>
+          <span class="crm-pagination-compact" aria-hidden="true">2 / 52</span>
+          <button type="button" class="crm-pagination-btn" aria-label="Next page" title="Next page"><svg class="i"><use href="#i-chevron-right"/></svg></button>
+          <button type="button" class="crm-pagination-btn" aria-label="Last page" title="Last page"><svg class="i"><use href="#i-chevrons-right"/></svg></button>
+          <form class="crm-pagination-jump" onsubmit="return false">
+            <label class="crm-pagination-jump-label">Go to <input type="number" min="1" max="52" placeholder="2" class="crm-pagination-jump-input" aria-label="Go to page (1 to 52)" /></label>
+          </form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- ── Filter drawer (opens from the Filter button) ── -->
+<div class="lf-root" id="filters" hidden>
+  <div class="lf-backdrop" data-close></div>
+  <aside class="lf-drawer" role="dialog" aria-modal="true" aria-label="Filters">
+    <header class="lf-header">
+      <div class="lf-header-left"><h2 class="lf-title">Filters</h2><span class="pop-count">2</span></div>
+      <div class="lf-header-right">
+        <button type="button" class="pop-link">Reset</button>
+        <button type="button" class="lf-close" aria-label="Close" data-close><svg class="i"><use href="#i-x"/></svg></button>
+      </div>
+    </header>
+    <div class="lf-body">
+      <section class="lf-section lf-section--on">
+        <div class="lf-section-head"><h3 class="lf-section-title">Status</h3><button type="button" class="lf-section-clear">Clear</button></div>
+        <div class="lf-pills">
+          <button type="button" class="lf-pill lf-pill--on"><span class="lf-pill-dot" style="background:#059669"></span>Active</button>
+          <button type="button" class="lf-pill lf-pill--on"><span class="lf-pill-dot" style="background:#2563eb"></span>Lead</button>
+          <button type="button" class="lf-pill"><span class="lf-pill-dot" style="background:#0d9488"></span>Customer</button>
+          <button type="button" class="lf-pill"><span class="lf-pill-dot" style="background:#64748b"></span>Inactive</button>
+        </div>
+      </section>
+      <section class="lf-section lf-section--on">
+        <div class="lf-section-head"><h3 class="lf-section-title">Entity Type</h3><button type="button" class="lf-section-clear">Clear</button></div>
+        <div class="lf-pills">
+          <button type="button" class="lf-pill lf-pill--on">Company</button>
+          <button type="button" class="lf-pill">Individual</button>
+          <button type="button" class="lf-pill">Vendor</button>
+        </div>
+      </section>
+      <section class="lf-section">
+        <div class="lf-section-head"><h3 class="lf-section-title">Company</h3></div>
+        <input class="lf-input" type="text" placeholder="Contains…" />
+      </section>
+      <section class="lf-section">
+        <div class="lf-section-head"><h3 class="lf-section-title">Created</h3></div>
+        <div class="lf-pills" style="margin-bottom:8px">
+          <button type="button" class="lf-pill">Today</button>
+          <button type="button" class="lf-pill">This week</button>
+          <button type="button" class="lf-pill">This month</button>
+          <button type="button" class="lf-pill">Custom</button>
+        </div>
+        <div class="lf-range">
+          <label class="lf-range-field"><span>From</span><input class="lf-input" type="date" /></label>
+          <label class="lf-range-field"><span>To</span><input class="lf-input" type="date" /></label>
+        </div>
+      </section>
+    </div>
+    <footer class="lf-footer">
+      <button type="button" class="lf-btn lf-btn--ghost">Clear all</button>
+      <div class="lf-footer-right">
+        <button type="button" class="lf-btn lf-btn--secondary" data-close>Cancel</button>
+        <button type="button" class="lf-btn lf-btn--primary" data-close>Apply filters</button>
+      </div>
+    </footer>
+  </aside>
+</div>
+
+<script>
+// Demo data + tiny interactions only (selection → bulk bar, filter drawer, theme).
+const STATUS = { Active: 'green', Lead: '#2563eb', Customer: '#0d9488', Inactive: 'gray' };
+const TYPE = { Company: '#2563eb', Individual: '#7c3aed', Vendor: '#059669' };
+const people = [
+  ['Priya Raman', 'priya@nimbus.io', 'Head of Ops', 'Operations', '+91 98400 11223', 'Nimbus Labs', 'Chennai', 'Company', 'Active'],
+  ['Daniel Okafor', 'daniel@brightline.co', 'CTO', 'Engineering', '+44 20 7946 0101', 'Brightline', 'London', 'Company', 'Lead'],
+  ['Meera Iyer', 'meera.iyer@gmail.com', 'Consultant', '', '+91 99620 44556', '', 'Bengaluru', 'Individual', 'Customer'],
+  ['Lucas Fischer', 'lucas@stahlwerk.de', 'Procurement Lead', 'Purchasing', '+49 30 901820', 'Stahlwerk GmbH', 'Berlin', 'Vendor', 'Active'],
+  ['Aisha Khan', 'aisha@orbitretail.ae', 'Marketing Manager', 'Marketing', '+971 4 555 0192', 'Orbit Retail', 'Dubai', 'Company', 'Inactive'],
+  ['Karthik Subramanian', 'karthik@ambot365.com', 'Sales Director', 'Sales', '+91 90030 77881', 'Ambot365', 'Chennai', 'Company', 'Active'],
+  ['Sofia Rossi', '', 'Designer', '', '+39 06 4870 2201', 'Studio Rossi', 'Rome', 'Individual', 'Lead'],
+  ['Ethan Clarke', 'ethan@clarkefin.com', 'Finance Controller', 'Finance', '+1 415 555 0144', 'Clarke Financial', 'San Francisco', 'Company', 'Customer'],
+  ['Nadia Petrova', 'nadia@kvant.ru', 'Account Manager', 'Sales', '+7 495 123 4567', 'Kvant', 'Moscow', 'Vendor', 'Active'],
+  ['Rahul Menon', 'rahul.menon@outlook.com', 'Freelancer', '', '+91 94440 12345', '', 'Kochi', 'Individual', 'Inactive'],
+];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const badge = (label, c) => c.startsWith('#')
+  ? `<span class="status-badge" style="--sb-color:${c}">${esc(label)}</span>`
+  : `<span class="status-badge status-badge--${c}">${esc(label)}</span>`;
+const initials = n => n.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+const icon = id => `<svg class="i"><use href="#i-${id}"/></svg>`;
+const action = (tone, id, label) => `<button type="button" class="slv-action-icon tone-${tone}" title="${label}" aria-label="${label}">${icon(id)}</button>`;
+
+document.getElementById('rows').innerHTML = people.map(([name, email, job, dept, phone, company, loc, type, status], i) => `
+  <tr class="slv-row" tabindex="0">
+    <td class="slv-select-cell slv-sticky" style="left:0"><input type="checkbox" class="slv-checkbox row-check" aria-label="Select ${esc(name)}" /></td>
+    <td class="slv-serial-cell slv-sticky" style="left:40px">${26 + i}</td>
+    <td class="slv-sticky slv-sticky-edge" style="left:96px">
+      <div class="slv-entity"><span class="slv-avatar">${initials(name)}</span>
+        <div class="slv-primary"><div class="slv-primary-title">${esc(name)}</div><div class="slv-primary-meta">${icon('building')}${esc(company || 'No Company')}</div></div>
+      </div>
+    </td>
+    <td><div class="slv-cell">${email ? `<a class="text-link" href="mailto:${esc(email)}">${esc(email)}</a>` : '<span class="text-secondary">-</span>'}</div></td>
+    <td><div class="contact-cell-primary"><span class="fw-medium text-dark">${esc(job)}</span><span class="contact-subtext">${esc(dept || company || '')}</span></div></td>
+    <td><span class="fw-medium text-secondary">${esc(phone)}</span></td>
+    <td><span class="fw-medium text-dark">${esc(company || '-')}</span></td>
+    <td><span class="text-secondary">${esc(loc)}</span></td>
+    <td>${badge(type, TYPE[type])}</td>
+    <td>${badge(status, STATUS[status])}</td>
+    <td class="slv-actions-cell"><div class="slv-actions">
+      ${action('primary', 'eye', 'View')}${action('success', 'arrow-up-right', 'Convert to Lead')}${action('info', 'pencil', 'Edit')}${action('danger', 'trash', 'Delete')}
+    </div></td>
+  </tr>`).join('');
+
+const checks = [...document.querySelectorAll('.row-check')];
+const all = document.getElementById('select-all');
+const bar = document.getElementById('bulk-bar');
+const sync = () => {
+  const n = checks.filter(c => c.checked).length;
+  checks.forEach(c => c.closest('tr').classList.toggle('slv-row-selected', c.checked));
+  all.checked = n === checks.length; all.indeterminate = n > 0 && n < checks.length;
+  document.getElementById('bulk-count').textContent = n;
+  bar.hidden = n === 0;
+};
+checks.forEach(c => { c.addEventListener('change', sync); c.addEventListener('click', e => e.stopPropagation()); });
+all.addEventListener('change', () => { checks.forEach(c => c.checked = all.checked); sync(); });
+document.getElementById('bulk-clear').addEventListener('click', () => { checks.forEach(c => c.checked = false); sync(); });
+
+// Sticky-column divider shadow only once scrolled sideways
+const scroller = document.getElementById('scroller');
+scroller.addEventListener('scroll', () => scroller.classList.toggle('slv-scrolled-x', scroller.scrollLeft > 0));
+
+const drawer = document.getElementById('filters');
+document.getElementById('open-filters').addEventListener('click', () => drawer.hidden = false);
+drawer.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', () => drawer.hidden = true));
+drawer.querySelectorAll('.lf-pill').forEach(p => p.addEventListener('click', () => p.classList.toggle('lf-pill--on')));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') drawer.hidden = true; });
+
+document.getElementById('theme').addEventListener('click', () => document.documentElement.classList.toggle('dark'));
+</script>
+</body>
+</html>

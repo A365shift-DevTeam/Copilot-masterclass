@@ -1,5 +1,6 @@
 import { PAYMENT_URL } from '../data/content.js'
 import ReserveSeatLabel, { ReserveSeatBot } from './ReserveSeatLabel.jsx'
+import { startCheckout } from './CheckoutDialog.jsx'
 
 /**
  * The seat CTA as it repeats down the page, once at the end of each section
@@ -9,6 +10,7 @@ import ReserveSeatLabel, { ReserveSeatBot } from './ReserveSeatLabel.jsx'
  */
 export default function ReserveSeatButton({ className = '' }) {
   const handleClick = (e) => {
+    startCheckout(e, 'webinar')
     const btn = e.currentTarget
     const rect = btn.getBoundingClientRect()
     const ripple = document.createElement('span')

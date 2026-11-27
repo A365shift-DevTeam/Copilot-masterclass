@@ -6,7 +6,8 @@ import * as content from './content.js'
 test('applySiteData patches dates, prices, links and keeps indexes', () => {
   const keys = content.HERO_PRICES.map((p) => p.key)
   content.applySiteData({ courses: [
-    { key: 'webinar', name: 'Webinar', price: 599, paymentUrl: 'https://pay.example/w', startsAt: '2026-12-05T04:30:00Z', endsAt: '2026-12-05T08:30:00Z', language: 'English', isVisible: false },
+    { key: 'webinar', name: 'Webinar', price: 599, paymentUrl: 'https://pay.example/w', startsAt: '2026-12-05T04:30:00Z', endsAt: '2026-12-05T08:30:00Z', language: 'English', isVisible: false,
+      upcoming: [{ startsAt: '2026-12-05T04:30:00Z' }, { startsAt: '2026-12-12T04:30:00Z' }, { startsAt: '2026-12-19T04:30:00Z' }] },
     { key: 'workshop', name: 'Workshop', price: 5999, paymentUrl: 'https://pay.example/ws', startsAt: '2027-02-12T18:30:00Z', endsAt: null, language: 'Tamil', isVisible: false },
     { key: 'skill-builder', name: 'Skill', price: 3999, listPrice: 9999, paymentUrl: 'https://pay.example/s', isVisible: true },
     { key: 'ladder-new', name: 'Copilot for Planner', price: 1299, paymentUrl: 'https://pay.example/p', isVisible: true, category: 'single', description: 'Plans', duration: '30 days access', cta: 'Enrol', icon: 'app:planner', isFeatured: true },
@@ -14,6 +15,7 @@ test('applySiteData patches dates, prices, links and keeps indexes', () => {
   ], pricingTabs: [{ id: 'single', name: 'Single apps', blurb: null }], whatsappUrl: 'https://chat.whatsapp.com/NEW' })
   assert.equal(content.WHATSAPP_COMMUNITY_URL, 'https://chat.whatsapp.com/NEW')
   assert.equal(content.WEBINAR_DATE, 'Sat 5 Dec 2026 · 10 AM – 2 PM IST in English')
+  assert.deepEqual(content.MORE_DATES, ['Sat 12 Dec', 'Sat 19 Dec'])
   assert.equal(content.HERO_PRICES[0].meta, 'Saturday, 5 December 2026 · 10:00 AM – 2:00 PM IST · English')
   assert.equal(content.PAYMENT_URL, 'https://pay.example/w')
   assert.equal(content.HERO_PRICES[0].hidden, false) // the webinar can't be hidden

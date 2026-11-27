@@ -1,7 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
+import './design-system.css' // Ambot365 Design System: tokens and ds-* components
 import './styles.css'
+import './ds-skin.css' // this app's components on the design system
+import './list-design.css' // list pages: toolbar, filter drawer, table, pagination (copied from the design system)
 
 // A bug in one screen shows this instead of a blank page.
 class Crash extends React.Component {

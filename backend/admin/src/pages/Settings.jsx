@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Copy, PlugZap, RefreshCw } from 'lucide-react'
 import { api, fmtDateTime } from '../api.js'
-import { ErrorNote, Field } from '../ui.jsx'
+import { confirmAction, ErrorNote, Field, toast } from '../ui.jsx'
 
 const SOURCE = { admin: 'saved here', config: 'from appsettings / server environment' }
 
@@ -36,12 +36,11 @@ export default function Settings() {
 
 function RazorpayKeys({ rz, onSaved }) {
   const [error, setError] = useState('')
-  const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
 
   async function run(fn, done) {
-    setBusy(true); setError(''); setNote('')
-    try { await fn(); setNote(done) } catch (e) { setError(e.message) } finally { setBusy(false) }
+    setBusy(true); setError('')
+    try { await fn(); if (done) toast(done) } catch (e) { setError(e.message) } finally { setBusy(false) }
   }
 
   const save = (e) => {
@@ -52,10 +51,10 @@ function RazorpayKeys({ rz, onSaved }) {
   }
   const test = () => run(async () => {
     const r = await api('/razorpay/test', { method: 'POST' })
-    setNote(`Connected to Razorpay in ${r.mode} mode.`)
+    toast(`Connected to Razorpay in ${r.mode} mode`)
   }, '')
-  const clear = () => {
-    if (!window.confirm('Remove the Razorpay keys saved here? Webhooks and sync stop working unless the keys are also in appsettings.')) return
+  const clear = async () => {
+    if (!await confirmAction({ title: 'Remove the saved Razorpay keys?', text: 'Webhooks and sync stop working unless the keys are also set in appsettings.', confirmText: 'Remove keys' })) return
     run(async () => { await api('/settings/razorpay', { method: 'PUT', body: { clear: true } }); await onSaved() }, 'Saved keys removed.')
   }
 
@@ -81,7 +80,6 @@ function RazorpayKeys({ rz, onSaved }) {
           <input name="webhookSecret" type="password" placeholder={rz.webhookSecretSet ? '•••••••• saved' : ''} autoComplete="new-password" />
         </Field>
         <ErrorNote>{error}</ErrorNote>
-        {note && <p className="ok-note" role="status">{note}</p>}
         <div className="field--wide page-head__actions">
           <button className="btn btn--primary" disabled={busy}>Save keys</button>
           <button type="button" className="btn" onClick={test} disabled={busy || !rz.keyId || !rz.keySecretSet}>
@@ -128,10 +126,12 @@ function Sync({ rz }) {
   const [days, setDays] = useState(7)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [result, setResult] = useState(null)
   const run = async () => {
-    setBusy(true); setError(''); setResult(null)
-    try { setResult(await api('/razorpay/sync', { method: 'POST', body: { days: +days } })) }
+    setBusy(true); setError('')
+    try {
+      const r = await api('/razorpay/sync', { method: 'POST', body: { days: +days } })
+      toast(`Synced ${r.seen} payments: ${r.created} new, ${r.updated} updated`)
+    }
     catch (e) { setError(e.message) }
     finally { setBusy(false) }
   }
@@ -149,7 +149,6 @@ function Sync({ rz }) {
       </div>
       {!rz.keySecretSet && <p className="muted">Save the Key ID and Key Secret to sync.</p>}
       <ErrorNote>{error}</ErrorNote>
-      {result && <p className="ok-note" role="status">Read {result.seen} payments: {result.created} new, {result.updated} updated. <a href="#payments">Open payments</a></p>}
     </section>
   )
 }
@@ -157,11 +156,10 @@ function Sync({ rz }) {
 function SiteLinks({ whatsappUrl, onSaved }) {
   const [value, setValue] = useState(whatsappUrl ?? '')
   const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
   const save = async (e) => {
     e.preventDefault()
-    setError(''); setSaved(false)
-    try { await api('/settings/site', { method: 'PUT', body: { whatsappUrl: value } }); setSaved(true); onSaved() }
+    setError('')
+    try { await api('/settings/site', { method: 'PUT', body: { whatsappUrl: value } }); toast('WhatsApp link saved'); onSaved() }
     catch (err) { setError(err.message) }
   }
   return (
@@ -172,7 +170,6 @@ function SiteLinks({ whatsappUrl, onSaved }) {
           <input type="url" value={value} onChange={(e) => setValue(e.target.value)} placeholder="https://chat.whatsapp.com/…" pattern="https://.*" />
         </Field>
         <ErrorNote>{error}</ErrorNote>
-        {saved && <p className="ok-note" role="status">Saved. The site picks it up within a minute.</p>}
         <div className="field--wide"><button className="btn btn--primary">Save link</button></div>
       </form>
     </section>

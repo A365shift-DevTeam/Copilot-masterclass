@@ -1,5 +1,6 @@
 import { PAYMENT_URL } from '../data/content.js'
 import ReserveSeatLabel, { ReserveSeatBot } from './ReserveSeatLabel.jsx'
+import { startCheckout } from './CheckoutDialog.jsx'
 import './seat-reveal.css'
 
 /**
@@ -22,7 +23,7 @@ export default function SeatReveal({ onBook, tabbable = false, amount }) {
     }
     // No booking modal wired up: go straight to the hosted checkout, the same
     // place every other "Reserve a seat" CTA on the page lands.
-    window.open(PAYMENT_URL, '_blank', 'noopener,noreferrer')
+    if (!startCheckout(null, 'webinar')) window.open(PAYMENT_URL, '_blank', 'noopener,noreferrer')
   }
 
   return (

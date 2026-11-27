@@ -11,13 +11,19 @@ let rerender = () => {}
 export let version = 0
 export const onSiteData = (fn) => { rerender = fn }
 
+// One load at a time: several countdowns reaching zero together share it.
+let inflight = null
+
 export function loadSiteData() {
   const api = import.meta.env.VITE_API_URL
   if (!api) return Promise.resolve() // dev without a backend: content.js only
-  return fetch(`${api}/api/public/site`, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
+  if (inflight) return inflight
+  inflight = fetch(`${api}/api/public/site`, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`site data: ${r.status}`))))
     .then((data) => { applySiteData(data); version += 1; rerender() })
     .catch((e) => console.warn('Admin API unavailable, using built-in content:', e.message))
+    .finally(() => { inflight = null })
+  return inflight
 }
 
 export const firstLoad = loadSiteData()

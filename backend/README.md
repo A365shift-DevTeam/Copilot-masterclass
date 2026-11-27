@@ -34,6 +34,8 @@ The admin from `Admin:*` is created only while none exists. After that, change t
 - **Payments**: the ledger. Record, edit, delete, filter, export CSV. `#payments/new` opens the form; `#payments/unassigned` lists Razorpay payments with no program.
 - **Customers**: one row per person (by email, else phone), with their payment history.
 - **Programs & dates**: name, price, payment link, Razorpay ID, session date (IST), visibility, and a CSV of everyone who paid.
+- **Registration forms**: every Pricing card has a form (Pricing page > Form). Fields of any type (text, email, phone, number, long text, dropdown, single or multiple choice, date); Full name and Email are built in. With Razorpay keys saved, Register on the website opens the form, the API creates a Razorpay order at the live price (offers included), Razorpay Checkout takes the payment, and the API verifies it (signature + fetching the payment) before the visitor reaches /thank-you. Answers are stored one row per field (`PaymentAnswers`), so they can be filtered and exported. The payment link decides it: a card with a link opens that link; a card with the link left empty uses its form and Razorpay (which needs the Razorpay keys saved).
+- **Registrations**: one program at a time, a column per form field, filter by any field, CSV export with a column per field.
 - **Special offers**: time-boxed discounts (% or ₹ off) on chosen programs, with presets (Black Friday, Christmas, New Year, Pongal, flash sale). While one runs the site shows the sale price, the struck-through normal price, a badge and a countdown, and switches back by itself at the end. Each program can have a sale payment link, because Razorpay and Trym charge what their own page says.
 - **Settings**: Razorpay keys (test connection, sync recent payments), webhook setup, and the WhatsApp community link.
 - **Team**: add and remove admins. A removed admin is signed out on their next request.
@@ -45,6 +47,10 @@ The admin from `Admin:*` is created only while none exists. After that, change t
 The Key ID, Key Secret and Webhook Secret can be saved on the Settings page. The secrets are encrypted with ASP.NET Data Protection and never sent back to the browser. A value saved there takes priority over `Razorpay:*` in appsettings.
 
 The encryption keys live in `Api/App_Data/keys`, or in `DataProtection:KeysPath` if you set it. On Windows they're also protected with machine DPAPI. **Keep that folder between deploys.** If it's lost, everyone is signed out and the saved Razorpay secrets must be entered again.
+
+## Look
+
+The admin uses the Ambot365 Design System: `admin/src/design-system.css` (tokens and `ds-*` components) with `admin/src/ds-skin.css` mapping this app's components onto it. Dark mode is the `dark` class on `<html>`.
 
 ## Razorpay webhook
 

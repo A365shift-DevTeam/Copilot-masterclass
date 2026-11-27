@@ -2,6 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowRight, CalendarDays, Check, X } from 'lucide-react'
 import { COPILOT_ICON } from '../data/content.js'
 import { SalePrice } from './ui/SaleBanner.jsx'
+import { startCheckout } from './CheckoutDialog.jsx'
 
 /* Click ripple shared by every gradient button that opens a payment page. */
 export function rippleClick(e) {
@@ -22,7 +23,7 @@ export default function CourseDialog({ course, onClose }) {
   return (
     <Dialog.Root open={course != null} onOpenChange={(o) => { if (!o) onClose() }}>
       {course && (() => {
-        const { title, meta, facts, descLead, desc, pointsHeading, points, price, originalPrice, url } = course
+        const { key, title, meta, facts, descLead, desc, pointsHeading, points, price, originalPrice, url } = course
         return (
           <Dialog.Portal>
             <Dialog.Overlay className="legal-dialog__overlay" />
@@ -60,7 +61,8 @@ export default function CourseDialog({ course, onClose }) {
                 </div>
                 <div className="course-dialog__actions">
                   <Dialog.Close className="course-dialog__ghost">Close</Dialog.Close>
-                  <a href={url} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={rippleClick}>
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="btn-primary"
+                    onClick={(e) => { rippleClick(e); if (startCheckout(e, key)) onClose() }}>
                     Register <ArrowRight aria-hidden="true" />
                     <span className="btn-shine" />
                   </a>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  Activity as ActivityIcon, BadgePercent, CalendarClock, ExternalLink, KeyRound, LayoutDashboard, LogOut, Moon, ReceiptIndianRupee,
+  Activity as ActivityIcon, BadgePercent, ClipboardList, CalendarClock, ExternalLink, KeyRound, LayoutDashboard, LogOut, Menu, Moon, ReceiptIndianRupee,
   Settings as SettingsIcon, Sun, UserRound, UsersRound,
 } from 'lucide-react'
 import { api } from './api.js'
@@ -8,6 +8,7 @@ import { ErrorNote, Toaster } from './ui.jsx'
 import Overview from './pages/Overview.jsx'
 import Payments from './pages/Payments.jsx'
 import Customers from './pages/Customers.jsx'
+import Registrations from './pages/Registrations.jsx'
 import Programs from './pages/Programs.jsx'
 import Offers from './pages/Offers.jsx'
 import Settings from './pages/Settings.jsx'
@@ -19,10 +20,11 @@ const NAV = [
   { heading: 'Sales', pages: [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard, Page: Overview },
     { id: 'payments', label: 'Payments', icon: ReceiptIndianRupee, Page: Payments },
+    { id: 'registrations', label: 'Registrations', icon: ClipboardList, Page: Registrations },
     { id: 'customers', label: 'Customers', icon: UserRound, Page: Customers },
   ] },
   { heading: 'Website', pages: [
-    { id: 'programs', label: 'Programs & dates', icon: CalendarClock, Page: Programs },
+    { id: 'programs', label: 'Pricing & dates', icon: CalendarClock, Page: Programs },
     { id: 'offers', label: 'Special offers', icon: BadgePercent, Page: Offers },
     { id: 'settings', label: 'Settings', icon: SettingsIcon, Page: Settings },
   ] },
@@ -54,9 +56,16 @@ export default function App() {
   const [me, setMe] = useState(undefined) // undefined = checking, null = signed out
   const [{ id, arg }, setRoute] = useState(route)
   const [theme, setTheme] = useState(initialTheme)
+  // Hamburger: on a desktop it folds the sidebar to icons (remembered); on a phone it slides the sidebar in.
+  const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem('rail-collapsed') === '1' } catch { return false } })
+  const [navOpen, setNavOpen] = useState(false)
+  useEffect(() => { try { localStorage.setItem('rail-collapsed', collapsed ? '1' : '0') } catch { /* storage unavailable */ } }, [collapsed])
+  useEffect(() => setNavOpen(false), [id, arg]) // picking a page closes the phone menu
+  const toggleNav = () => (window.matchMedia('(max-width: 820px)').matches ? setNavOpen((o) => !o) : setCollapsed((c) => !c))
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
+    // The design system flips its tokens on html.dark.
+    document.documentElement.classList.toggle('dark', theme === 'dark')
     try { localStorage.setItem('theme-pref', theme) } catch { /* storage unavailable */ }
   }, [theme])
 
@@ -86,8 +95,9 @@ export default function App() {
   const signOut = () => api('/auth/logout', { method: 'POST' }).finally(() => setMe(null))
 
   return (
-    <div className="shell">
-      <aside className="rail">
+    <div className={`shell${collapsed ? ' shell--collapsed' : ''}`}>
+      {navOpen && <div className="ds-sidebar-backdrop" onClick={() => setNavOpen(false)} />}
+      <aside className={`rail${navOpen ? ' is-open' : ''}`} aria-label="Sidebar">
         <div className="brand">
           <img src="/logo-icon.webp" alt="" width="36" height="36" />
           <div>
@@ -124,9 +134,17 @@ export default function App() {
           </button>
         </div>
       </aside>
-      <main className="main" aria-label={label}>
-        <Page key={`${id}/${arg}`} arg={arg} me={me} />
-      </main>
+      <div className="workspace">
+        <header className="topbar">
+          <button type="button" className="ds-topbar-btn" onClick={toggleNav} aria-label="Toggle menu" aria-expanded={navOpen || !collapsed}>
+            <Menu size={18} aria-hidden="true" />
+          </button>
+          <span className="topbar__title">{label}</span>
+        </header>
+        <main className="main" aria-label={label}>
+          <Page key={`${id}/${arg}`} arg={arg} me={me} />
+        </main>
+      </div>
       <Toaster />
     </div>
   )
@@ -151,28 +169,10 @@ function SignIn({ onSignedIn }) {
   }
 
   return (
-    <div className="signin">
-      <div className="signin__art" aria-hidden="true">
-        <svg viewBox="0 0 400 400">
-          <defs>
-            <linearGradient id="ring" x1="0" x2="1">
-              <stop offset="0" stopColor="#4D9AA1" />
-              <stop offset="1" stopColor="#6bd194" />
-            </linearGradient>
-          </defs>
-          {Array.from({ length: 9 }, (_, i) => (
-            <circle key={i} cx="200" cy="200" r={30 + i * 22} style={{ '--i': i }} />
-          ))}
-        </svg>
-        <p className="signin__copy">
-          <strong>Copilot Masterclass</strong>
-          Sessions, prices and payments, in one place.
-        </p>
-      </div>
-      <form className="signin__form" onSubmit={submit}>
-        <img src="/logo-icon.webp" alt="AmBot365" width="48" height="48" />
-        <h1>Sign in to the admin</h1>
-        <p className="muted">Manage session dates, prices, payment links and the payments ledger.</p>
+    <div className="signin ds-force-light">
+      <form className="signin__card" onSubmit={submit}>
+        <img src="/logo-icon.webp" alt="AmBot365" width="44" height="44" />
+        <h1>Sign in</h1>
         <label className="field">
           <span className="field__label">Email</span>
           <input name="email" type="email" autoComplete="username" required autoFocus />

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { CalendarClock, KeyRound, ReceiptIndianRupee, RefreshCw, Settings, UsersRound, Zap } from 'lucide-react'
 import { api, fmtDateTime } from '../api.js'
-import { ErrorNote } from '../ui.jsx'
+import { ErrorNote, Pagination } from '../ui.jsx'
 
-const SIZE = 50
 const AREAS = [
   { id: '', label: 'Everything' },
   { id: 'payment', label: 'Payments' },
@@ -18,15 +17,15 @@ export default function Activity() {
   const [area, setArea] = useState('')
   const [actor, setActor] = useState('')
   const [page, setPage] = useState(1)
+  const [size, setSize] = useState(50)
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const query = new URLSearchParams({ page, size: SIZE, ...(area && { area }), ...(actor && { actor }) })
+    const query = new URLSearchParams({ page, size, ...(area && { area }), ...(actor && { actor }) })
     api(`/activity?${query}`).then((d) => { setData(d); setError('') }, (e) => setError(e.message))
-  }, [area, actor, page])
+  }, [area, actor, page, size])
 
-  const pages = data ? Math.max(1, Math.ceil(data.total / SIZE)) : 1
 
   return (
     <>
@@ -72,13 +71,7 @@ export default function Activity() {
             })}
           </ol>
         )}
-        {data && pages > 1 && (
-          <nav className="pager" aria-label="Pages">
-            <button type="button" className="btn" disabled={page <= 1} onClick={() => setPage(page - 1)}>Newer</button>
-            <span>Page {page} of {pages}</span>
-            <button type="button" className="btn" disabled={page >= pages} onClick={() => setPage(page + 1)}>Older</button>
-          </nav>
-        )}
+        {data && <Pagination page={page} size={size} total={data.total} onPage={setPage} onSize={(n) => { setSize(n); setPage(1) }} noun="entries" />}
       </section>
     </>
   )

@@ -14,11 +14,11 @@ public class Course
     public required string Name { get; set; }
     public decimal Price { get; set; }
     public decimal? ListPrice { get; set; } // the struck-through package price on coaching cards
-    public required string PaymentUrl { get; set; }
+    // Register goes to this link when set; when empty, the website takes registration and payment itself (form + Razorpay).
+    public string? PaymentUrl { get; set; }
     public string? RazorpayId { get; set; } // payment page or link ID, so webhook payments land on this program
-    public DateTimeOffset? StartsAt { get; set; }
-    public DateTimeOffset? EndsAt { get; set; }
-    public string? Language { get; set; }
+    // Dates it runs on (a webinar can have several upcoming); the website shows the next one.
+    public List<CourseSession> Sessions { get; set; } = [];
     public string? Description { get; set; } // "Includes" line on its Pricing section card
     public string? Duration { get; set; } // e.g. "30 days access", under the price on its Pricing section card
     // Pricing section card (set for every program shown there):
@@ -27,6 +27,8 @@ public class Course
     public string? Cta { get; set; } // button label, e.g. "Enrol"
     public string? Icon { get; set; } // a named icon (bot, gem…) or "app:excel" / "app:outlook,teams" for Microsoft logos
     public bool IsFeatured { get; set; } // the "Most popular" tag
+    // Registration form, one row per field (see FormField). Used when the program has no payment link.
+    public List<FormField> FormFields { get; set; } = [];
     public bool IsVisible { get; set; } = true;
     public int SortOrder { get; set; }
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
@@ -97,10 +99,85 @@ public class Payment
     public string? Method { get; set; }
     public string? Reference { get; set; }
     public string? GatewayPaymentId { get; set; } // Razorpay pay_… ID; unique, so webhook retries never double-record
+    public string? GatewayOrderId { get; set; } // Razorpay order_… ID for website checkouts; unique, links verify and webhook to one row
+    public List<PaymentAnswer> Answers { get; set; } = []; // what the person filled in on the registration form
     public DateTimeOffset PaidAt { get; set; } = DateTimeOffset.UtcNow;
     public string? Notes { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+/* One date a program runs on. EndsAt empty = an all-day date. */
+public class CourseSession
+{
+    public int Id { get; set; }
+    public int CourseId { get; set; }
+    public DateTimeOffset StartsAt { get; set; }
+    public DateTimeOffset? EndsAt { get; set; }
+    public string? Language { get; set; }
+
+    public DateTimeOffset Ends => EndsAt ?? StartsAt.AddDays(1);
+
+    /// <summary>The sessions not over yet, soonest first: [0] is what the website shows.</summary>
+    public static List<CourseSession> Upcoming(IEnumerable<CourseSession> all, DateTimeOffset now) =>
+        all.Where(x => x.Ends > now).OrderBy(x => x.StartsAt).ToList();
+
+    static readonly TimeSpan Ist = TimeSpan.FromHours(5.5);
+    /// <summary>"Sat 28 Nov 2026, 9:00 AM IST, Tamil" — saved with a registration so it's clear which date someone signed up for.</summary>
+    public string Label() => StartsAt.ToOffset(Ist).ToString(EndsAt is null ? "ddd d MMM yyyy" : "ddd d MMM yyyy, h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+        + (EndsAt is null ? "" : " IST") + (string.IsNullOrWhiteSpace(Language) ? "" : $", {Language}");
+}
+
+/* A website checkout that was started: the form answers wait here until Razorpay confirms a payment,
+   so abandoned checkouts never show up as payments. */
+public class CheckoutAttempt
+{
+    public int Id { get; set; }
+    public required string OrderId { get; set; }
+    public int CourseId { get; set; }
+    public decimal Amount { get; set; }
+    public required string Name { get; set; }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
+    public List<CheckoutAnswer> Answers { get; set; } = [];
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+/* One field of a program's registration form. `Key` is fixed when the field is created
+   (never derived from the label), so renaming a field keeps its answers together.
+   "name", "email" and "phone" are built in: they fill the payment's customer columns. */
+public class FormField
+{
+    public int Id { get; set; }
+    public int CourseId { get; set; }
+    public required string Key { get; set; }
+    public required string Label { get; set; }
+    public required string Type { get; set; } // text | email | phone | number | textarea | select | radio | checkbox | date
+    public bool Required { get; set; }
+    public string? Placeholder { get; set; }
+    public List<string> Options { get; set; } = []; // choices for select / radio / checkbox (a Postgres text[] column)
+    public int SortOrder { get; set; }
+}
+
+/* One answer on a payment: a row per field, so registrations can be filtered and exported by field.
+   Label is copied at the time, so old answers still read right after the form is edited. */
+public class PaymentAnswer
+{
+    public int Id { get; set; }
+    public int PaymentId { get; set; }
+    public required string FieldKey { get; set; }
+    public required string Label { get; set; }
+    public required string Value { get; set; }
+}
+
+/* The same, while the checkout is waiting for Razorpay. Copied to PaymentAnswer once it is paid. */
+public class CheckoutAnswer
+{
+    public int Id { get; set; }
+    public int CheckoutAttemptId { get; set; }
+    public required string FieldKey { get; set; }
+    public required string Label { get; set; }
+    public required string Value { get; set; }
 }
 
 public class AdminUser
@@ -146,6 +223,9 @@ public class AppDb(DbContextOptions<AppDb> options) : DbContext(options)
     public DbSet<ActivityLog> Activity => Set<ActivityLog>();
     public DbSet<SiteSetting> Settings => Set<SiteSetting>();
     public DbSet<Offer> Offers => Set<Offer>();
+    public DbSet<CheckoutAttempt> CheckoutAttempts => Set<CheckoutAttempt>();
+    public DbSet<FormField> FormFields => Set<FormField>();
+    public DbSet<PaymentAnswer> PaymentAnswers => Set<PaymentAnswer>();
 
     public void Log(string actor, string action, string summary) =>
         Activity.Add(new ActivityLog { Actor = actor, Action = action, Summary = summary });
@@ -166,10 +246,33 @@ public class AppDb(DbContextOptions<AppDb> options) : DbContext(options)
             e.HasIndex(p => p.PaidAt);
             e.HasIndex(p => p.Status);
             e.HasIndex(p => p.GatewayPaymentId).IsUnique();
+            e.HasIndex(p => p.GatewayOrderId).IsUnique();
         });
         b.Entity<AdminUser>().HasIndex(a => a.Email).IsUnique();
         b.Entity<ActivityLog>().HasIndex(a => a.At);
         b.Entity<SiteSetting>().HasKey(s => s.Key);
+        b.Entity<CheckoutAttempt>(e =>
+        {
+            e.HasIndex(a => a.OrderId).IsUnique();
+            e.Property(a => a.Amount).HasPrecision(12, 2);
+            e.HasOne<Course>().WithMany().HasForeignKey(a => a.CourseId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(a => a.Answers).WithOne().HasForeignKey(x => x.CheckoutAttemptId).OnDelete(DeleteBehavior.Cascade);
+        });
+        b.Entity<CourseSession>(e =>
+        {
+            e.HasOne<Course>().WithMany(c => c.Sessions).HasForeignKey(x => x.CourseId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => new { x.CourseId, x.StartsAt });
+        });
+        b.Entity<FormField>(e =>
+        {
+            e.HasOne<Course>().WithMany(c => c.FormFields).HasForeignKey(f => f.CourseId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(f => new { f.CourseId, f.Key }).IsUnique();
+        });
+        b.Entity<PaymentAnswer>(e =>
+        {
+            e.HasOne<Payment>().WithMany(p => p.Answers).HasForeignKey(a => a.PaymentId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(a => new { a.FieldKey, a.Value }); // filtering registrations by a field
+        });
         b.Entity<Offer>(e =>
         {
             e.Property(o => o.DiscountValue).HasPrecision(12, 2);
@@ -202,7 +305,7 @@ public static class Seed
         // The webinar and recording also fill the Pricing section's "One-time access" cards.
         new() { Key = "webinar", Kind = "course", Name = "M365 Apps using copilot", Price = 499, SortOrder = 0,
                 PaymentUrl = "https://link.trym.co.in/widget/form/NkftkuuLIgwagCAj0LQL",
-                StartsAt = At(2026, 11, 28, 9), EndsAt = At(2026, 11, 28, 13), Language = "Tamil",
+                Sessions = [new() { StartsAt = At(2026, 11, 28, 9), EndsAt = At(2026, 11, 28, 13), Language = "Tamil" }],
                 Description = "Microsoft 365 Copilot apps live training", Duration = "3-hour live session",
                 Category = "once", CardTitle = "Live Webinar", Icon = "monitor-play", Cta = "Register" },
         new() { Key = "excel", Kind = "course", Name = "Microsoft Excel with Copilot", Price = 799, SortOrder = 1,
@@ -214,7 +317,7 @@ public static class Seed
         new() { Key = "project-support", Kind = "course", Name = "M365 copilot 1 to 1 Project support", Price = 4999, SortOrder = 3,
                 PaymentUrl = "https://rzp.io/rzp/8b0AZrP" },
         new() { Key = "workshop", Kind = "course", Name = "M365Copilot offline Workshop", Price = 4999, SortOrder = 4,
-                PaymentUrl = "https://rzp.io/rzp/OMsvnqoC", StartsAt = At(2027, 1, 23), Language = "Tamil" },
+                PaymentUrl = "https://rzp.io/rzp/OMsvnqoC", Sessions = [new() { StartsAt = At(2027, 1, 23), Language = "Tamil" }] },
         new() { Key = "skill-builder", Kind = "coaching", Name = "AI Skill Builder", Price = 4999, ListPrice = 16249, SortOrder = 5,
                 PaymentUrl = "https://rzp.io/rzp/8b0AZrP" },
         new() { Key = "project-builder", Kind = "coaching", Name = "AI Project Builder", Price = 4999, ListPrice = 32499, SortOrder = 6,
@@ -251,6 +354,11 @@ public static class Seed
                 }
             }
         }
+        db.SaveChanges();
+
+        // Every Pricing card starts with the name / email / phone registration form.
+        foreach (var id in db.Courses.Where(c => c.Category != null && !c.FormFields.Any()).Select(c => c.Id).ToList())
+            db.FormFields.AddRange(Checkout.DefaultFields(id));
         db.SaveChanges();
 
         // First admin comes from config (user-secrets or env vars), only while there is none.

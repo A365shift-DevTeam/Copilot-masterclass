@@ -52,6 +52,8 @@ export const PROGRAMMES = [
 /* Shown under "Join the Webinar" in the hero. Change it before each session,
    e.g. 'Sun, 29 Nov 2026 · 7:00 PM IST' once the start time is set. */
 export let WEBINAR_DATE = 'Sat 28 Nov 2026 · 9 AM – 1 PM IST in Tamil'
+/* The webinar's later dates from the admin (after the one in WEBINAR_DATE), as short labels: ['Sat 5 Dec', …]. */
+export let MORE_DATES = []
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
 
@@ -504,6 +506,10 @@ const longDay = (iso) => { const p = istParts(iso, { weekday: 'long', day: 'nume
    program's. { badge, endsAt } or null. */
 export let SALE = null
 
+/* Programs that take registrations and payment on the site, by key: { title, price,
+   originalPrice, form }. A key missing here means its button opens the payment link. */
+export const CHECKOUT = {}
+
 export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [] } = {}) {
   // Tab names and their one-line intro, where renamed in the admin.
   for (const t of pricingTabs) {
@@ -513,7 +519,12 @@ export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [] } = 
   }
   if (whatsappUrl) WHATSAPP_COMMUNITY_URL = whatsappUrl
   SALE = courses.find((c) => c.key === 'webinar' && c.offer)?.offer ?? courses.find((c) => c.offer && c.isVisible)?.offer ?? null
+  for (const k of Object.keys(CHECKOUT)) delete CHECKOUT[k]
   for (const c of courses) {
+    if (c.checkout) CHECKOUT[c.key] = {
+      title: c.cardTitle || c.name, price: Number(c.price), form: c.form ?? [],
+      originalPrice: c.originalPrice != null ? Number(c.originalPrice) : null,
+    }
     const hero = HERO_PRICES.find((p) => p.key === c.key)
     const coaching = PROGRAMMES.find((p) => p.key === c.key)
     if (hero) {
@@ -522,6 +533,11 @@ export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [] } = 
         name: c.name, price: Number(c.price), url: c.paymentUrl, hidden: !c.isVisible,
         originalPrice: c.originalPrice != null ? Number(c.originalPrice) : null, offer: c.offer ?? null,
       })
+      if (c.key === 'webinar') {
+        // The API sends the next date; once every date has passed there is none to show.
+        if (!c.startsAt && courses.some((x) => x.key === 'webinar')) WEBINAR_DATE = 'New dates announced soon'
+        MORE_DATES = (c.upcoming ?? []).slice(1).map((u) => { const p = istParts(u.startsAt, { weekday: 'short', day: 'numeric', month: 'short' }); return `${p.weekday} ${p.day} ${p.month}` })
+      }
       if (c.startsAt) {
         const facts = hero.facts ?? []
         const setFact = (label, value) => { const f = facts.find(([l]) => l === label); if (f) f[1] = value }

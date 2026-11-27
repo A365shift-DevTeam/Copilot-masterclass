@@ -1,14 +1,15 @@
 import { useRef, useState } from 'react'
 import { Bot, CalendarCheck, CirclePlay, Gem, Image, Layers, Lock, MonitorPlay } from 'lucide-react'
 import { PRICE_LADDER, STORE_URL } from '../data/content.js'
-import { SalePrice } from './ui/SaleBanner.jsx'
+import { OfferCountdown, SalePrice } from './ui/SaleBanner.jsx'
+import { startCheckout } from './CheckoutDialog.jsx'
 
 const ICONS = {
   'monitor-play': MonitorPlay, 'circle-play': CirclePlay, image: Image,
   'calendar-check': CalendarCheck, bot: Bot, layers: Layers, gem: Gem,
 }
 
-function Offer({ name, includes, price, originalPrice, offer, url, duration, icon, logos, cta, featured }) {
+function Offer({ ckey, name, includes, price, originalPrice, offer, url, duration, icon, logos, cta, featured }) {
   const Icon = ICONS[icon]
   return (
     <li className={`pl-card${featured ? ' is-featured' : ''}`}>
@@ -25,12 +26,14 @@ function Offer({ name, includes, price, originalPrice, offer, url, duration, ico
       <div className="pl-card__price">
         <span className="pl-card__amount"><SalePrice price={price} originalPrice={originalPrice} /></span>
         <span className="pl-card__duration">{duration}</span>
+        {offer && <OfferCountdown endsAt={offer.endsAt} className="pl-card__countdown" />}
       </div>
       <a
         href={url ?? STORE_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="pl-card__cta"
+        onClick={(e) => startCheckout(e, ckey)}
         aria-label={`${cta}: ${name} (opens Razorpay store in a new tab)`}
       >
         {cta}
@@ -95,7 +98,7 @@ export default function PriceLadder() {
       >
         <p className="pl-panel__blurb">{group.blurb}</p>
         <ul className="pl-panel__cards">
-          {group.items.map((it) => <Offer key={it.name} {...it} />)}
+          {group.items.map(({ key: k, ...it }) => <Offer key={k ?? it.name} ckey={k} {...it} />)}
         </ul>
       </div>
 

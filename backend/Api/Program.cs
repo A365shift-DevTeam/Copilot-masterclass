@@ -61,10 +61,17 @@ builder.Services.AddRateLimiter(o =>
     o.RejectionStatusCode = 429;
     o.AddPolicy("login", c => RateLimitPartition.GetFixedWindowLimiter(c.Connection.RemoteIpAddress?.ToString() ?? "?",
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 8, Window = TimeSpan.FromMinutes(5) }));
+    // Website checkout is public and costs a Razorpay call per order.
+    o.AddPolicy("checkout", c => RateLimitPartition.GetFixedWindowLimiter(c.Connection.RemoteIpAddress?.ToString() ?? "?",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 20, Window = TimeSpan.FromMinutes(10) }));
+    // Confirming a paid checkout needs a valid signature anyway; a generous cap so shared office IPs never hit it.
+    o.AddPolicy("verify", c => RateLimitPartition.GetFixedWindowLimiter(c.Connection.RemoteIpAddress?.ToString() ?? "?",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 200, Window = TimeSpan.FromMinutes(10) }));
 });
 
 var siteOrigins = builder.Configuration.GetSection("PublicSite:Origins").Get<string[]>() ?? [];
-builder.Services.AddCors(o => o.AddPolicy("site", p => p.WithOrigins(siteOrigins).WithMethods("GET")));
+// POST with a JSON body (checkout) needs the preflight to allow Content-Type.
+builder.Services.AddCors(o => o.AddPolicy("site", p => p.WithOrigins(siteOrigins).WithMethods("GET", "POST").WithHeaders("Content-Type")));
 
 var app = builder.Build();
 
@@ -102,8 +109,11 @@ app.MapGet("/api/public/site", async (AppDb db, SettingsStore settings, HttpCont
 {
     http.Response.Headers.CacheControl = "no-store";
     var now = DateTimeOffset.UtcNow;
-    var courses = await db.Courses.AsNoTracking().OrderBy(c => c.SortOrder).ToListAsync();
+    var courses = await db.Courses.AsNoTracking().Include(c => c.Sessions).OrderBy(c => c.SortOrder).ToListAsync();
     var offers = await LiveOffers(db, now);
+    var rz = await settings.RazorpayAsync();
+    var canCheckout = rz.KeyId is not null && rz.KeySecret is not null;
+    var forms = (await db.FormFields.AsNoTracking().OrderBy(f => f.SortOrder).ToListAsync()).ToLookup(f => f.CourseId);
     return Results.Ok(new
     {
         courses = courses.Select(c =>
@@ -111,12 +121,20 @@ app.MapGet("/api/public/site", async (AppDb db, SettingsStore settings, HttpCont
             var best = OfferPricing.Best(c, offers, now);
             return new
             {
-                c.Key, c.Name, c.ListPrice, c.StartsAt, c.EndsAt, c.Language, c.IsVisible, c.Description, c.Duration,
+                c.Key, c.Name, c.ListPrice, c.IsVisible, c.Description, c.Duration,
+                // The next date (what the site shows today) and every date still to come.
+                StartsAt = CourseSession.Upcoming(c.Sessions, now).FirstOrDefault()?.StartsAt,
+                EndsAt = CourseSession.Upcoming(c.Sessions, now).FirstOrDefault()?.EndsAt,
+                Language = CourseSession.Upcoming(c.Sessions, now).FirstOrDefault()?.Language,
+                Upcoming = CourseSession.Upcoming(c.Sessions, now).Take(8).Select(x => new { x.StartsAt, x.EndsAt, x.Language }),
                 c.Category, c.CardTitle, c.Cta, c.Icon, c.IsFeatured,
                 Price = best?.Price ?? c.Price,
                 OriginalPrice = best is null ? (decimal?)null : c.Price,
                 PaymentUrl = best?.Item.SalePaymentUrl ?? c.PaymentUrl,
                 Offer = best is null ? null : new { best.Value.Offer.Badge, best.Value.Offer.EndsAt },
+                // No payment link: Register opens this form and pays on the site.
+                Checkout = canCheckout && string.IsNullOrEmpty(c.PaymentUrl) && c.IsVisible && c.Category != null,
+                Form = string.IsNullOrEmpty(c.PaymentUrl) ? forms[c.Id].Select(Checkout.ToDto) : null,
             };
         }),
         whatsappUrl = await settings.GetAsync(SiteSettings.WhatsappUrl),
@@ -139,6 +157,74 @@ app.MapPut("/api/pricing-tabs/{id}", async (string id, PricingTabDto dto, AppDb 
     await db.SaveChangesAsync();
     return Results.NoContent();
 });
+
+/* ── Website checkout: registration form, then Razorpay ───────────────────── */
+
+app.MapPost("/api/public/checkout/{key}", async (string key, HttpRequest req, AppDb db, SettingsStore settings, RazorpayClient rzp, ILogger<Program> log) =>
+{
+    if (req.ContentLength is > 16_384) return Results.StatusCode(413);
+    CheckoutRequest? body;
+    try { body = await req.ReadFromJsonAsync<CheckoutRequest>(Checkout.Json); }
+    catch (JsonException) { return Results.Problem("The form couldn't be read. Please try again.", statusCode: 400); }
+
+    var c = await db.Courses.AsNoTracking().Include(x => x.FormFields).Include(x => x.Sessions).FirstOrDefaultAsync(x => x.Key == key);
+    // Only programs shown on the website can be bought here.
+    // Only programs shown on the website, and taking payment here (no payment link), can be bought.
+    if (c is null || !c.IsVisible || c.Category is null || !string.IsNullOrEmpty(c.PaymentUrl)) return Results.NotFound();
+    var rz = await settings.RazorpayAsync();
+    if (rz.KeyId is null || rz.KeySecret is null) return Results.Problem("Online payment isn't set up yet.", statusCode: 503);
+
+    var form = Checkout.ReadAnswers(c.FormFields.OrderBy(f => f.SortOrder).Select(Checkout.ToDto), body?.Answers);
+    if (form.Error is not null) return Results.Problem(form.Error, statusCode: 400);
+
+    var now = DateTimeOffset.UtcNow;
+    // Registrations are for the next date: saved as a "Session" answer, so they can be filtered by date.
+    if (CourseSession.Upcoming(c.Sessions, now).FirstOrDefault() is { } next)
+        form.Answers.Insert(0, new AnswerDto("session", "Session", next.Label()));
+    var price = OfferPricing.Best(c, await LiveOffers(db, now), now)?.Price ?? c.Price;
+    if (price < 1) return Results.Problem("This program can't be paid for online. Please contact us.", statusCode: 400);
+
+    var receipt = $"{c.Key}-{Guid.NewGuid():N}";
+    var order = await rzp.CreateOrderAsync(rz.KeyId, rz.KeySecret, (long)(price * 100), receipt[..Math.Min(40, receipt.Length)],
+        new() { ["program"] = c.Name, ["name"] = form.Name, ["email"] = form.Email ?? "", ["phone"] = form.Phone ?? "" });
+    if (order.Error is not null)
+    {
+        log.LogWarning("Razorpay order for {Key} failed: {Error}", c.Key, order.Error);
+        return Results.Problem("Payment couldn't be started. Please try again in a moment.", statusCode: 502);
+    }
+    var orderId = order.Body.GetProperty("id").GetString()!;
+    db.CheckoutAttempts.Add(new CheckoutAttempt
+    {
+        OrderId = orderId, CourseId = c.Id, Amount = price, Name = form.Name, Email = form.Email, Phone = form.Phone,
+        Answers = form.Answers.Select(a => new CheckoutAnswer { FieldKey = a.Key, Label = a.Label, Value = a.Value }).ToList(),
+    });
+    await db.SaveChangesAsync();
+    return Results.Ok(new
+    {
+        orderId, amount = (long)(price * 100), currency = "INR", keyId = rz.KeyId,
+        description = c.CardTitle ?? c.Name,
+        prefill = new { name = form.Name, email = form.Email, contact = form.Phone },
+    });
+}).AllowAnonymous().RequireCors("site").RequireRateLimiting("checkout");
+
+// Razorpay Checkout's success callback. The signature proves the payment belongs to the order;
+// the payment itself is then read from Razorpay, since only a captured payment counts as Paid.
+app.MapPost("/api/public/checkout/verify", async (VerifyRequest v, AppDb db, SettingsStore settings, RazorpayClient rzp) =>
+{
+    var rz = await settings.RazorpayAsync();
+    if (rz.KeyId is null || rz.KeySecret is null) return Results.Problem("Online payment isn't set up.", statusCode: 503);
+    if (string.IsNullOrWhiteSpace(v.OrderId) || string.IsNullOrWhiteSpace(v.PaymentId)
+        || !await db.CheckoutAttempts.AnyAsync(a => a.OrderId == v.OrderId)
+        || !Checkout.SignatureValid(v.OrderId, v.PaymentId, v.Signature, rz.KeySecret))
+        return Results.Problem("That payment couldn't be confirmed.", statusCode: 400);
+
+    var pay = await rzp.PaymentAsync(rz.KeyId, rz.KeySecret, v.PaymentId);
+    if (pay.Error is not null) return Results.Problem("Your payment went through, but we couldn't confirm it yet. We'll be in touch shortly.", statusCode: 502);
+    var ev = Razorpay.FromPaymentEntity(pay.Body);
+    if (ev.OrderId != v.OrderId) return Results.Problem("That payment couldn't be confirmed.", statusCode: 400);
+    await Razorpay.RecordAsync(db, ev, "", "Website checkout");
+    return Results.Ok(new { status = ev.Status });
+}).AllowAnonymous().RequireCors("site").RequireRateLimiting("verify");
 
 /* ── Auth ─────────────────────────────────────────────────────────────────── */
 
@@ -220,34 +306,42 @@ app.MapDelete("/api/admins/{id:int}", async (int id, AppDb db, ClaimsPrincipal u
 
 /* ── Programs, prices, links and dates ────────────────────────────────────── */
 
-app.MapGet("/api/courses", async (AppDb db) => await db.Courses.AsNoTracking().OrderBy(c => c.SortOrder).ToListAsync());
+app.MapGet("/api/courses", async (AppDb db) =>
+    await db.Courses.AsNoTracking().Include(c => c.Sessions.OrderBy(x => x.StartsAt)).OrderBy(c => c.SortOrder).ToListAsync());
 
 app.MapPut("/api/courses/{id:int}", async (int id, CourseDto dto, AppDb db, ClaimsPrincipal user) =>
 {
-    var c = await db.Courses.FindAsync(id);
+    var c = await db.Courses.Include(x => x.Sessions).FirstOrDefaultAsync(x => x.Id == id);
     if (c is null) return Results.NotFound();
     var error = Validate.Course(dto, c.Key);
     if (error is not null) return Results.Problem(error, statusCode: 400);
 
     var changes = new List<string>();
     void Track<T>(string what, T before, T after) { if (!EqualityComparer<T>.Default.Equals(before, after)) changes.Add(what); }
-    var startsAt = dto.StartsAt?.ToUniversalTime(); // Npgsql only writes UTC offsets to timestamptz
-    var endsAt = dto.EndsAt?.ToUniversalTime();
     Track("name", c.Name, dto.Name!.Trim());
     Track($"price to {dto.Price:0.##}", c.Price, dto.Price);
     Track("package price", c.ListPrice, dto.ListPrice);
-    Track("payment link", c.PaymentUrl, dto.PaymentUrl!.Trim());
-    Track("date", (c.StartsAt, c.EndsAt), (startsAt, endsAt));
+    var link = string.IsNullOrWhiteSpace(dto.PaymentUrl) ? null : dto.PaymentUrl.Trim();
+    Track(link is null ? "payment on the website" : "payment link", c.PaymentUrl, link);
     Track(dto.IsVisible ? "shown on site" : "hidden from site", c.IsVisible, dto.IsVisible);
 
     c.Name = dto.Name!.Trim();
     c.Price = dto.Price;
     c.ListPrice = dto.ListPrice;
-    c.PaymentUrl = dto.PaymentUrl!.Trim();
+    c.PaymentUrl = link;
     c.RazorpayId = string.IsNullOrWhiteSpace(dto.RazorpayId) ? null : dto.RazorpayId.Trim();
-    c.StartsAt = startsAt;
-    c.EndsAt = endsAt;
-    c.Language = string.IsNullOrWhiteSpace(dto.Language) ? null : dto.Language.Trim();
+    if (dto.Sessions is not null)
+    {
+        var next = dto.Sessions.Select(x => new CourseSession
+        {
+            CourseId = c.Id, StartsAt = x.StartsAt.ToUniversalTime(), EndsAt = x.EndsAt?.ToUniversalTime(), // Npgsql only writes UTC offsets
+            Language = string.IsNullOrWhiteSpace(x.Language) ? null : x.Language.Trim(),
+        }).OrderBy(x => x.StartsAt).ToList();
+        var before = string.Join("|", c.Sessions.OrderBy(x => x.StartsAt).Select(x => $"{x.StartsAt:O}{x.EndsAt:O}{x.Language}"));
+        if (before != string.Join("|", next.Select(x => $"{x.StartsAt:O}{x.EndsAt:O}{x.Language}"))) changes.Add($"dates ({next.Count})");
+        db.RemoveRange(c.Sessions);
+        c.Sessions = next;
+    }
     // Empty, not null, when cleared: null would let the seed refill the default text on the next start.
     c.Description = dto.Description?.Trim() ?? c.Description;
     c.Duration = dto.Duration?.Trim() ?? c.Duration;
@@ -270,7 +364,7 @@ app.MapPost("/api/courses", async (CourseDto dto, AppDb db, ClaimsPrincipal user
     var slug = new string(dto.Name!.Trim().ToLowerInvariant().Select(ch => char.IsAsciiLetterOrDigit(ch) ? ch : '-').ToArray()).Trim('-');
     var key = $"ladder-{(slug.Length > 40 ? slug[..40] : slug)}";
     for (var n = 2; await db.Courses.AnyAsync(c => c.Key == key); n++) key = $"ladder-{slug}-{n}";
-    var c = new Course { Key = key, Kind = "ladder", Name = dto.Name!.Trim(), PaymentUrl = dto.PaymentUrl!.Trim(),
+    var c = new Course { Key = key, Kind = "ladder", Name = dto.Name!.Trim(), PaymentUrl = string.IsNullOrWhiteSpace(dto.PaymentUrl) ? null : dto.PaymentUrl.Trim(),
         SortOrder = (await db.Courses.MaxAsync(x => (int?)x.SortOrder) ?? 0) + 1 };
     c.Price = dto.Price;
     c.RazorpayId = string.IsNullOrWhiteSpace(dto.RazorpayId) ? null : dto.RazorpayId.Trim();
@@ -279,10 +373,35 @@ app.MapPost("/api/courses", async (CourseDto dto, AppDb db, ClaimsPrincipal user
     c.IsVisible = dto.IsVisible;
     ApplyCard(c, dto.Card!);
     await PlaceCard(db, c, dto.Card!.Position);
+    c.FormFields.AddRange(Checkout.DefaultFields(0)); // the course id is filled in on save
     db.Courses.Add(c);
     db.Log(Me(user), "program.created", $"Added Pricing card \"{c.Name}\" at {c.Price:0.##}");
     await db.SaveChangesAsync();
     return Results.Created($"/api/courses/{c.Id}", c);
+});
+
+/* ── Registration form per program (the form builder) ─────────────────────── */
+
+app.MapGet("/api/courses/{id:int}/form", async (int id, AppDb db) =>
+{
+    var c = await db.Courses.AsNoTracking().Include(x => x.FormFields).FirstOrDefaultAsync(x => x.Id == id);
+    return c is null ? Results.NotFound()
+        : Results.Ok(new { Fields = c.FormFields.OrderBy(f => f.SortOrder).Select(Checkout.ToDto) });
+});
+
+app.MapPut("/api/courses/{id:int}/form", async (int id, FormDto dto, AppDb db, ClaimsPrincipal user) =>
+{
+    var c = await db.Courses.Include(x => x.FormFields).FirstOrDefaultAsync(x => x.Id == id);
+    if (c is null) return Results.NotFound();
+    var error = Checkout.ValidateForm(dto.Fields);
+    if (error is not null) return Results.Problem(error, statusCode: 400);
+    // Replace the rows; keys are kept, so answers already given stay with their field.
+    db.FormFields.RemoveRange(c.FormFields);
+    db.FormFields.AddRange(Checkout.ToRows(c.Id, dto.Fields!));
+    c.UpdatedAt = DateTimeOffset.UtcNow;
+    db.Log(Me(user), "program.form", $"{c.CardTitle ?? c.Name}: registration form saved ({dto.Fields!.Count} fields)");
+    await db.SaveChangesAsync();
+    return Results.NoContent();
 });
 
 app.MapDelete("/api/courses/{id:int}", async (int id, AppDb db, ClaimsPrincipal user) =>
@@ -361,23 +480,59 @@ app.MapGet("/api/payments", async (AppDb db, string? q, string? email, string? s
     var items = await query.OrderByDescending(p => p.PaidAt).ThenByDescending(p => p.Id)
         .Skip((Math.Max(page, 1) - 1) * size).Take(size)
         .Select(p => new { p.Id, p.CourseId, CourseName = p.Course!.Name, p.CustomerName, p.Email, p.Phone, p.Amount, p.Currency,
-                           p.Status, p.Method, p.Reference, p.PaidAt, p.Notes, FromRazorpay = p.GatewayPaymentId != null })
+                           p.Status, p.Method, p.Reference, p.PaidAt, p.Notes, FromRazorpay = p.GatewayPaymentId != null,
+                           Answers = p.Answers.OrderBy(a => a.Id).Select(a => new { Key = a.FieldKey, a.Label, a.Value }) })
         .ToListAsync();
     return Results.Ok(new { total, paidSum, items });
 });
 
-app.MapGet("/api/payments/export", async (AppDb db, string? q, string? email, string? status, int? courseId, bool? unassigned, DateTimeOffset? from, DateTimeOffset? to) =>
+app.MapGet("/api/payments/export", async (AppDb db, string? q, string? email, string? status, int? courseId, bool? unassigned, DateTimeOffset? from, DateTimeOffset? to, string? ids) =>
 {
-    var rows = await Filter(db, q, email, status, courseId, unassigned, from, to).OrderByDescending(p => p.PaidAt)
-        .Select(p => new { p.Id, p.PaidAt, Course = p.Course!.Name, p.CustomerName, p.Email, p.Phone, p.Amount, p.Currency, p.Status, p.Method, p.Reference, p.Notes })
+    var query = Filter(db, q, email, status, courseId, unassigned, from, to);
+    var only = Ids(ids);
+    if (only.Count > 0) query = query.Where(p => only.Contains(p.Id)); // the rows ticked in the list
+    var rows = await query.OrderByDescending(p => p.PaidAt)
+        .Select(p => new { p.Id, p.PaidAt, Course = p.Course!.Name, p.CustomerName, p.Email, p.Phone, p.Amount, p.Currency, p.Status, p.Method, p.Reference, p.Notes,
+                           Answers = string.Join("; ", p.Answers.OrderBy(a => a.Id).Select(a => a.Label + ": " + a.Value)) })
         .ToListAsync();
-    var csv = new StringBuilder("Id,Paid at (IST),Program,Name,Email,Phone,Amount,Currency,Status,Method,Reference,Notes\n");
+    var csv = new StringBuilder("Id,Paid at (IST),Program,Name,Email,Phone,Amount,Currency,Status,Method,Reference,Notes,Form answers\n");
     foreach (var r in rows)
         csv.AppendJoin(',', new[] { r.Id.ToString(), r.PaidAt.ToOffset(ist).ToString("yyyy-MM-dd HH:mm"), r.Course, r.CustomerName, r.Email, r.Phone,
-            r.Amount.ToString(CultureInfo.InvariantCulture), r.Currency, r.Status, r.Method, r.Reference, r.Notes }.Select(Csv.Cell)).Append('\n');
+            r.Amount.ToString(CultureInfo.InvariantCulture), r.Currency, r.Status, r.Method, r.Reference, r.Notes, r.Answers }.Select(Csv.Cell)).Append('\n');
     return Results.File(Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray(),
         "text/csv", $"payments-{DateTime.UtcNow:yyyyMMdd}.csv");
 });
+
+// The bulk bar: set the status of, or delete, the ticked payments.
+app.MapPost("/api/payments/bulk", async (BulkDto dto, AppDb db, ClaimsPrincipal user) =>
+{
+    var ids = (dto.Ids ?? []).Distinct().Take(500).ToList();
+    if (ids.Count == 0) return Results.Problem("Select at least one payment.", statusCode: 400);
+    var rows = await db.Payments.Where(p => ids.Contains(p.Id)).ToListAsync();
+    switch (dto.Action)
+    {
+        case "delete":
+            db.Payments.RemoveRange(rows);
+            db.Log(Me(user), "payment.deleted", $"Deleted {rows.Count} payments: {string.Join(", ", rows.Take(5).Select(p => p.CustomerName))}{(rows.Count > 5 ? "…" : "")}");
+            break;
+        case "status" when PaymentStatus.All.Contains(dto.Status):
+            foreach (var p in rows) { p.Status = dto.Status!; p.UpdatedAt = DateTimeOffset.UtcNow; }
+            db.Log(Me(user), "payment.updated", $"Set {rows.Count} payments to {dto.Status}");
+            break;
+        default:
+            return Results.Problem("Choose an action: delete, or a status.", statusCode: 400);
+    }
+    await db.SaveChangesAsync();
+    return Results.Ok(new { count = rows.Count });
+});
+
+// One payment, for opening its edit form from a link (#payments/edit/12).
+app.MapGet("/api/payments/{id:int}", async (int id, AppDb db) =>
+    await db.Payments.AsNoTracking().Where(p => p.Id == id)
+        .Select(p => new { p.Id, p.CourseId, CourseName = p.Course!.Name, p.CustomerName, p.Email, p.Phone, p.Amount, p.Currency,
+                           p.Status, p.Method, p.Reference, p.PaidAt, p.Notes, FromRazorpay = p.GatewayPaymentId != null,
+                           Answers = p.Answers.OrderBy(a => a.Id).Select(a => new { Key = a.FieldKey, a.Label, a.Value }) })
+        .FirstOrDefaultAsync() is { } p ? Results.Ok(p) : Results.NotFound());
 
 app.MapPost("/api/payments", async (PaymentDto dto, AppDb db, ClaimsPrincipal user) =>
 {
@@ -385,6 +540,8 @@ app.MapPost("/api/payments", async (PaymentDto dto, AppDb db, ClaimsPrincipal us
     if (error is not null) return Results.Problem(error, statusCode: 400);
     var p = new Payment { CustomerName = "" };
     Apply(p, dto);
+    p.Answers = (dto.Answers ?? []).Where(a => !string.IsNullOrWhiteSpace(a.Key) && !string.IsNullOrWhiteSpace(a.Value))
+        .Select(a => new PaymentAnswer { FieldKey = a.Key, Label = a.Label, Value = a.Value.Trim()[..Math.Min(2000, a.Value.Trim().Length)] }).ToList();
     db.Payments.Add(p);
     db.Log(Me(user), "payment.created", $"Recorded {p.CustomerName}, {p.Amount:0.##} {p.Currency} ({p.Status})");
     await db.SaveChangesAsync();
@@ -393,12 +550,20 @@ app.MapPost("/api/payments", async (PaymentDto dto, AppDb db, ClaimsPrincipal us
 
 app.MapPut("/api/payments/{id:int}", async (int id, PaymentDto dto, AppDb db, ClaimsPrincipal user) =>
 {
-    var p = await db.Payments.FindAsync(id);
+    var p = await db.Payments.Include(x => x.Answers).FirstOrDefaultAsync(x => x.Id == id);
     if (p is null) return Results.NotFound();
     var error = await Validate.Payment(dto, db);
     if (error is not null) return Results.Problem(error, statusCode: 400);
     var before = $"{p.Amount:0.##} {p.Status}";
     Apply(p, dto);
+    if (dto.Answers is not null)
+    {
+        if (dto.Answers.Any(a => string.IsNullOrWhiteSpace(a.Key) || a.Value is { Length: > 2000 }))
+            return Results.Problem("An answer is missing its field or is too long.", statusCode: 400);
+        db.PaymentAnswers.RemoveRange(p.Answers);
+        p.Answers = dto.Answers.Where(a => !string.IsNullOrWhiteSpace(a.Value))
+            .Select(a => new PaymentAnswer { FieldKey = a.Key, Label = a.Label, Value = a.Value.Trim() }).ToList();
+    }
     p.UpdatedAt = DateTimeOffset.UtcNow;
     var after = $"{p.Amount:0.##} {p.Status}";
     db.Log(Me(user), "payment.updated", $"Entry #{p.Id} ({p.CustomerName}){(before == after ? "" : $": {before} to {after}")}");
@@ -414,6 +579,82 @@ app.MapDelete("/api/payments/{id:int}", async (int id, AppDb db, ClaimsPrincipal
     db.Log(Me(user), "payment.deleted", $"Deleted entry #{p.Id}: {p.CustomerName}, {p.Amount:0.##} {p.Currency} ({p.Status})");
     await db.SaveChangesAsync();
     return Results.NoContent();
+});
+
+/* ── Registrations: everyone who filled in a program's form ──────────────────
+   Payers (one row per payment) and people who filled the form but never paid
+   ("Registered"), with a column per form field. */
+
+app.MapGet("/api/registrations", async (AppDb db, HttpRequest req, int courseId, string? q, string? status, int page = 1, int size = 25) =>
+{
+    var (columns, rows) = await Registrations(db, req, courseId, q, status);
+    size = Math.Clamp(size, 10, 200);
+    var counts = rows.GroupBy(r => r.Status).ToDictionary(g => g.Key, g => g.Count());
+    return Results.Ok(new { columns, total = rows.Count, counts, rows = rows.Skip((Math.Max(page, 1) - 1) * size).Take(size) });
+});
+
+// Removes an unpaid registration ("R7"): every unpaid try that person made for that program,
+// so an older try doesn't take its place in the list.
+app.MapDelete("/api/registrations/attempt/{id:int}", async (int id, AppDb db, ClaimsPrincipal user) =>
+{
+    var a = await db.CheckoutAttempts.FindAsync(id);
+    if (a is null) return Results.NotFound();
+    var email = a.Email?.ToLower();
+    var tries = await db.CheckoutAttempts.Where(t => t.CourseId == a.CourseId && !db.Payments.Any(p => p.GatewayOrderId == t.OrderId)
+            && (t.Id == id || (email != null && t.Email != null && t.Email.ToLower() == email)))
+        .ToListAsync();
+    db.CheckoutAttempts.RemoveRange(tries);
+    db.Log(Me(user), "registration.deleted", $"Deleted the unpaid registration of {a.Name}{(a.Email is null ? "" : $" ({a.Email})")}");
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+// The bulk bar in Registrations: delete ticked rows ("P12" payments, "R7" unpaid registrations), or set a status on the payments among them.
+app.MapPost("/api/registrations/bulk", async (RegBulkDto dto, AppDb db, ClaimsPrincipal user) =>
+{
+    var ids = (dto.Ids ?? []).Distinct().Take(500).ToList();
+    var payIds = ids.Where(i => i.StartsWith('P') && int.TryParse(i[1..], out _)).Select(i => int.Parse(i[1..])).ToList();
+    var tryIds = ids.Where(i => i.StartsWith('R') && int.TryParse(i[1..], out _)).Select(i => int.Parse(i[1..])).ToList();
+    if (payIds.Count + tryIds.Count == 0) return Results.Problem("Select at least one row.", statusCode: 400);
+    var payments = await db.Payments.Where(p => payIds.Contains(p.Id)).ToListAsync();
+    if (dto.Action == "status")
+    {
+        if (!PaymentStatus.All.Contains(dto.Status)) return Results.Problem("Choose a status.", statusCode: 400);
+        foreach (var p in payments) { p.Status = dto.Status!; p.UpdatedAt = DateTimeOffset.UtcNow; }
+        db.Log(Me(user), "payment.updated", $"Set {payments.Count} payments to {dto.Status} (from Registrations)");
+        await db.SaveChangesAsync();
+        return Results.Ok(new { count = payments.Count, skipped = tryIds.Count }); // unpaid registrations have no payment status
+    }
+    if (dto.Action != "delete") return Results.Problem("Choose an action.", statusCode: 400);
+    // An unpaid row stands for every unpaid try by that person for that program; remove them all.
+    var picked = await db.CheckoutAttempts.Where(t => tryIds.Contains(t.Id)).Select(t => new { t.CourseId, Email = t.Email == null ? null : t.Email.ToLower(), t.Id }).ToListAsync();
+    var emails = picked.Where(t => t.Email != null).Select(t => t.Email!).ToList();
+    var courseIds = picked.Select(t => t.CourseId).Distinct().ToList();
+    var tries = await db.CheckoutAttempts.Where(t => tryIds.Contains(t.Id)
+            || (courseIds.Contains(t.CourseId) && t.Email != null && emails.Contains(t.Email.ToLower()) && !db.Payments.Any(p => p.GatewayOrderId == t.OrderId)))
+        .ToListAsync();
+    db.Payments.RemoveRange(payments);
+    db.CheckoutAttempts.RemoveRange(tries);
+    db.Log(Me(user), "registration.deleted", $"Deleted {payments.Count} payments and {picked.Count} unpaid registrations");
+    await db.SaveChangesAsync();
+    return Results.Ok(new { count = payments.Count + picked.Count });
+});
+
+app.MapGet("/api/registrations/export", async (AppDb db, HttpRequest req, int courseId, string? q, string? status) =>
+{
+    var (columns, rows) = await Registrations(db, req, courseId, q, status);
+    // Name, email and phone are their own columns, so rows from before a form existed still fill them.
+    var extra = columns.Where(c => c.Key is not ("name" or "email" or "phone")).ToList();
+    var csv = new StringBuilder(string.Join(",", new[] { "Ref", "Date (IST)", "Status", "Amount", "Name", "Email", "Phone" }.Concat(extra.Select(c => c.Label)).Select(Csv.Cell)) + "\n");
+    foreach (var r in rows)
+    {
+        var cells = new[] { r.Id, r.At.ToOffset(ist).ToString("yyyy-MM-dd HH:mm"), r.Status == Reg.Registered ? "Registered (not paid)" : r.Status,
+                r.Amount.ToString(CultureInfo.InvariantCulture), r.CustomerName, r.Email, r.Phone }
+            .Concat(extra.Select(c => r.Answers.FirstOrDefault(a => a.Key == c.Key)?.Value));
+        csv.AppendJoin(',', cells.Select(Csv.Cell)).Append('\n');
+    }
+    var name = await db.Courses.Where(c => c.Id == courseId).Select(c => c.Key).FirstOrDefaultAsync() ?? "program";
+    return Results.File(Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray(), "text/csv", $"registrations-{name}-{DateTime.UtcNow:yyyyMMdd}.csv");
 });
 
 /* ── Customers: everyone in the ledger, one row per person ────────────────── */
@@ -615,14 +856,16 @@ app.MapGet("/api/dashboard", async (AppDb db) =>
 
     var recent = await db.Payments.OrderByDescending(p => p.PaidAt).Take(6)
         .Select(p => new { p.Id, p.CustomerName, CourseName = p.Course!.Name, p.Amount, p.Status, p.PaidAt }).ToListAsync();
-    var courses = await db.Courses.AsNoTracking().OrderBy(c => c.SortOrder)
-        .Select(c => new { c.Id, c.Key, c.Name, c.Price, c.StartsAt, c.EndsAt, c.Language, c.IsVisible }).ToListAsync();
+    var now = DateTimeOffset.UtcNow;
+    var all = await db.Courses.AsNoTracking().Include(c => c.Sessions).OrderBy(c => c.SortOrder).ToListAsync();
+    var courses = all.Select(c => { var n = CourseSession.Upcoming(c.Sessions, now).FirstOrDefault(); return new { c.Id, c.Key, c.Name, c.Price, n?.StartsAt, n?.EndsAt, n?.Language, c.IsVisible }; }).ToList();
+    var sessions = all.Where(c => c.IsVisible).SelectMany(c => CourseSession.Upcoming(c.Sessions, now).Select(x => new { CourseId = c.Id, c.Name, x.StartsAt, x.EndsAt, x.Language }))
+        .OrderBy(x => x.StartsAt).Take(12).ToList();
     var unassigned = await db.Payments.CountAsync(p => p.CourseId == null);
     // The live offer (if any) and the next one coming up, for the Overview card.
-    var now = DateTimeOffset.UtcNow;
     var offers = await db.Offers.AsNoTracking().Where(o => !o.IsPaused && o.EndsAt > now).OrderBy(o => o.StartsAt).Take(2)
         .Select(o => new { o.Id, o.Name, o.Badge, o.StartsAt, o.EndsAt, Programs = o.Items.Count }).ToListAsync();
-    return Results.Ok(new { byStatus, byCourse, daily, recent, courses, unassigned, offers });
+    return Results.Ok(new { byStatus, byCourse, daily, recent, courses, sessions, unassigned, offers });
 });
 
 // Unknown /api paths answer 404, not the admin page.
@@ -630,6 +873,63 @@ app.MapFallback("/api/{**rest}", () => Results.NotFound()).AllowAnonymous();
 app.MapFallbackToFile("index.html").AllowAnonymous();
 
 app.Run();
+
+// The current form's fields, then any older field only past answers still have; and the matching rows.
+// Field filters arrive as ?f.<fieldKey>=text and match answers containing that text.
+// shortcut: payments and unpaid attempts are merged and paged in memory, fine to tens of thousands per program.
+static async Task<(List<FieldDto> Columns, List<RegRow> Rows)> Registrations(AppDb db, HttpRequest req, int courseId, string? q, string? status)
+{
+    var fields = await db.FormFields.AsNoTracking().Where(f => f.CourseId == courseId).OrderBy(f => f.SortOrder).ToListAsync();
+    var columns = fields.Select(Checkout.ToDto).ToList();
+    var paidKeys = await db.PaymentAnswers.AsNoTracking().Where(a => db.Payments.Any(p => p.Id == a.PaymentId && p.CourseId == courseId))
+        .GroupBy(a => a.FieldKey).Select(g => new { Key = g.Key, Label = g.Max(a => a.Label) }).ToListAsync();
+    var triedKeys = await db.CheckoutAttempts.AsNoTracking().Where(t => t.CourseId == courseId).SelectMany(t => t.Answers)
+        .GroupBy(a => a.FieldKey).Select(g => new { Key = g.Key, Label = g.Max(a => a.Label) }).ToListAsync();
+    foreach (var o in paidKeys.Concat(triedKeys))
+        if (columns.All(c => c.Key != o.Key)) columns.Add(o.Key == "session" ? new FieldDto("session", "Session", "text") : new FieldDto(o.Key, o.Label + " (removed)", "text"));
+
+    var filters = req.Query.Where(x => x.Key.StartsWith("f.") && !string.IsNullOrWhiteSpace(x.Value))
+        .Select(x => (Key: x.Key[2..], Like: $"%{x.Value.ToString().Trim()}%")).ToList();
+    var rows = new List<RegRow>();
+
+    if (status != Reg.Registered)
+    {
+        var query = Filter(db, q, null, string.IsNullOrEmpty(status) ? null : status, courseId, null, null, null);
+        foreach (var (key, like) in filters) query = query.Where(p => p.Answers.Any(a => a.FieldKey == key && EF.Functions.ILike(a.Value, like)));
+        rows.AddRange((await query.Select(p => new { p.Id, p.CustomerName, p.Email, p.Phone, p.Amount, p.Status, p.PaidAt,
+                Answers = p.Answers.Select(a => new RegAnswer(a.FieldKey, a.Value)).ToList() }).ToListAsync())
+            .Select(p => new RegRow($"P{p.Id}", p.Id, p.CustomerName, p.Email, p.Phone, p.Amount, p.Status, p.PaidAt, p.Answers)));
+    }
+
+    if (string.IsNullOrEmpty(status) || status == Reg.Registered)
+    {
+        // Filled in the form and went to Razorpay, but no payment came back for that order.
+        var tries = db.CheckoutAttempts.AsNoTracking().Where(t => t.CourseId == courseId && !db.Payments.Any(p => p.GatewayOrderId == t.OrderId));
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var like = $"%{q.Trim()}%";
+            tries = tries.Where(t => EF.Functions.ILike(t.Name, like) || EF.Functions.ILike(t.Email ?? "", like) || EF.Functions.ILike(t.Phone ?? "", like) || EF.Functions.ILike(t.OrderId, like));
+        }
+        foreach (var (key, like) in filters) tries = tries.Where(t => t.Answers.Any(a => a.FieldKey == key && EF.Functions.ILike(a.Value, like)));
+        var attempts = await tries.OrderByDescending(t => t.CreatedAt)
+            .Select(t => new { t.Id, t.Name, t.Email, t.Phone, t.Amount, t.CreatedAt, Answers = t.Answers.Select(a => new RegAnswer(a.FieldKey, a.Value)).ToList() })
+            .ToListAsync();
+        // Someone who paid for this program shows as that payment, not also as an unpaid try;
+        // and someone who tried several times shows once, with their latest details.
+        var payers = (await db.Payments.Where(p => p.CourseId == courseId && p.Email != null).Select(p => p.Email!.ToLower()).Distinct().ToListAsync()).ToHashSet();
+        rows.AddRange(attempts.Where(t => t.Email is null || !payers.Contains(t.Email.ToLower()))
+            .GroupBy(t => t.Email?.ToLower() ?? t.Phone ?? t.Name.ToLower()).Select(g => g.First())
+            .Select(t => new RegRow($"R{t.Id}", null, t.Name, t.Email, t.Phone, t.Amount, Reg.Registered, t.CreatedAt, t.Answers)));
+    }
+    // ?ids=P12,R7: only the rows ticked in the list (the export of a selection).
+    var picked = (req.Query["ids"].ToString() ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet();
+    if (picked.Count > 0) rows = rows.Where(r => picked.Contains(r.Id)).ToList();
+    return (columns, rows.OrderByDescending(r => r.At).ToList());
+}
+
+static List<int> Ids(string? csv) =>
+    (csv ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(x => int.TryParse(x, out var n) ? n : 0).Where(n => n > 0).Take(500).ToList();
 
 static IQueryable<Payment> Filter(AppDb db, string? q, string? email, string? status, int? courseId, bool? unassigned, DateTimeOffset? from, DateTimeOffset? to)
 {
@@ -723,14 +1023,24 @@ static void Apply(Payment p, PaymentDto dto)
 record LoginDto(string? Email, string? Password);
 record PasswordDto(string? Current, string? Next);
 record AdminDto(string? Email, string? Name, string? Password);
-record CourseDto(string? Name, decimal Price, decimal? ListPrice, string? PaymentUrl, string? RazorpayId, DateTimeOffset? StartsAt, DateTimeOffset? EndsAt, string? Language, bool IsVisible, string? Description = null, string? Duration = null, CardDto? Card = null);
+record CourseDto(string? Name, decimal Price, decimal? ListPrice, string? PaymentUrl, string? RazorpayId, bool IsVisible, string? Description = null, string? Duration = null, CardDto? Card = null, List<SessionDto>? Sessions = null);
+record SessionDto(DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Language);
 // How a program appears as a Pricing section card. Null Category takes it off the Pricing section.
 // Position: where in its tab, as a sort value (e.g. another card's SortOrder + 0.5 for "after it"); null keeps it.
 record CardDto(string? Category, string? CardTitle, string? Cta, string? Icon, bool IsFeatured, double? Position);
-record PaymentDto(int CourseId, string? CustomerName, string? Email, string? Phone, decimal Amount, string? Status, string? Method, string? Reference, DateTimeOffset? PaidAt, string? Notes);
+record PaymentDto(int CourseId, string? CustomerName, string? Email, string? Phone, decimal Amount, string? Status, string? Method, string? Reference, DateTimeOffset? PaidAt, string? Notes, List<AnswerDto>? Answers = null);
 record SiteSettingsDto(string? WhatsappUrl);
 record RazorpayKeysDto(string? KeyId, string? KeySecret, string? WebhookSecret, bool Clear);
 record SyncDto(int Days);
+record BulkDto(List<int>? Ids, string? Action, string? Status);
+record RegBulkDto(List<string>? Ids, string? Action, string? Status);
+// A row in Registrations: a payment (Id "P12") or an unpaid form fill (Id "R7", Status "Registered").
+record RegRow(string Id, int? PaymentId, string CustomerName, string? Email, string? Phone, decimal Amount, string Status, DateTimeOffset At, List<RegAnswer> Answers);
+record RegAnswer(string Key, string Value);
+static class Reg { public const string Registered = "Registered"; }
+record FormDto(List<FieldDto>? Fields);
+record CheckoutRequest(Dictionary<string, JsonElement>? Answers);
+record VerifyRequest(string? OrderId, string? PaymentId, string? Signature);
 record PricingTabDto(string? Name, string? Blurb);
 record OfferItemDto(int CourseId, string? SalePaymentUrl);
 record OfferDto(string? Name, string? Badge, string? DiscountType, decimal DiscountValue, DateTimeOffset? StartsAt, DateTimeOffset? EndsAt, bool IsPaused, List<OfferItemDto>? Items);
@@ -746,9 +1056,13 @@ static class Validate
         if (d.Card is { Cta.Length: > 40 } or { CardTitle.Length: > 120 }) return "Keep the button label to 40 characters and the card title to 120.";
         if (d.Description is { Length: > 300 } || d.Duration is { Length: > 60 }) return "Keep the card text to 300 characters and the access line to 60.";
         if (d.ListPrice is not null && d.ListPrice < d.Price) return "The package price must be at least the selling price.";
-        if (!Uri.TryCreate(d.PaymentUrl?.Trim(), UriKind.Absolute, out var u) || u.Scheme != Uri.UriSchemeHttps)
-            return "The payment link must be a full https:// address.";
-        if (d.StartsAt is not null && d.EndsAt is not null && d.EndsAt <= d.StartsAt) return "The end time must be after the start time.";
+        // Optional: empty means the website takes the registration and payment itself.
+        if (!string.IsNullOrWhiteSpace(d.PaymentUrl) && (!Uri.TryCreate(d.PaymentUrl.Trim(), UriKind.Absolute, out var u) || u.Scheme != Uri.UriSchemeHttps))
+            return "The payment link must be a full https:// address, or left empty to take payment on the website.";
+        if (d.Sessions is { Count: > 50 }) return "A program can have up to 50 dates.";
+        if (d.Sessions?.FirstOrDefault(x => x.EndsAt is not null && x.EndsAt <= x.StartsAt) is { } bad)
+            return $"The date starting {bad.StartsAt.ToOffset(TimeSpan.FromHours(5.5)):d MMM, h:mm tt} ends before it starts.";
+        if (d.Sessions?.Any(x => x.Language is { Length: > 40 }) == true) return "Keep the language to 40 characters.";
         // The site's hero always sells the webinar, so it can't be hidden.
         if (key == "webinar" && !d.IsVisible) return "The main webinar is always shown on the site.";
         return null;

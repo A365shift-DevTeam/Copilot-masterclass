@@ -26,6 +26,7 @@ import { memo } from 'react'
 import useLenis from './hooks/useLenis.js'
 import useSitePreload from './hooks/useSitePreload.js'
 import { version } from './data/siteData.js'
+import CheckoutDialog from './components/CheckoutDialog.jsx'
 
 /* Everything except the preloader. useSitePreload updates `progress` on each
    loaded asset and flips `done` at release; without memo every one of those
@@ -94,6 +95,8 @@ export default function App() {
     <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
       <Preloader progress={progress} done={done} />
       <Page version={version} />
+      {/* Outside the memoised Page: it opens over whatever section the button was in. */}
+      <CheckoutDialog />
     </div>
   )
 }

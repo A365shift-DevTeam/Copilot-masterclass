@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { UserPlus } from 'lucide-react'
 import { api, fmtDate, fmtDateTime } from '../api.js'
-import { Drawer, ErrorNote, Field, toast } from '../ui.jsx'
+import { confirmAction, Drawer, ErrorNote, Field, toast } from '../ui.jsx'
 
 export default function Team({ me }) {
   const [admins, setAdmins] = useState(null)
@@ -11,7 +11,7 @@ export default function Team({ me }) {
   useEffect(() => { load() }, [])
 
   async function remove(a) {
-    if (!window.confirm(`Remove ${a.email}? They are signed out straight away.`)) return
+    if (!await confirmAction({ title: `Remove ${a.name || a.email}?`, text: 'They lose access to the admin and are signed out straight away.', confirmText: 'Remove admin' })) return
     setError('')
     try { await api(`/admins/${a.id}`, { method: 'DELETE' }); toast(`${a.email} removed`); load() }
     catch (e) { setError(e.message) }

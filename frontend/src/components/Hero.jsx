@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight, CalendarDays } from 'lucide-react'
+import { ArrowDown, CalendarDays } from 'lucide-react'
+import { scrollToTarget } from '../hooks/useLenis.js'
 import CopilotOrbit from './CopilotOrbit.jsx'
 import TrainerProfile from './TrainerProfile.jsx'
 import CourseDialog, { rippleClick } from './CourseDialog.jsx'
-import { WEBINAR_DATE, HERO_PRICES } from '../data/content.js'
+import { startCheckout } from './CheckoutDialog.jsx'
+import { WEBINAR_DATE, HERO_PRICES, MORE_DATES } from '../data/content.js'
 import SaleBanner, { SalePrice } from './ui/SaleBanner.jsx'
 import useTypewriter from '../hooks/useTypewriter.js'
 
@@ -72,7 +74,12 @@ export default function Hero() {
     }
   }, [])
 
-  const handleBtnClick = rippleClick
+  // Opens the registration form when the webinar takes payment on the site; otherwise the link.
+  const handleBtnClick = (e) => { rippleClick(e); startCheckout(e, 'webinar') }
+  const goToPricing = (e) => {
+    e.preventDefault()
+    scrollToTarget('#pricing')
+  }
 
   return (
     <section id="top" className="hero">
@@ -99,6 +106,7 @@ export default function Hero() {
                 <CalendarDays aria-hidden="true" />
                 {WEBINAR_DATE}
               </p>
+              {MORE_DATES.length > 0 && <p className="hero__more-dates">Also on {MORE_DATES.join(', ')}</p>}
               {/* The note types itself out; when it finishes, Day 2 tucks in
                   behind Day 1 and that chip flips to "1 Day". Deleting the
                   note undoes it, so the merge replays with every cycle. */}
@@ -135,40 +143,11 @@ export default function Hero() {
               lines above say the same thing in the hero's own voice. */}
           <h1 className="sr-only">Microsoft 365 Copilot Masterclass — 1-Day Live Online Program</h1>
 
-          <p className="hero__subtitle">Other Copilot 365 Programs</p>
-
-          {/* <p className="hero__desc">
-            Discover how Microsoft Copilot, Microsoft 365 and intelligent automation help professionals
-            automate repetitive work, analyse information faster, create content and improve everyday productivity.
-          </p> */}
-
-          <table className="hero__price-table">
-            <thead>
-              <tr><th>Program</th><th>Details</th><th>Register</th></tr>
-            </thead>
-            <tbody>
-              {HERO_PRICES.map(({ name, hidden, url }, i) => {
-                if (i === 0 || hidden) return null // [0] is the main offer, shown above the table
-                return (
-                  <tr key={name}>
-                    <td>{name}</td>
-                    <td>
-                      <button type="button" className="hero__details-btn" onClick={() => setOpenRow(i)}>
-                        View details
-                      </button>
-                    </td>
-                    <td>
-                      {/* Opens this program's payment page. */}
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={rippleClick}>
-                        Register <ArrowRight aria-hidden="true" />
-                        <span className="btn-shine" aria-hidden="true" />
-                      </a>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          {/* The other programs live in the Pricing section; this takes the viewer there. */}
+          <a href="#pricing" className="hero__subtitle hero__more" onClick={goToPricing}>
+            Other Copilot 365 Programs
+            <span className="hero__more-arrow" aria-hidden="true"><ArrowDown /></span>
+          </a>
 
           {!sideBySide && <TrainerProfile />}
 

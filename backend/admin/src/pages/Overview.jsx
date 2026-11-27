@@ -51,7 +51,8 @@ export default function Overview() {
         )
       })}
 
-      <SessionClock courses={data.courses} byCourse={data.byCourse} />
+      {/* Every upcoming date (a webinar can have several), as the clock's sessions. */}
+      <SessionClock courses={data.sessions ? data.sessions.map((x, i) => ({ ...x, id: x.courseId, key: i })) : data.courses} byCourse={data.byCourse} />
 
       <section className="figures" aria-label="Payment totals">
         <Figure label="Collected" value={money(paid.amount)} note={`${paid.count} paid`} />
@@ -196,7 +197,7 @@ function SessionClock({ courses, byCourse }) {
       <div className="clock__track" aria-hidden="true">
         <span className="clock__today" style={{ left: 0 }}>Today</span>
         {upcoming.map((c) => (
-          <span key={c.id} className={`clock__mark${c.id === next.id ? ' is-next' : ''}`} style={{ left: at(c.start) }}>
+          <span key={`${c.id}-${c.startsAt}`} className={`clock__mark${c === next ? ' is-next' : ''}`} style={{ left: at(c.start) }}>
             <i />
             <em>{fmtDate(c.startsAt, { day: 'numeric', month: 'short' })}</em>
           </span>

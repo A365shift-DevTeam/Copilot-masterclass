@@ -1,23 +1,21 @@
 import { useState } from 'react'
 import { api } from '../api.js'
-import { ErrorNote, Field } from '../ui.jsx'
+import { ErrorNote, Field, toast } from '../ui.jsx'
 
 export default function Account() {
   const [error, setError] = useState('')
-  const [done, setDone] = useState(false)
   const [busy, setBusy] = useState(false)
 
   async function save(e) {
     e.preventDefault()
     const f = new FormData(e.currentTarget)
     setError('')
-    setDone(false)
     if (f.get('next') !== f.get('confirm')) return setError('The two new passwords are different.')
     setBusy(true)
     try {
       await api('/auth/password', { method: 'POST', body: { current: f.get('current'), next: f.get('next') } })
       e.target.reset()
-      setDone(true)
+      toast('Password changed. Your other sessions are signed out.')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -35,7 +33,6 @@ export default function Account() {
           <Field label="New password" hint="At least 10 characters." wide><input name="next" type="password" autoComplete="new-password" minLength={10} required /></Field>
           <Field label="Repeat new password" wide><input name="confirm" type="password" autoComplete="new-password" minLength={10} required /></Field>
           <ErrorNote>{error}</ErrorNote>
-          {done && <p className="ok-note" role="status">Password changed.</p>}
           <div className="field--wide"><button className="btn btn--primary" disabled={busy}>{busy ? 'Saving…' : 'Change password'}</button></div>
         </form>
       </section>

@@ -8285,3 +8285,68 @@ html[data-theme="dark"] .pl {
 .sale-banner__time { font-variant-numeric: tabular-nums; }
 html[data-theme="dark"] .sale-banner { background: rgba(16, 24, 40, 0.85); border-color: #1E2939; color: #D1D5DC; }
 .sale-was { opacity: 0.65; font-weight: 500; margin-right: 2px; }
+
+/* Hero: "Other Copilot 365 Programs" scrolls to the Pricing section. */
+.hero__more { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; text-decoration: none; cursor: pointer; }
+.hero__more:hover { color: inherit; }
+.hero__more-arrow {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background-image: var(--gradient-primary-hover); color: #fff;
+  box-shadow: 0 8px 20px rgba(var(--gradient-primary-rgb), 0.3);
+  animation: hero-more-bob 1.8s var(--ease) infinite;
+}
+.hero__more-arrow svg { width: 18px; height: 18px; }
+.hero__more:hover .hero__more-arrow { background-image: var(--gradient-primary); }
+@keyframes hero-more-bob { 50% { transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .hero__more-arrow { animation: none; } }
+.pl-card__countdown { display: block; margin-top: 6px; font-size: 13px; font-weight: 600; color: #b45309; }
+html[data-theme="dark"] .pl-card__countdown { color: #f8c76a; }
+
+/* Pricing card during an offer: the badge stays on one line (wrapping under the
+   icon on narrow cards) and the old price steps back so the sale price leads. */
+.pl-card__top { flex-wrap: wrap; gap: 8px; }
+.pl-card__tag { white-space: nowrap; }
+.pl-card__amount .sale-was { display: inline-block; margin-right: 6px; font-size: 0.6em; font-weight: 500; letter-spacing: 0; color: var(--pl-muted, #6a7282); opacity: 1; vertical-align: 0.25em; }
+
+/* ── Registration form + payment (components/CheckoutDialog.jsx) ───────── */
+
+.checkout-dialog form { display: contents; }
+.checkout-dialog__kicker { margin: 0; font-size: 13px; font-weight: 600; color: var(--ref-teal-dk); }
+.checkout-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; margin-top: 18px; }
+.checkout-form__field { display: grid; gap: 6px; min-width: 0; margin: 0; padding: 0; border: 0; font-size: 14px; font-weight: 600; color: var(--fg-primary); }
+.checkout-form__field--wide, .checkout-form__field:has(textarea) { grid-column: 1 / -1; }
+.checkout-form__field legend { padding: 0; margin-bottom: 6px; }
+.checkout-form__req { color: #c2372b; }
+.checkout-form input:not([type="radio"]):not([type="checkbox"]),
+.checkout-form select,
+.checkout-form textarea {
+  width: 100%; min-height: 44px; padding: 10px 14px;
+  border: 1px solid var(--ref-card-line); border-radius: 12px;
+  background: #fff; color: #002060; font: 500 15px var(--font-sans);
+}
+.checkout-form textarea { resize: vertical; }
+.checkout-form input:focus, .checkout-form select:focus, .checkout-form textarea:focus { outline: 2px solid var(--ref-teal); outline-offset: -1px; border-color: transparent; }
+.checkout-form__choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkout-form__choice { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid var(--ref-card-line); border-radius: 50px; font-weight: 500; cursor: pointer; }
+.checkout-form__choice:has(input:checked) { border-color: var(--ref-teal); background: rgba(76, 153, 160, 0.08); }
+.checkout-form__choice input { accent-color: #3D7B80; }
+.checkout-dialog__error { margin: 16px 0 0; padding: 10px 14px; border-radius: 12px; background: #fde4e1; color: #a3261b; font-size: 14px; font-weight: 500; }
+.checkout-dialog__secure { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; padding: 0 24px 16px; font-size: 12.5px; color: var(--fg-muted); }
+.checkout-dialog__secure svg { width: 14px; height: 14px; }
+.checkout-dialog .btn-primary:disabled { opacity: 0.7; cursor: wait; }
+html[data-theme="dark"] .checkout-form input:not([type="radio"]):not([type="checkbox"]),
+html[data-theme="dark"] .checkout-form select,
+html[data-theme="dark"] .checkout-form textarea { background: #0C121F; border-color: #1E2939; color: #D1D5DC; }
+html[data-theme="dark"] .checkout-form__choice { border-color: #1E2939; }
+html[data-theme="dark"] .checkout-dialog__error { background: rgba(239, 68, 68, 0.16); color: #f9a39b; }
+@media (max-width: 640px) { .checkout-form { grid-template-columns: 1fr; } }
+
+/* Hero alignment: the text column starts on the same line as the navbar logo
+   (the nav spans the full width with the same side padding), the price sits
+   apart from "Register", and the arrow bobs around the text's centre line. */
+.hero__grid { max-width: none; padding-left: clamp(20px, 4vw, 56px); padding-right: clamp(20px, 4vw, 56px); }
+.hero .btn-primary { gap: 10px; }
+.hero .btn-primary .btn-price-highlight { margin-left: 0; }
+@keyframes hero-more-bob { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(2px); } }
+.hero__more-dates { margin: 6px 0 0 34px; font-size: 14px; font-weight: 600; color: var(--ref-slate); }
+html[data-theme="dark"] .hero__more-dates { color: #9AA4B6; }

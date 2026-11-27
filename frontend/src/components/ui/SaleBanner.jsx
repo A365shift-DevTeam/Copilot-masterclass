@@ -2,33 +2,48 @@ import { useEffect, useState } from 'react'
 import { SALE } from '../../data/content.js'
 import { loadSiteData } from '../../data/siteData.js'
 
-/* The running offer from the admin, with a countdown. When it reaches zero the
-   site reloads its prices from the API, so the normal prices come back without
-   a page refresh. */
-export default function SaleBanner() {
+/* Time left on an offer, ticking every second. At zero the site reloads its
+   prices from the API, so the normal prices come back without a page refresh. */
+export function useCountdown(endsAt) {
   const [now, setNow] = useState(Date.now())
-  const ends = SALE ? +new Date(SALE.endsAt) : 0
+  const ends = endsAt ? +new Date(endsAt) : 0
   const left = ends - now
 
   useEffect(() => {
-    if (!SALE) return
+    if (!ends) return
     const t = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(t)
   }, [ends])
 
-  useEffect(() => {
-    if (SALE && left <= 0) loadSiteData()
-  }, [SALE && left <= 0]) // eslint-disable-line react-hooks/exhaustive-deps
+  const over = !!ends && left <= 0
+  useEffect(() => { if (over) loadSiteData() }, [over])
 
-  if (!SALE || left <= 0) return null
+  if (!ends || over) return null
   const d = Math.floor(left / 864e5)
   const hms = [Math.floor(left / 36e5) % 24, Math.floor(left / 6e4) % 60, Math.floor(left / 1e3) % 60]
     .map((n) => String(n).padStart(2, '0')).join(':')
+  return { days: d, hms }
+}
 
+/** "Ends in 1d 04:12:09" for an offer, or nothing once it has ended. */
+export function OfferCountdown({ endsAt, className = 'sale-banner__clock' }) {
+  const t = useCountdown(endsAt)
+  if (!t) return null
+  return (
+    <span className={className}>
+      Ends in {t.days > 0 && `${t.days}d `}<span className="sale-banner__time">{t.hms}</span>
+    </span>
+  )
+}
+
+/* The running offer from the admin, in the hero. */
+export default function SaleBanner() {
+  const t = useCountdown(SALE?.endsAt)
+  if (!SALE || !t) return null
   return (
     <p className="sale-banner" role="note">
       <span className="sale-banner__badge">{SALE.badge}</span>
-      <span className="sale-banner__clock">Ends in {d > 0 && `${d}d `}<span className="sale-banner__time">{hms}</span></span>
+      <span className="sale-banner__clock">Ends in {t.days > 0 && `${t.days}d `}<span className="sale-banner__time">{t.hms}</span></span>
     </p>
   )
 }

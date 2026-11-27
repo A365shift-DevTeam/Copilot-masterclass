@@ -11,7 +11,8 @@
   "dependencies": {
     "lucide-react": "^1.39.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "sweetalert2": "^11.26.26"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.1",

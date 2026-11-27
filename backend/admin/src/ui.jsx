@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { X } from 'lucide-react'
+import { AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, X } from 'lucide-react'
+import Swal from 'sweetalert2'
 
-/* Side panel for every edit form. The native <dialog> gives focus trapping,
+/* Popup for every edit form. The native <dialog> gives focus trapping,
    Esc to close and an inert page behind it for free. */
 export function Drawer({ open, title, subtitle, onClose, children, footer }) {
   const ref = useRef(null)
@@ -67,7 +68,75 @@ export function Toaster() {
   }, [])
   return (
     <div className="toaster" role="status" aria-live="polite">
-      {items.map((t) => <div key={t.id} className={`toast toast--${t.tone}`}>{t.message}</div>)}
+      {items.map((t) => (
+        <div key={t.id} className={`toast toast--${t.tone}`}>
+          {t.tone === 'bad' ? <AlertCircle size={18} aria-hidden="true" /> : <CheckCircle2 size={18} aria-hidden="true" />}
+          <span>{t.message}</span>
+        </div>
+      ))}
     </div>
+  )
+}
+
+/* Confirmation before anything destructive. Resolves true when confirmed.
+   SweetAlert2, dressed in the admin's own buttons so it follows the theme. */
+export async function confirmAction({ title, text, confirmText = 'Yes, continue', danger = true }) {
+  const { isConfirmed } = await Swal.fire({
+    title, text,
+    icon: danger ? 'warning' : 'question',
+    showCancelButton: true,
+    confirmButtonText: confirmText,
+    cancelButtonText: 'Cancel',
+    reverseButtons: true,
+    focusCancel: danger,
+    buttonsStyling: false,
+    customClass: {
+      popup: 'swal-admin',
+      confirmButton: danger ? 'btn btn--danger-solid' : 'btn btn--primary',
+      cancelButton: 'btn',
+      actions: 'swal-admin__actions',
+    },
+  })
+  return isConfirmed
+}
+
+/* Pagination attached under every list (.crm-pagination in the design system):
+   rows per page, "Showing 26–50 of 120", page x of y, first / previous / pages / next / last. */
+export function Pagination({ page, size, total, onPage, onSize, noun = 'rows' }) {
+  const pages = Math.max(1, Math.ceil(total / size))
+  const from = total ? (page - 1) * size + 1 : 0
+  const to = Math.min(total, page * size)
+  // First, last, and the pages either side of this one; gaps become an ellipsis.
+  const shown = [...new Set([1, page - 1, page, page + 1, pages])].filter((n) => n >= 1 && n <= pages).sort((a, b) => a - b)
+  const go = (n) => onPage(Math.min(pages, Math.max(1, n)))
+  return (
+    <nav className="crm-pagination crm-pagination--attached" aria-label="Pagination">
+      <div className="crm-pagination-left">
+        <label className="crm-pagination-size">
+          <span className="crm-pagination-size-label">Rows per page</span>
+          <select className="crm-pagination-select" value={size} onChange={(e) => onSize(+e.target.value)} aria-label="Rows per page">
+            {[10, 25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </label>
+        <span className="crm-pagination-info" aria-live="polite">Showing <strong>{from}–{to}</strong> of <strong>{total.toLocaleString('en-IN')}</strong> {noun}</span>
+        <span className="crm-pagination-pageof">Page <strong>{page}</strong> of <strong>{pages}</strong></span>
+      </div>
+      <div className="crm-pagination-right">
+        <button type="button" className="crm-pagination-btn" onClick={() => go(1)} disabled={page <= 1} aria-label="First page" title="First page"><ChevronsLeft size={15} /></button>
+        <button type="button" className="crm-pagination-btn" onClick={() => go(page - 1)} disabled={page <= 1} aria-label="Previous page" title="Previous page"><ChevronLeft size={15} /></button>
+        <div className="crm-pagination-pages">
+          {shown.map((n, i) => (
+            <span key={n} style={{ display: 'contents' }}>
+              {i > 0 && n - shown[i - 1] > 1 && <span className="crm-pagination-gap" aria-hidden="true">…</span>}
+              <button type="button" className={`crm-pagination-btn${n === page ? ' active' : ''}`} onClick={() => go(n)}
+                aria-label={`Page ${n}`} aria-current={n === page ? 'page' : undefined}>{n}</button>
+            </span>
+          ))}
+        </div>
+        <span className="crm-pagination-compact" aria-hidden="true">{page} / {pages}</span>
+        <button type="button" className="crm-pagination-btn" onClick={() => go(page + 1)} disabled={page >= pages} aria-label="Next page" title="Next page"><ChevronRight size={15} /></button>
+        <button type="button" className="crm-pagination-btn" onClick={() => go(pages)} disabled={page >= pages} aria-label="Last page" title="Last page"><ChevronsRight size={15} /></button>
+      </div>
+    </nav>
   )
 }

@@ -69,13 +69,18 @@ public static class Razorpay
     /// </summary>
     public static async Task<Outcome> RecordAsync(AppDb db, Event ev, string matchText, string actor)
     {
-        var existing = await db.Payments.FirstOrDefaultAsync(p => p.GatewayPaymentId == ev.PaymentId);
+        // A website checkout's payments share its order id: a failed try and the paid retry stay one row.
+        var existing = await db.Payments.FirstOrDefaultAsync(p => p.GatewayPaymentId == ev.PaymentId
+            || (ev.OrderId != null && p.GatewayOrderId == ev.OrderId));
         if (existing is not null)
         {
             // Once refunded, a late captured/failed event must not flip it back.
             if (existing.Status == ev.Status || existing.Status == PaymentStatus.Refunded) return Outcome.Skipped;
+            // A failed try never overwrites a payment that went through.
+            if (existing.Status == PaymentStatus.Paid && ev.Status != PaymentStatus.Refunded) return Outcome.Skipped;
             db.Log(actor, "payment.status", $"{ev.PaymentId} ({existing.CustomerName}) {existing.Status} to {ev.Status}");
             existing.Status = ev.Status;
+            if (ev.Status == PaymentStatus.Paid) { existing.GatewayPaymentId = ev.PaymentId; existing.Reference = ev.PaymentId; existing.PaidAt = ev.PaidAt; }
             existing.Email ??= ev.Email;
             existing.Phone ??= ev.Phone;
             existing.UpdatedAt = DateTimeOffset.UtcNow;
@@ -84,35 +89,44 @@ public static class Razorpay
         }
         if (ev.Amount == 0) return Outcome.Skipped; // a refund for a payment never seen here, with nothing to record
 
-        var courses = await db.Courses.AsNoTracking().ToListAsync();
-        var offers = await db.Offers.AsNoTracking().Include(o => o.Items)
-            .Where(o => o.StartsAt <= ev.PaidAt && o.EndsAt > ev.PaidAt).ToListAsync();
-        var course = MatchCourse(matchText, ev.Amount, courses, offers, ev.PaidAt);
-        var name = ev.Name ?? ev.Email ?? ev.Phone ?? "Razorpay customer";
+        // Started on the website: the attempt knows the program and holds the form answers.
+        var attempt = ev.OrderId is null ? null : await db.CheckoutAttempts.AsNoTracking().Include(a => a.Answers).FirstOrDefaultAsync(a => a.OrderId == ev.OrderId);
+        Course? course;
+        if (attempt is not null) course = await db.Courses.AsNoTracking().FirstOrDefaultAsync(c => c.Id == attempt.CourseId);
+        else
+        {
+            var courses = await db.Courses.AsNoTracking().ToListAsync();
+            var offers = await db.Offers.AsNoTracking().Include(o => o.Items)
+                .Where(o => o.StartsAt <= ev.PaidAt && o.EndsAt > ev.PaidAt).ToListAsync();
+            course = MatchCourse(matchText, ev.Amount, courses, offers, ev.PaidAt);
+        }
+        var name = attempt?.Name ?? ev.Name ?? ev.Email ?? ev.Phone ?? "Razorpay customer";
         db.Payments.Add(new Payment
         {
             CourseId = course?.Id,
             CustomerName = name,
-            Email = ev.Email,
-            Phone = ev.Phone,
+            Email = attempt?.Email ?? ev.Email,
+            Phone = attempt?.Phone ?? ev.Phone,
             Amount = ev.Amount,
             Currency = ev.Currency,
             Status = ev.Status,
-            Method = "Razorpay",
+            Method = attempt is null ? "Razorpay" : "Razorpay (website)",
             Reference = ev.PaymentId,
             GatewayPaymentId = ev.PaymentId,
+            GatewayOrderId = ev.OrderId,
+            Answers = attempt?.Answers.Select(a => new PaymentAnswer { FieldKey = a.FieldKey, Label = a.Label, Value = a.Value }).ToList() ?? [],
             PaidAt = ev.PaidAt,
-            Notes = course is null
-                ? $"Recorded from Razorpay. No program matched {ev.Amount:0.##} {ev.Currency}; choose one."
+            Notes = attempt is not null ? $"Registered on the website ({ev.Method ?? "payment"}, order {ev.OrderId})."
+                : course is null ? $"Recorded from Razorpay. No program matched {ev.Amount:0.##} {ev.Currency}; choose one."
                 : $"Recorded from Razorpay ({ev.Method ?? "payment"}{(ev.OrderId is null ? "" : $", order {ev.OrderId}")}).",
         });
         db.Log(actor, "payment.created", $"{name} paid {ev.Amount:0.##} {ev.Currency} ({ev.Status}) for {course?.Name ?? "an unassigned program"}");
         try { await db.SaveChangesAsync(); }
         catch (DbUpdateException)
         {
-            // The same payment arrived twice at once and the other request recorded it; anything else is a real failure.
+            // The verify call and the webhook arrived together and the other one recorded it; anything else is a real failure.
             db.ChangeTracker.Clear();
-            if (!await db.Payments.AsNoTracking().AnyAsync(p => p.GatewayPaymentId == ev.PaymentId)) throw;
+            if (!await db.Payments.AsNoTracking().AnyAsync(p => p.GatewayPaymentId == ev.PaymentId || (ev.OrderId != null && p.GatewayOrderId == ev.OrderId))) throw;
             return Outcome.Skipped;
         }
         return Outcome.Created;
