@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Check, MapPin } from 'lucide-react'
 import CourseDialog, { rippleClick } from './CourseDialog.jsx'
 import { HERO_PRICES, TRAINER } from '../data/content.js'
+import { SalePrice } from './ui/SaleBanner.jsx'
 
-/* Every program except the main webinar (HERO_PRICES[0], which the hero sells). */
-const PROGRAMS = HERO_PRICES.map((p, i) => ({ ...p, index: i })).filter((p) => p.index > 0 && p.scene)
 
 /* ── Card headers ────────────────────────────────────────────────────────────
    Each one pictures the format of the program as a small live loop: a formula
@@ -105,6 +104,9 @@ const SCENES = { excel: ExcelScene, video: VideoScene, coach: CoachScene, worksh
 export default function Programs() {
   const ref = useRef(null)
   const [openIndex, setOpenIndex] = useState(null)
+  // Every program except the main webinar (HERO_PRICES[0], which the hero sells).
+  // Read on each render: main.jsx re-renders once the admin API values arrive.
+  const PROGRAMS = HERO_PRICES.map((p, i) => ({ ...p, index: i })).filter((p) => p.index > 0 && p.scene && !p.hidden)
 
   useEffect(() => {
     const el = ref.current
@@ -148,7 +150,7 @@ export default function Programs() {
                 </ul>
                 <div className="pcard__foot">
                   <p className="pcard__price">
-                    <span className="sr-only">Price: </span>₹{p.price.toLocaleString('en-IN')}
+                    <span className="sr-only">Price: </span><SalePrice price={p.price} originalPrice={p.originalPrice} />
                   </p>
                   <button type="button" className="pcard__details" onClick={() => setOpenIndex(p.index)}>
                     View details

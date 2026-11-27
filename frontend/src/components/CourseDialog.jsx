@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowRight, CalendarDays, Check, X } from 'lucide-react'
 import { COPILOT_ICON } from '../data/content.js'
+import { SalePrice } from './ui/SaleBanner.jsx'
 
 /* Click ripple shared by every gradient button that opens a payment page. */
 export function rippleClick(e) {
@@ -21,7 +22,7 @@ export default function CourseDialog({ course, onClose }) {
   return (
     <Dialog.Root open={course != null} onOpenChange={(o) => { if (!o) onClose() }}>
       {course && (() => {
-        const { title, meta, facts, descLead, desc, pointsHeading, points, price, url } = course
+        const { title, meta, facts, descLead, desc, pointsHeading, points, price, originalPrice, url } = course
         return (
           <Dialog.Portal>
             <Dialog.Overlay className="legal-dialog__overlay" />
@@ -55,7 +56,7 @@ export default function CourseDialog({ course, onClose }) {
               <footer className="course-dialog__footer">
                 <div>
                   <p className="course-dialog__fee-label">Program fee</p>
-                  <p className="plan__price course-dialog__fee">₹{price.toLocaleString('en-IN')}</p>
+                  <p className="plan__price course-dialog__fee"><SalePrice price={price} originalPrice={originalPrice} /></p>
                 </div>
                 <div className="course-dialog__actions">
                   <Dialog.Close className="course-dialog__ghost">Close</Dialog.Close>

@@ -3,12 +3,12 @@ import useReveal from '../hooks/useReveal.js'
 import { COPILOT_ICON, PROGRAMMES } from '../data/content.js'
 import BorderBeam from './ui/BorderBeam.jsx'
 
-function PlanCard({ name, tagline, points, pkg, save, price, url, featured }) {
+function PlanCard({ name, tagline, points, pkg, save, price, url, featured, offer }) {
   const ref = useReveal()
   return (
     <article ref={ref} className={`plan${featured ? ' plan--featured' : ''}`}>
       {featured && <BorderBeam duration={8} />}
-      {featured && <span className="plan__badge">Most popular</span>}
+      {(offer || featured) && <span className="plan__badge">{offer ? offer.badge : 'Most popular'}</span>}
 
       <header className="plan__head">
         <span className="plan__icon"><img src={COPILOT_ICON} alt="" /></span>
@@ -52,7 +52,7 @@ export default function Pricing() {
         <p>Personal coaching after the webinar. Pick the track that fits your goal.</p>
       </div>
       <div className="plans">
-        {PROGRAMMES.map((p) => <PlanCard key={p.name} {...p} />)}
+        {PROGRAMMES.filter((p) => !p.hidden).map((p) => <PlanCard key={p.key} {...p} />)}
       </div>
     </section>
   )

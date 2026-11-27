@@ -1,0 +1,39 @@
+// node --test src/data — checks the admin API payload reaches every place the site shows it.
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import * as content from './content.js'
+
+test('applySiteData patches dates, prices, links and keeps indexes', () => {
+  const keys = content.HERO_PRICES.map((p) => p.key)
+  content.applySiteData({ courses: [
+    { key: 'webinar', name: 'Webinar', price: 599, paymentUrl: 'https://pay.example/w', startsAt: '2026-12-05T04:30:00Z', endsAt: '2026-12-05T08:30:00Z', language: 'English', isVisible: false },
+    { key: 'workshop', name: 'Workshop', price: 5999, paymentUrl: 'https://pay.example/ws', startsAt: '2027-02-12T18:30:00Z', endsAt: null, language: 'Tamil', isVisible: false },
+    { key: 'skill-builder', name: 'Skill', price: 3999, listPrice: 9999, paymentUrl: 'https://pay.example/s', isVisible: true },
+    { key: 'ladder-new', name: 'Copilot for Planner', price: 1299, paymentUrl: 'https://pay.example/p', isVisible: true, category: 'single', description: 'Plans', duration: '30 days access', cta: 'Enrol', icon: 'app:planner', isFeatured: true },
+    { key: 'excel', name: 'Excel', price: 559, originalPrice: 799, paymentUrl: 'https://pay.example/sale', isVisible: true, offer: { badge: 'Black Friday sale', endsAt: '2026-12-01T18:29:00Z' } },
+  ], pricingTabs: [{ id: 'single', name: 'Single apps', blurb: null }], whatsappUrl: 'https://chat.whatsapp.com/NEW' })
+  assert.equal(content.WHATSAPP_COMMUNITY_URL, 'https://chat.whatsapp.com/NEW')
+  assert.equal(content.WEBINAR_DATE, 'Sat 5 Dec 2026 · 10 AM – 2 PM IST in English')
+  assert.equal(content.HERO_PRICES[0].meta, 'Saturday, 5 December 2026 · 10:00 AM – 2:00 PM IST · English')
+  assert.equal(content.PAYMENT_URL, 'https://pay.example/w')
+  assert.equal(content.HERO_PRICES[0].hidden, false) // the webinar can't be hidden
+  const ws = content.HERO_PRICES.find((p) => p.key === 'workshop')
+  assert.equal(ws.highlights[0], 'Saturday, 13 February 2027')
+  assert.deepEqual(ws.facts.find(([l]) => l === 'Date'), ['Date', '13 February 2027'])
+  assert.equal(ws.hidden, true)
+  assert.equal(ws.price, 5999)
+  assert.deepEqual(content.HERO_PRICES.map((p) => p.key), keys)
+  const sb = content.PROGRAMMES.find((p) => p.key === 'skill-builder')
+  assert.deepEqual([sb.price, sb.pkg, sb.save], ['₹3,999', '₹9,999', '₹6,000'])
+  // The Pricing section now holds only the admin's cards: the new one, in the single tab.
+  const single = content.PRICE_LADDER.find((g) => g.id === 'single').items
+  assert.deepEqual(single.map((i) => [i.key, i.name, i.price, i.featured]), [['ladder-new', 'Copilot for Planner', 1299, true]])
+  assert.match(single[0].logos[0], /planner.svg$/)
+  assert.equal(content.PRICE_LADDER.find((g) => g.id === 'single').name, 'Single apps')
+  const ex = content.HERO_PRICES.find((p) => p.key === 'excel')
+  assert.deepEqual([ex.price, ex.originalPrice, ex.url], [559, 799, 'https://pay.example/sale'])
+  assert.equal(content.SALE.badge, 'Black Friday sale') // the webinar has no offer here, so the first visible one
+  // When the offer ends the API stops sending it and the normal price comes back.
+  content.applySiteData({ courses: [{ key: 'excel', name: 'Excel', price: 799, paymentUrl: 'https://pay.example/x', isVisible: true }] })
+  assert.deepEqual([ex.price, ex.originalPrice, content.SALE], [799, null, null])
+})

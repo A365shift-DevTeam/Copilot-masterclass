@@ -1,0 +1,7 @@
+bin/
+obj/
+node_modules/
+Api/wwwroot/
+Api/App_Data/
+.vs/
+*.user

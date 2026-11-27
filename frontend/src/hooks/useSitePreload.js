@@ -7,6 +7,7 @@ import {
   loadFrame,
   preloadLadder,
 } from '../utils/frameCache.js'
+import { firstLoad } from '../data/siteData.js'
 
 // Both scroll stages scrub a decoded frame sequence, so a frame that has not
 // arrived is a visibly stuck animation. Holding the page on all 225 of them was
@@ -147,6 +148,7 @@ export default function useSitePreload() {
       ...Array.from({ length: CONCURRENCY }, worker),
       whenFontsReady().then(step),
       whenWindowLoaded().then(step),
+      firstLoad, // prices, dates and offers from the admin, so nobody sees a stale price
     ]).then(release)
 
     return () => {

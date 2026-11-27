@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://copilot.ambot365.com/sitemap.xml
+Sitemap: https://learnai.ambot365.com/sitemap.xml

@@ -14,7 +14,7 @@ import './seat-reveal.css'
  * once per frame by SeatScrollExperience from the single scroll progress value.
  * Each one only feeds an opacity and a transform.
  */
-export default function SeatReveal({ onBook, tabbable = false, amount = 499 }) {
+export default function SeatReveal({ onBook, tabbable = false, amount }) {
   const openBookingModal = () => {
     if (onBook) {
       onBook()

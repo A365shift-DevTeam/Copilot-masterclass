@@ -9,7 +9,6 @@ import LiveDemo from './components/LiveDemo.jsx'
 import Benefits from './components/Benefits.jsx'
 import Speaker from './components/Speaker.jsx'
 import Pricing from './components/Pricing.jsx'
-import Programs from './components/Programs.jsx'
 import PriceLadder from './components/PriceLadder.jsx'
 import Ecosystem from './components/Ecosystem.jsx'
 import Register from './components/Register.jsx'
@@ -26,12 +25,15 @@ import LogoTraveller from './components/LogoTraveller.jsx'
 import { memo } from 'react'
 import useLenis from './hooks/useLenis.js'
 import useSitePreload from './hooks/useSitePreload.js'
+import { version } from './data/siteData.js'
 
 /* Everything except the preloader. useSitePreload updates `progress` on each
    loaded asset and flips `done` at release; without memo every one of those
    re-rendered the whole page, which showed up as a 1s main-thread task on
-   mobile. Nothing in here reads that state. */
-const Page = memo(function Page() {
+   mobile. Nothing in here reads that state. `version` changes only when the
+   admin's prices, dates and offers (re)load, which must re-render every section. */
+// eslint-disable-next-line no-unused-vars
+const Page = memo(function Page({ version }) {
   return (
     <>
       <Navbar />
@@ -58,7 +60,7 @@ const Page = memo(function Page() {
             To bring them back, uncomment this and re-add the Pricing nav link
             in data/content.js. */}
         {/* <Pricing /> */}
-        <Programs />
+        {/* <Programs /> "Other Copilot programs" removed; the hero price table links to each program directly. */}
         <PriceLadder />
         {/* <Ecosystem /> */}
         {/* <Register /> */}
@@ -91,7 +93,7 @@ export default function App() {
   return (
     <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
       <Preloader progress={progress} done={done} />
-      <Page />
+      <Page version={version} />
     </div>
   )
 }

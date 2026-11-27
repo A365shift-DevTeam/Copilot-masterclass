@@ -8269,3 +8269,19 @@ html[data-theme="dark"] .pl {
 @media (prefers-reduced-motion: reduce) {
   .pl-tab, .pl-card__cta { transition: none; }
 }
+
+/* ── Special offer from the admin (components/ui/SaleBanner.jsx) ───────── */
+
+.sale-banner {
+  display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin: 0 0 14px; padding: 6px 8px 6px 6px;
+  border-radius: 50px; background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(77, 154, 161, 0.35);
+  box-shadow: 0 10px 30px rgba(var(--gradient-primary-rgb), 0.18);
+  font-family: var(--font-display); font-size: 14px; color: #002060;
+}
+.sale-banner__badge { padding: 5px 14px; border-radius: 50px; background-image: var(--gradient-primary-hover); color: #fff; font-weight: 700; }
+.sale-banner__clock { padding-right: 8px; font-weight: 600; }
+.sale-banner__time { font-variant-numeric: tabular-nums; }
+html[data-theme="dark"] .sale-banner { background: rgba(16, 24, 40, 0.85); border-color: #1E2939; color: #D1D5DC; }
+.sale-was { opacity: 0.65; font-weight: 500; margin-right: 2px; }

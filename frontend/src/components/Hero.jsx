@@ -4,8 +4,8 @@ import CopilotOrbit from './CopilotOrbit.jsx'
 import TrainerProfile from './TrainerProfile.jsx'
 import CourseDialog, { rippleClick } from './CourseDialog.jsx'
 import { WEBINAR_DATE, HERO_PRICES } from '../data/content.js'
+import SaleBanner, { SalePrice } from './ui/SaleBanner.jsx'
 import useTypewriter from '../hooks/useTypewriter.js'
-import { scrollToTarget } from '../hooks/useLenis.js'
 
 const DAYS_NOTE = 'Now together in one session'
 
@@ -73,11 +73,6 @@ export default function Hero() {
   }, [])
 
   const handleBtnClick = rippleClick
-  const goToPrograms = (e) => {
-    e.preventDefault()
-    rippleClick(e)
-    scrollToTarget('#programs')
-  }
 
   return (
     <section id="top" className="hero">
@@ -124,9 +119,10 @@ export default function Hero() {
               </p>
             </div>
             {/* The main offer (the one the Meta ads promote) sits up here, not in the table. */}
+            <SaleBanner />
             <div className="hero__cta">
               <a href={HERO_PRICES[0].url} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={handleBtnClick}>
-                Register <span className="btn-price-highlight">₹{HERO_PRICES[0].price.toLocaleString('en-IN')}</span>
+                Register <span className="btn-price-highlight"><SalePrice price={HERO_PRICES[0].price} originalPrice={HERO_PRICES[0].originalPrice} /></span>
                 <span className="btn-shine" aria-hidden="true" />
               </a>
               <button type="button" className="hero__details-btn" onClick={() => setOpenRow(0)}>
@@ -151,8 +147,8 @@ export default function Hero() {
               <tr><th>Program</th><th>Details</th><th>Register</th></tr>
             </thead>
             <tbody>
-              {HERO_PRICES.map(({ name }, i) => {
-                if (i === 0) return null // the main offer, shown above the table
+              {HERO_PRICES.map(({ name, hidden, url }, i) => {
+                if (i === 0 || hidden) return null // [0] is the main offer, shown above the table
                 return (
                   <tr key={name}>
                     <td>{name}</td>
@@ -162,8 +158,8 @@ export default function Hero() {
                       </button>
                     </td>
                     <td>
-                      {/* Prices live on the program cards; this takes the viewer there. */}
-                      <a href="#programs" className="btn-primary" onClick={goToPrograms}>
+                      {/* Opens this program's payment page. */}
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="btn-primary" onClick={rippleClick}>
                         Register <ArrowRight aria-hidden="true" />
                         <span className="btn-shine" aria-hidden="true" />
                       </a>

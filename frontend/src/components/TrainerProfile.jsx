@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowUpRight, MapPin, X } from 'lucide-react'
-import { TRAINER, EXPERTISE, PAYMENT_URL } from '../data/content.js'
+import { TRAINER, EXPERTISE, PAYMENT_URL, HERO_PRICES } from '../data/content.js'
 import useTypewriter from '../hooks/useTypewriter.js'
 import { LinkedinIcon } from './ui/SocialIcons.jsx'
 import FounderVoice from './ui/FounderVoice.jsx'
@@ -204,7 +204,7 @@ function ProfileThread({ reduced }) {
               <LinkedinIcon size={15} /> Open LinkedIn
             </a>
             <a className="tp-chip tp-chip--cta" href={PAYMENT_URL}>
-              Reserve your seat for ₹499 <ArrowUpRight aria-hidden="true" />
+              Reserve your seat for ₹{HERO_PRICES[0].price.toLocaleString('en-IN')} <ArrowUpRight aria-hidden="true" />
             </a>
           </>
         )}

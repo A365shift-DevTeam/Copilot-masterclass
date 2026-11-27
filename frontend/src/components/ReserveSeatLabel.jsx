@@ -1,6 +1,12 @@
-export const SEAT_PRICE = 499
-export const RECORDED_PRICE = 999
+import { HERO_PRICES } from '../data/content.js'
+import { SalePrice } from './ui/SaleBanner.jsx'
+
 export const BOT_LOGO = '/assets/ambot-bot.webp'
+
+// Read at render, so a price changed in the admin (or a running offer) shows on every pill.
+const program = (key) => HERO_PRICES.find((p) => p.key === key)
+const Amount = ({ amount, of }) =>
+  amount != null ? <>&#8377;{amount}</> : <SalePrice price={program(of).price} originalPrice={program(of).originalPrice} />
 
 /**
  * The label inside every "reserve your seat" pill: the hero's, the two scroll
@@ -10,29 +16,29 @@ export const BOT_LOGO = '/assets/ambot-bot.webp'
  * Callers own the pill itself, since each one is a different element with its
  * own reveal mechanics.
  */
-export default function ReserveSeatLabel({ amount = SEAT_PRICE }) {
+export default function ReserveSeatLabel({ amount }) {
   return (
     <>
       Reserve your seat for just{' '}
-      <span className="btn-price-highlight">&#8377;{amount}</span>
+      <span className="btn-price-highlight"><Amount amount={amount} of="webinar" /></span>
     </>
   )
 }
 
-export function LiveSessionsLabel({ amount = SEAT_PRICE }) {
+export function LiveSessionsLabel({ amount }) {
   return (
     <>
       Live Sessions{' '}
-      <span className="btn-price-highlight">&#8377;{amount}</span>
+      <span className="btn-price-highlight"><Amount amount={amount} of="webinar" /></span>
     </>
   )
 }
 
-export function RecordedVideosLabel({ amount = RECORDED_PRICE }) {
+export function RecordedVideosLabel({ amount }) {
   return (
     <>
       Recorded Video{' '}
-      <span className="btn-price-highlight">&#8377;{amount}</span>
+      <span className="btn-price-highlight"><Amount amount={amount} of="recorded" /></span>
     </>
   )
 }

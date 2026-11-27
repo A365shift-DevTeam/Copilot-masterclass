@@ -1,15 +1,14 @@
 import { useRef, useState } from 'react'
 import { Bot, CalendarCheck, CirclePlay, Gem, Image, Layers, Lock, MonitorPlay } from 'lucide-react'
 import { PRICE_LADDER, STORE_URL } from '../data/content.js'
+import { SalePrice } from './ui/SaleBanner.jsx'
 
 const ICONS = {
   'monitor-play': MonitorPlay, 'circle-play': CirclePlay, image: Image,
   'calendar-check': CalendarCheck, bot: Bot, layers: Layers, gem: Gem,
 }
 
-const inr = (n) => `₹${n.toLocaleString('en-IN')}`
-
-function Offer({ name, includes, price, duration, icon, logos, cta, featured }) {
+function Offer({ name, includes, price, originalPrice, offer, url, duration, icon, logos, cta, featured }) {
   const Icon = ICONS[icon]
   return (
     <li className={`pl-card${featured ? ' is-featured' : ''}`}>
@@ -19,16 +18,16 @@ function Offer({ name, includes, price, duration, icon, logos, cta, featured }) 
             ? logos.map((src) => <img key={src} src={src} alt="" width="24" height="24" loading="lazy" />)
             : Icon && <Icon />}
         </span>
-        {featured && <span className="pl-card__tag">Most popular</span>}
+        {(offer || featured) && <span className="pl-card__tag">{offer ? offer.badge : 'Most popular'}</span>}
       </div>
       <h4 className="pl-card__name">{name}</h4>
       <p className="pl-card__includes">{includes}</p>
       <div className="pl-card__price">
-        <span className="pl-card__amount">{inr(price)}</span>
+        <span className="pl-card__amount"><SalePrice price={price} originalPrice={originalPrice} /></span>
         <span className="pl-card__duration">{duration}</span>
       </div>
       <a
-        href={STORE_URL}
+        href={url ?? STORE_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="pl-card__cta"
@@ -41,13 +40,16 @@ function Offer({ name, includes, price, duration, icon, logos, cta, featured }) 
 }
 
 export default function PriceLadder() {
-  const [active, setActive] = useState(0)
+  const [selected, setActive] = useState(0)
   const tabRefs = useRef([])
-  const group = PRICE_LADDER[active]
+  // Cards hidden in the admin drop out; a tab left with none drops out too.
+  const groups = PRICE_LADDER.map((g) => ({ ...g, items: g.items.filter((i) => !i.hidden) })).filter((g) => g.items.length)
+  const active = Math.min(selected, groups.length - 1)
+  const group = groups[active]
 
   // Arrow keys / Home / End move between tabs (WAI-ARIA tabs pattern).
   const onTabKey = (e) => {
-    const n = PRICE_LADDER.length
+    const n = groups.length
     const next = { ArrowRight: active + 1, ArrowLeft: active - 1 + n, Home: 0, End: n - 1 }[e.key]
     if (next === undefined) return
     e.preventDefault()
@@ -55,6 +57,8 @@ export default function PriceLadder() {
     setActive(i)
     tabRefs.current[i]?.focus()
   }
+
+  if (!group) return null // every card hidden in the admin
 
   return (
     <section id="pricing" className="section pl">
@@ -64,7 +68,7 @@ export default function PriceLadder() {
       </div>
 
       <div className="pl__tabs" role="tablist" aria-label="Pricing categories" onKeyDown={onTabKey}>
-        {PRICE_LADDER.map((g, i) => (
+        {groups.map((g, i) => (
           <button
             key={g.id}
             ref={(el) => { tabRefs.current[i] = el }}

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://copilot.ambot365.com/</loc>
+    <loc>https://learnai.ambot365.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://copilot.ambot365.com/legal/terms-and-conditions.html</loc>
+    <loc>https://learnai.ambot365.com/legal/terms-and-conditions.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://copilot.ambot365.com/legal/privacy-policy.html</loc>
+    <loc>https://learnai.ambot365.com/legal/privacy-policy.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
-    <loc>https://copilot.ambot365.com/legal/disclaimer.html</loc>
+    <loc>https://learnai.ambot365.com/legal/disclaimer.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
