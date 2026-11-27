@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Bot, CalendarCheck, CirclePlay, Download, ExternalLink, FileText, Gem, Image, Layers, MonitorPlay, Pencil, Plus, Trash2 } from 'lucide-react'
-import { api, fmtDate, fmtDateTime, fromIstInput, money, toIstInput } from '../api.js'
+import { api, fmtDateTime, money } from '../api.js'
 import { confirmAction, Drawer, ErrorNote, Field, toast } from '../ui.jsx'
 import FormBuilder from './FormBuilder.jsx'
+import HeroDates from './HeroDates.jsx'
 
 // The Pricing section's tabs, in order (PRICE_LADDER in frontend/src/data/content.js).
 // name/blurb are the site's own wording, used until a tab is renamed here.
@@ -22,10 +23,6 @@ const APPS = ['excel', 'word', 'powerpoint', 'outlook', 'teams', 'sharepoint', '
 const appLogo = (a) => `https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/microsoft-365/${a}.svg`
 
 
-// Dates not over yet, soonest first (same rule as CourseSession.Upcoming in the API).
-const ends = (x) => +new Date(x.endsAt ?? +new Date(x.startsAt) + 864e5)
-const upcoming = (sessions = []) => sessions.filter((x) => ends(x) > Date.now()).sort((a, b) => +new Date(a.startsAt) - +new Date(b.startsAt))
-
 function Row({ c, onEdit, onDelete, onForm, showDate = true }) {
   return (
     <li className={c.isVisible ? '' : 'is-hidden'}>
@@ -33,22 +30,7 @@ function Row({ c, onEdit, onDelete, onForm, showDate = true }) {
         <strong>{c.cardTitle && !showDate ? c.cardTitle : c.name}</strong>
         <span>{c.isVisible ? 'Shown on site' : 'Hidden from site'}{c.isFeatured && !showDate ? ', Most popular' : ''}</span>
       </div>
-      <div className="programs__when">
-        {(() => {
-          const next = upcoming(c.sessions)
-          if (!next.length) return showDate ? <span>No upcoming date</span> : <span>{c.duration}</span>
-          const [n] = next
-          return (
-            <>
-              <strong>{fmtDate(n.startsAt, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</strong>
-              <span>
-                {n.endsAt ? `${fmtDate(n.startsAt, { hour: 'numeric', minute: '2-digit' })} to ${fmtDate(n.endsAt, { hour: 'numeric', minute: '2-digit' })} IST` : 'All day'}
-                {next.length > 1 && `, +${next.length - 1} more ${next.length === 2 ? 'date' : 'dates'}`}
-              </span>
-            </>
-          )
-        })()}
-      </div>
+      <div className="programs__when"><span>{c.duration}</span></div>
       <div className="programs__price">
         <strong>{money(c.price)}</strong>
         {c.listPrice && <s>{money(c.listPrice)}</s>}
@@ -117,6 +99,7 @@ export default function Programs() {
         </button>
       </header>
       <ErrorNote>{error}</ErrorNote>
+      <HeroDates />
       {!courses ? (
         <div className="loading" aria-busy="true">Loading programs…</div>
       ) : (
@@ -132,7 +115,7 @@ export default function Programs() {
                 <div key={t.id}>
                   <div className="programs__tab">
                     <span>
-                      <strong>{t.name}</strong>
+                      <strong>{t.name} <span className="programs__tab-count">{cards.length} {cards.length === 1 ? 'card' : 'cards'}</span></strong>
                       <small>{t.blurb}</small>
                     </span>
                     <span className="programs__actions">
@@ -217,7 +200,6 @@ function CourseForm({ keysSet, tabs, course, courses, onClose, onSaved }) {
       description: course.description ?? '', duration: course.duration ?? (isNew ? '30 days access' : ''),
       category: course.category ?? (isNew ? 'single' : ''), cardTitle: course.cardTitle ?? '', cta: course.cta ?? (isNew ? 'Enrol' : ''),
       icon: course.icon ?? (isNew ? 'bot' : ''), isFeatured: course.isFeatured ?? false, position: '',
-      sessions: (course.sessions ?? []).map((x) => ({ startsAt: toIstInput(x.startsAt), endsAt: toIstInput(x.endsAt), language: x.language ?? '' })),
     })
     setError('')
   }, [course]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -242,7 +224,6 @@ function CourseForm({ keysSet, tabs, course, courses, onClose, onSaved }) {
       const body = {
         name: form.name, price: +form.price, listPrice: form.listPrice === '' ? null : +form.listPrice,
         paymentUrl: form.paymentUrl, razorpayId: form.razorpayId, isVisible: form.isVisible,
-        sessions: form.sessions.filter((x) => x.startsAt).map((x) => ({ startsAt: fromIstInput(x.startsAt), endsAt: fromIstInput(x.endsAt), language: x.language })),
         description: form.description, duration: form.duration,
         card: {
           category: form.category || null, cardTitle: form.cardTitle, cta: form.cta, icon: form.icon || null,
@@ -292,7 +273,6 @@ function CourseForm({ keysSet, tabs, course, courses, onClose, onSaved }) {
             <p className="notice field--wide">With no payment link, this card takes payment through Razorpay, but no Razorpay keys are saved yet. Add them in Settings, or the button won’t work.</p>
           )}
 
-          <Sessions sessions={form.sessions} onChange={(sessions) => setForm((f) => ({ ...f, sessions }))} />
 
           {(isLadder || course.kind === 'course') && (
             <fieldset className="field--wide date-set card-set">
@@ -360,40 +340,3 @@ function CourseForm({ keysSet, tabs, course, courses, onClose, onSaved }) {
   )
 }
 
-/* The dates a program runs on, in India time. The website shows the next one and
-   moves on to the following date by itself once a session is over. */
-function Sessions({ sessions, onChange }) {
-  const update = (i, patch) => onChange(sessions.map((x, j) => (j === i ? { ...x, ...patch } : x)))
-  const remove = (i) => onChange(sessions.filter((_, j) => j !== i))
-  // A new date: a week after the last one, same times and language (or next Saturday 9 AM to 1 PM).
-  const add = () => {
-    const last = sessions[sessions.length - 1]
-    const shift = (v) => v && toIstInput(new Date(+new Date(fromIstInput(v)) + 7 * 864e5).toISOString())
-    if (last?.startsAt) return onChange([...sessions, { startsAt: shift(last.startsAt), endsAt: shift(last.endsAt), language: last.language }])
-    const sat = new Date(); sat.setDate(sat.getDate() + ((6 - sat.getDay() + 7) % 7 || 7))
-    const day = toIstInput(sat.toISOString()).slice(0, 10)
-    onChange([...sessions, { startsAt: `${day}T09:00`, endsAt: `${day}T13:00`, language: 'Tamil' }])
-  }
-  const past = (x) => x.startsAt && +new Date(fromIstInput(x.endsAt || x.startsAt)) < Date.now()
-
-  return (
-    <fieldset className="field--wide date-set sessions-set">
-      <legend>Dates, India time</legend>
-      <p className="field__hint">The website shows the next upcoming date and switches to the following one when it ends. Visitors register for the next date.</p>
-      {sessions.length === 0 && <p className="muted">No dates. Add one if this program runs on a set day.</p>}
-      {sessions.map((x, i) => (
-        <div key={i} className={`session-row${past(x) ? ' is-past' : ''}`}>
-          <Field label="Starts"><input type="datetime-local" value={x.startsAt} onChange={(e) => update(i, { startsAt: e.target.value })} required /></Field>
-          <Field label="Ends"><input type="datetime-local" value={x.endsAt} min={x.startsAt} onChange={(e) => update(i, { endsAt: e.target.value })} /></Field>
-          <Field label="Language"><input value={x.language} onChange={(e) => update(i, { language: e.target.value })} placeholder="Tamil" maxLength={40} /></Field>
-          <span className="session-row__end">
-            {past(x) && <span className="pill pill--neutral">Past</span>}
-            <button type="button" className="icon-btn" onClick={() => remove(i)} aria-label="Remove this date" title="Remove"><Trash2 size={16} /></button>
-          </span>
-        </div>
-      ))}
-      <button type="button" className="btn btn--sm" onClick={add}><Plus size={14} aria-hidden="true" /> Add date</button>
-      <p className="field__hint">Leave Ends empty for an all-day date.</p>
-    </fieldset>
-  )
-}

@@ -380,6 +380,54 @@ app.MapPost("/api/courses", async (CourseDto dto, AppDb db, ClaimsPrincipal user
     return Results.Created($"/api/courses/{c.Id}", c);
 });
 
+/* ── Hero section dates: the webinar's dates, one row each ───────────────────
+   The website's hero shows the next one, and every later one as its own row. */
+
+async Task<Course?> Webinar(AppDb db) => await db.Courses.FirstOrDefaultAsync(c => c.Key == "webinar");
+
+app.MapGet("/api/hero-dates", async (AppDb db) =>
+{
+    var w = await Webinar(db);
+    if (w is null) return Results.NotFound();
+    var dates = await db.Set<CourseSession>().AsNoTracking().Where(x => x.CourseId == w.Id).OrderBy(x => x.StartsAt).ToListAsync();
+    return Results.Ok(dates.Select(x => new { x.Id, x.StartsAt, x.EndsAt, x.Language }));
+});
+
+app.MapPost("/api/hero-dates", async (SessionDto dto, AppDb db, ClaimsPrincipal user) =>
+{
+    var w = await Webinar(db);
+    if (w is null) return Results.NotFound();
+    if (Validate.Session(dto) is { } error) return Results.Problem(error, statusCode: 400);
+    var x = new CourseSession { CourseId = w.Id };
+    ApplySession(x, dto);
+    db.Add(x);
+    db.Log(Me(user), "program.updated", $"Added webinar date {x.Label()}");
+    await db.SaveChangesAsync();
+    return Results.Created($"/api/hero-dates/{x.Id}", new { x.Id });
+});
+
+app.MapPut("/api/hero-dates/{id:int}", async (int id, SessionDto dto, AppDb db, ClaimsPrincipal user) =>
+{
+    var x = await db.Set<CourseSession>().FindAsync(id);
+    if (x is null) return Results.NotFound();
+    if (Validate.Session(dto) is { } error) return Results.Problem(error, statusCode: 400);
+    var before = x.Label();
+    ApplySession(x, dto);
+    db.Log(Me(user), "program.updated", $"Changed webinar date {before} to {x.Label()}");
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
+app.MapDelete("/api/hero-dates/{id:int}", async (int id, AppDb db, ClaimsPrincipal user) =>
+{
+    var x = await db.Set<CourseSession>().FindAsync(id);
+    if (x is null) return Results.NotFound();
+    db.Remove(x);
+    db.Log(Me(user), "program.updated", $"Removed webinar date {x.Label()}");
+    await db.SaveChangesAsync();
+    return Results.NoContent();
+});
+
 /* ── Registration form per program (the form builder) ─────────────────────── */
 
 app.MapGet("/api/courses/{id:int}/form", async (int id, AppDb db) =>
@@ -585,7 +633,7 @@ app.MapDelete("/api/payments/{id:int}", async (int id, AppDb db, ClaimsPrincipal
    Payers (one row per payment) and people who filled the form but never paid
    ("Registered"), with a column per form field. */
 
-app.MapGet("/api/registrations", async (AppDb db, HttpRequest req, int courseId, string? q, string? status, int page = 1, int size = 25) =>
+app.MapGet("/api/registrations", async (AppDb db, HttpRequest req, int? courseId, string? q, string? status, int page = 1, int size = 25) =>
 {
     var (columns, rows) = await Registrations(db, req, courseId, q, status);
     size = Math.Clamp(size, 10, 200);
@@ -640,29 +688,29 @@ app.MapPost("/api/registrations/bulk", async (RegBulkDto dto, AppDb db, ClaimsPr
     return Results.Ok(new { count = payments.Count + picked.Count });
 });
 
-app.MapGet("/api/registrations/export", async (AppDb db, HttpRequest req, int courseId, string? q, string? status) =>
+app.MapGet("/api/registrations/export", async (AppDb db, HttpRequest req, int? courseId, string? q, string? status) =>
 {
     var (columns, rows) = await Registrations(db, req, courseId, q, status);
     // Name, email and phone are their own columns, so rows from before a form existed still fill them.
     var extra = columns.Where(c => c.Key is not ("name" or "email" or "phone")).ToList();
-    var csv = new StringBuilder(string.Join(",", new[] { "Ref", "Date (IST)", "Status", "Amount", "Name", "Email", "Phone" }.Concat(extra.Select(c => c.Label)).Select(Csv.Cell)) + "\n");
+    var csv = new StringBuilder(string.Join(",", new[] { "Ref", "Date (IST)", "Program", "Status", "Amount", "Name", "Email", "Phone" }.Concat(extra.Select(c => c.Label)).Select(Csv.Cell)) + "\n");
     foreach (var r in rows)
     {
-        var cells = new[] { r.Id, r.At.ToOffset(ist).ToString("yyyy-MM-dd HH:mm"), r.Status == Reg.Registered ? "Registered (not paid)" : r.Status,
+        var cells = new[] { r.Id, r.At.ToOffset(ist).ToString("yyyy-MM-dd HH:mm"), r.Program, r.Status == Reg.Registered ? "Registered (not paid)" : r.Status,
                 r.Amount.ToString(CultureInfo.InvariantCulture), r.CustomerName, r.Email, r.Phone }
             .Concat(extra.Select(c => r.Answers.FirstOrDefault(a => a.Key == c.Key)?.Value));
         csv.AppendJoin(',', cells.Select(Csv.Cell)).Append('\n');
     }
-    var name = await db.Courses.Where(c => c.Id == courseId).Select(c => c.Key).FirstOrDefaultAsync() ?? "program";
+    var name = courseId is null ? "all-programs" : await db.Courses.Where(c => c.Id == courseId).Select(c => c.Key).FirstOrDefaultAsync() ?? "program";
     return Results.File(Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray(), "text/csv", $"registrations-{name}-{DateTime.UtcNow:yyyyMMdd}.csv");
 });
 
 /* ── Customers: everyone in the ledger, one row per person ────────────────── */
 
-app.MapGet("/api/customers", async (AppDb db, string? q, int page = 1, int size = 25) =>
+app.MapGet("/api/customers", async (AppDb db, string? q, string? status, int? courseId, DateTimeOffset? from, DateTimeOffset? to, int page = 1, int size = 25) =>
 {
     // shortcut: groups in memory, fine to tens of thousands of payments; move to a SQL GROUP BY past that.
-    var rows = await Filter(db, q, null, null, null, null, null, null)
+    var rows = await Filter(db, q, null, status, courseId, null, from, to)
         .Select(p => new { p.CustomerName, p.Email, p.Phone, p.Amount, p.Status, p.PaidAt, CourseName = p.Course!.Name })
         .ToListAsync();
     var people = rows
@@ -877,34 +925,46 @@ app.Run();
 // The current form's fields, then any older field only past answers still have; and the matching rows.
 // Field filters arrive as ?f.<fieldKey>=text and match answers containing that text.
 // shortcut: payments and unpaid attempts are merged and paged in memory, fine to tens of thousands per program.
-static async Task<(List<FieldDto> Columns, List<RegRow> Rows)> Registrations(AppDb db, HttpRequest req, int courseId, string? q, string? status)
+// courseId null = every program: then the rows carry their program and the question columns
+// (which differ per program) are left out.
+static async Task<(List<FieldDto> Columns, List<RegRow> Rows)> Registrations(AppDb db, HttpRequest req, int? courseId, string? q, string? status)
 {
-    var fields = await db.FormFields.AsNoTracking().Where(f => f.CourseId == courseId).OrderBy(f => f.SortOrder).ToListAsync();
-    var columns = fields.Select(Checkout.ToDto).ToList();
-    var paidKeys = await db.PaymentAnswers.AsNoTracking().Where(a => db.Payments.Any(p => p.Id == a.PaymentId && p.CourseId == courseId))
-        .GroupBy(a => a.FieldKey).Select(g => new { Key = g.Key, Label = g.Max(a => a.Label) }).ToListAsync();
-    var triedKeys = await db.CheckoutAttempts.AsNoTracking().Where(t => t.CourseId == courseId).SelectMany(t => t.Answers)
-        .GroupBy(a => a.FieldKey).Select(g => new { Key = g.Key, Label = g.Max(a => a.Label) }).ToListAsync();
-    foreach (var o in paidKeys.Concat(triedKeys))
-        if (columns.All(c => c.Key != o.Key)) columns.Add(o.Key == "session" ? new FieldDto("session", "Session", "text") : new FieldDto(o.Key, o.Label + " (removed)", "text"));
+    var columns = new List<FieldDto>();
+    if (courseId is not null)
+    {
+        var fields = await db.FormFields.AsNoTracking().Where(f => f.CourseId == courseId).OrderBy(f => f.SortOrder).ToListAsync();
+        columns = fields.Select(Checkout.ToDto).ToList();
+        var paidKeys = await db.PaymentAnswers.AsNoTracking().Where(a => db.Payments.Any(p => p.Id == a.PaymentId && p.CourseId == courseId))
+            .GroupBy(a => a.FieldKey).Select(g => new { Key = g.Key, Label = g.Max(a => a.Label) }).ToListAsync();
+        var triedKeys = await db.CheckoutAttempts.AsNoTracking().Where(t => t.CourseId == courseId).SelectMany(t => t.Answers)
+            .GroupBy(a => a.FieldKey).Select(g => new { Key = g.Key, Label = g.Max(a => a.Label) }).ToListAsync();
+        foreach (var o in paidKeys.Concat(triedKeys))
+            if (columns.All(c => c.Key != o.Key)) columns.Add(o.Key == "session" ? new FieldDto("session", "Session", "text") : new FieldDto(o.Key, o.Label + " (removed)", "text"));
+    }
 
     var filters = req.Query.Where(x => x.Key.StartsWith("f.") && !string.IsNullOrWhiteSpace(x.Value))
         .Select(x => (Key: x.Key[2..], Like: $"%{x.Value.ToString().Trim()}%")).ToList();
     var rows = new List<RegRow>();
+    // Date range (?from=&to=), the same filter Payments and Customers have.
+    DateTimeOffset? Day(string k) => DateTimeOffset.TryParse(req.Query[k], CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : null;
+    var (from, to) = (Day("from"), Day("to"));
 
     if (status != Reg.Registered)
     {
-        var query = Filter(db, q, null, string.IsNullOrEmpty(status) ? null : status, courseId, null, null, null);
+        var query = Filter(db, q, null, string.IsNullOrEmpty(status) ? null : status, courseId, null, from, to);
         foreach (var (key, like) in filters) query = query.Where(p => p.Answers.Any(a => a.FieldKey == key && EF.Functions.ILike(a.Value, like)));
         rows.AddRange((await query.Select(p => new { p.Id, p.CustomerName, p.Email, p.Phone, p.Amount, p.Status, p.PaidAt,
+                Program = p.Course == null ? null : p.Course.CardTitle ?? p.Course.Name,
                 Answers = p.Answers.Select(a => new RegAnswer(a.FieldKey, a.Value)).ToList() }).ToListAsync())
-            .Select(p => new RegRow($"P{p.Id}", p.Id, p.CustomerName, p.Email, p.Phone, p.Amount, p.Status, p.PaidAt, p.Answers)));
+            .Select(p => new RegRow($"P{p.Id}", p.Id, p.Program, p.CustomerName, p.Email, p.Phone, p.Amount, p.Status, p.PaidAt, p.Answers)));
     }
 
     if (string.IsNullOrEmpty(status) || status == Reg.Registered)
     {
         // Filled in the form and went to Razorpay, but no payment came back for that order.
-        var tries = db.CheckoutAttempts.AsNoTracking().Where(t => t.CourseId == courseId && !db.Payments.Any(p => p.GatewayOrderId == t.OrderId));
+        var tries = db.CheckoutAttempts.AsNoTracking().Where(t => (courseId == null || t.CourseId == courseId) && !db.Payments.Any(p => p.GatewayOrderId == t.OrderId));
+        if (from is not null) { var f = from.Value.ToUniversalTime(); tries = tries.Where(t => t.CreatedAt >= f); }
+        if (to is not null) { var e = to.Value.ToUniversalTime(); tries = tries.Where(t => t.CreatedAt < e); }
         if (!string.IsNullOrWhiteSpace(q))
         {
             var like = $"%{q.Trim()}%";
@@ -912,14 +972,18 @@ static async Task<(List<FieldDto> Columns, List<RegRow> Rows)> Registrations(App
         }
         foreach (var (key, like) in filters) tries = tries.Where(t => t.Answers.Any(a => a.FieldKey == key && EF.Functions.ILike(a.Value, like)));
         var attempts = await tries.OrderByDescending(t => t.CreatedAt)
-            .Select(t => new { t.Id, t.Name, t.Email, t.Phone, t.Amount, t.CreatedAt, Answers = t.Answers.Select(a => new RegAnswer(a.FieldKey, a.Value)).ToList() })
+            .Select(t => new { t.Id, t.CourseId, t.Name, t.Email, t.Phone, t.Amount, t.CreatedAt,
+                Program = db.Courses.Where(c => c.Id == t.CourseId).Select(c => c.CardTitle ?? c.Name).FirstOrDefault(),
+                Answers = t.Answers.Select(a => new RegAnswer(a.FieldKey, a.Value)).ToList() })
             .ToListAsync();
         // Someone who paid for this program shows as that payment, not also as an unpaid try;
         // and someone who tried several times shows once, with their latest details.
-        var payers = (await db.Payments.Where(p => p.CourseId == courseId && p.Email != null).Select(p => p.Email!.ToLower()).Distinct().ToListAsync()).ToHashSet();
-        rows.AddRange(attempts.Where(t => t.Email is null || !payers.Contains(t.Email.ToLower()))
-            .GroupBy(t => t.Email?.ToLower() ?? t.Phone ?? t.Name.ToLower()).Select(g => g.First())
-            .Select(t => new RegRow($"R{t.Id}", null, t.Name, t.Email, t.Phone, t.Amount, Reg.Registered, t.CreatedAt, t.Answers)));
+        // Per program: paying for one program doesn't hide an unpaid registration for another.
+        var payers = (await db.Payments.Where(p => (courseId == null || p.CourseId == courseId) && p.CourseId != null && p.Email != null)
+            .Select(p => new { p.CourseId, Email = p.Email!.ToLower() }).Distinct().ToListAsync()).Select(x => $"{x.CourseId}|{x.Email}").ToHashSet();
+        rows.AddRange(attempts.Where(t => t.Email is null || !payers.Contains($"{t.CourseId}|{t.Email.ToLower()}"))
+            .GroupBy(t => (t.CourseId, Who: t.Email?.ToLower() ?? t.Phone ?? t.Name.ToLower())).Select(g => g.First())
+            .Select(t => new RegRow($"R{t.Id}", null, t.Program, t.Name, t.Email, t.Phone, t.Amount, Reg.Registered, t.CreatedAt, t.Answers)));
     }
     // ?ids=P12,R7: only the rows ticked in the list (the export of a selection).
     var picked = (req.Query["ids"].ToString() ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet();
@@ -965,6 +1029,13 @@ static Task<List<Offer>> LiveOffers(AppDb db, DateTimeOffset now) =>
     db.Offers.AsNoTracking().Include(o => o.Items).Where(o => !o.IsPaused && o.StartsAt <= now && o.EndsAt > now).ToListAsync();
 
 static string OfferText(Offer o) => o.DiscountType == OfferPricing.Percent ? $"{o.DiscountValue:0.##}% off" : $"{o.DiscountValue:0.##} off";
+
+static void ApplySession(CourseSession x, SessionDto dto)
+{
+    x.StartsAt = dto.StartsAt.ToUniversalTime(); // Npgsql only writes UTC offsets to timestamptz
+    x.EndsAt = dto.EndsAt?.ToUniversalTime();
+    x.Language = string.IsNullOrWhiteSpace(dto.Language) ? null : dto.Language.Trim();
+}
 
 static void ApplyCard(Course c, CardDto card)
 {
@@ -1035,7 +1106,7 @@ record SyncDto(int Days);
 record BulkDto(List<int>? Ids, string? Action, string? Status);
 record RegBulkDto(List<string>? Ids, string? Action, string? Status);
 // A row in Registrations: a payment (Id "P12") or an unpaid form fill (Id "R7", Status "Registered").
-record RegRow(string Id, int? PaymentId, string CustomerName, string? Email, string? Phone, decimal Amount, string Status, DateTimeOffset At, List<RegAnswer> Answers);
+record RegRow(string Id, int? PaymentId, string? Program, string CustomerName, string? Email, string? Phone, decimal Amount, string Status, DateTimeOffset At, List<RegAnswer> Answers);
 record RegAnswer(string Key, string Value);
 static class Reg { public const string Registered = "Registered"; }
 record FormDto(List<FieldDto>? Fields);
@@ -1086,6 +1157,14 @@ static class Validate
         if (await db.Courses.CountAsync(c => ids.Contains(c.Id)) != ids.Count) return "One of the chosen programs no longer exists.";
         if (d.DiscountType == OfferPricing.Amount && await db.Courses.AnyAsync(c => ids.Contains(c.Id) && c.Price <= d.DiscountValue))
             return "That amount is as much as or more than a chosen program's price.";
+        return null;
+    }
+
+    public static string? Session(SessionDto d)
+    {
+        if (d.StartsAt == default) return "Choose when the session starts.";
+        if (d.EndsAt is not null && d.EndsAt <= d.StartsAt) return "The session must end after it starts.";
+        if (d.Language is { Length: > 40 }) return "Keep the language to 40 characters.";
         return null;
     }
 

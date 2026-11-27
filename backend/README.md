@@ -91,3 +91,24 @@ Schema changes go through EF migrations (`dotnet ef migrations add <Name> --proj
 ```sh
 dotnet ef migrations script --idempotent --project Api -o ../database/schema.sql
 ```
+
+## Hosting on IIS (learnaiapi.ambot365.com)
+
+One IIS site serves the API and the admin (`https://learnaiapi.ambot365.com` opens the admin).
+
+1. **Server, once:** install the **.NET 9 Hosting Bundle**, then `iisreset`. PostgreSQL must be reachable from the server, with an empty database (e.g. `ambot_admin`).
+2. **Publish:** run `backend\publish.ps1`. Copy everything in `backend\publish` to the site folder (e.g. `C:\inetpub\learnaiapi`).
+3. **IIS site:** host name `learnaiapi.ambot365.com`, **https** binding with its certificate. App pool: **No Managed Code**, Integrated.
+4. **Keys folder:** create `C:\inetpub\learnaiapi-keys` and give the app pool identity (`IIS AppPool\<pool name>`) Modify rights. It holds the encryption keys for sign-in cookies and saved Razorpay secrets; never delete it.
+5. **Settings as app-pool environment variables** (they survive redeploys, unlike edits to the published web.config). Run once per value in an admin prompt:
+   ```
+   %windir%\system32\inetsrv\appcmd.exe set config -section:system.applicationHost/applicationPools /+"[name='<pool name>'].environmentVariables.[name='ConnectionStrings__Db',value='Host=…;Port=5432;Database=ambot_admin;Username=…;Password=…']" /commit:apphost
+   ```
+   Same for `Admin__Email`, `Admin__Password` and `DataProtection__KeysPath` (= `C:\inetpub\learnaiapi-keys`). Then recycle the app pool.
+6. **First start:** browse to `https://learnaiapi.ambot365.com`. The database tables are created, programs seeded, and the first admin created from `Admin__*`. Sign in, change the password (My account), then remove the `Admin__Password` variable.
+7. **Razorpay:** Settings → save the Key ID, Key Secret and Webhook Secret. In Razorpay, the webhook URL is `https://learnaiapi.ambot365.com/api/webhooks/razorpay`.
+8. **Website:** `npm run build` in `frontend` (it reads `VITE_API_URL` from `frontend/.env.production`), upload `dist` to the learnai.ambot365.com site.
+
+Check: `https://learnaiapi.ambot365.com/api/public/site` returns JSON. A 500.30 error means the app didn't start: set `stdoutLogEnabled="true"` in the site's web.config, create a `logs` folder, reload, and read the log.
+
+Redeploying: run `publish.ps1` again and copy over the site folder (stop the app pool first, or drop an `app_offline.htm` in the folder while copying).

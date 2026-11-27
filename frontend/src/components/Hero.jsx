@@ -11,6 +11,18 @@ import useTypewriter from '../hooks/useTypewriter.js'
 
 const DAYS_NOTE = 'Now together in one session'
 
+/* One date row. Every row beats in step: a row that appears later (once the admin dates load)
+   starts part-way into the 2.4s cycle, fixed when it mounts, so all share the page's clock. */
+function DateRow({ text, more }) {
+  const [delay] = useState(() => `-${Math.round(performance.now() % 2400)}ms`)
+  return (
+    <p className={`hero__date${more ? ' hero__date--more' : ''}`} style={{ animationDelay: delay }}>
+      <CalendarDays aria-hidden="true" />
+      {text}
+    </p>
+  )
+}
+
 export default function Hero() {
   const scaleRef = useRef(null)
   const colRef = useRef(null)
@@ -102,11 +114,9 @@ export default function Hero() {
               </span>
             </p>
             <div className="hero__when">
-              <p className="hero__date">
-                <CalendarDays aria-hidden="true" />
-                {WEBINAR_DATE}
-              </p>
-              {MORE_DATES.length > 0 && <p className="hero__more-dates">Also on {MORE_DATES.join(', ')}</p>}
+              <DateRow text={WEBINAR_DATE} />
+              {/* Later dates set in the admin, one row each, written like the first. */}
+              {MORE_DATES.map((d) => <DateRow key={d} text={d} more />)}
               {/* The note types itself out; when it finishes, Day 2 tucks in
                   behind Day 1 and that chip flips to "1 Day". Deleting the
                   note undoes it, so the merge replays with every cycle. */}

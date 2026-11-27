@@ -5,3 +5,4 @@ Api/wwwroot/
 Api/App_Data/
 .vs/
 *.user
+publish/

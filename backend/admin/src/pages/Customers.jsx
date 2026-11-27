@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api, fmtDate, fmtDateTime, money } from '../api.js'
 import { Drawer, ErrorNote, StatusPill, Pagination } from '../ui.jsx'
-import { Entity, ListTable, ListToolbar, RowActions } from '../list.jsx'
+import { dateParams, Entity, ListTable, ListToolbar, RowActions, standardFilters } from '../list.jsx'
 
 
 // wa.me needs the country code; a bare 10-digit number is taken as Indian.
@@ -14,19 +14,23 @@ export default function Customers() {
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
   const [open, setOpen] = useState(null)
+  const [courses, setCourses] = useState([])
+  const [filters, setFilters] = useState({})
+  useEffect(() => { api('/courses').then(setCourses, () => {}) }, [])
 
   useEffect(() => {
     const t = setTimeout(() => {
-      const query = new URLSearchParams({ page, size, ...(q.trim() && { q: q.trim() }) })
+      const query = new URLSearchParams(Object.entries({ page, size, q: q.trim(), status: filters.status, courseId: filters.program, ...dateParams(filters.date) }).filter(([, v]) => v))
       api(`/customers?${query}`).then((d) => { setData(d); setError('') }, (e) => setError(e.message))
     }, 200)
     return () => clearTimeout(t)
-  }, [q, page, size])
+  }, [q, page, size, filters])
 
 
   return (
     <>
-      <ListToolbar title="Customers" count={data?.total} search={q} onSearch={(v) => { setQ(v); setPage(1) }} placeholder="Search name, email or phone" />
+      <ListToolbar title="Customers" count={data?.total} search={q} onSearch={(v) => { setQ(v); setPage(1) }} placeholder="Search name, email or phone"
+        filters={standardFilters(courses)} filterValue={filters} onFilters={(v) => { setFilters(v); setPage(1) }} />
 
       <ErrorNote>{error}</ErrorNote>
 

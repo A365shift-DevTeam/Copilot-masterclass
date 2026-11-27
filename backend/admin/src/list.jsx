@@ -277,3 +277,24 @@ export function BulkBar({ count, noun, onClear, children }) {
     </div>
   )
 }
+
+/* ── The same filters on every list: Status, Program, Date ───────────────── */
+export function standardFilters(courses, { registered = false, unassigned = false } = {}) {
+  return [
+    { key: 'status', title: 'Status', type: 'pills', options: [
+      ...(registered ? [{ value: 'Registered', label: 'Registered (not paid)', dot: '#2563eb' }] : []),
+      ...STATUS_OPTIONS,
+    ] },
+    { key: 'program', title: 'Program', type: 'pills', options: [
+      ...courses.filter((c) => c.category).map((c) => ({ value: String(c.id), label: c.cardTitle || c.name })),
+      ...(unassigned ? [{ value: 'none', label: 'Unassigned (from Razorpay)' }] : []),
+    ] },
+    { key: 'date', title: 'Date', type: 'dates' },
+  ]
+}
+
+// A date filter as API params: whole IST calendar days, "to" included.
+export const dateParams = (date) => ({
+  from: date?.from ? `${date.from}T00:00:00+05:30` : '',
+  to: date?.to ? new Date(+new Date(`${date.to}T00:00:00+05:30`) + 864e5).toISOString() : '',
+})

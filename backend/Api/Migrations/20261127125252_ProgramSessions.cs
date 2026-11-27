@@ -40,7 +40,7 @@ namespace Api.Migrations
                 columns: new[] { "CourseId", "StartsAt" });
 
             // Keep the dates already set: each program's date becomes its first session, then the old columns go.
-            migrationBuilder.Sql(@"INSERT INTO ""CourseSessions"" (""CourseId"", ""StartsAt"", ""EndsAt"", ""Language"")
+            migrationBuilder.Sql(@"INSERT INTO ""CourseSession"" (""CourseId"", ""StartsAt"", ""EndsAt"", ""Language"")
                 SELECT ""Id"", ""StartsAt"", ""EndsAt"", ""Language"" FROM ""Courses"" WHERE ""StartsAt"" IS NOT NULL;");
 
             migrationBuilder.DropColumn(

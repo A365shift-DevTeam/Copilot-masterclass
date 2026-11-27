@@ -52,7 +52,7 @@ export const PROGRAMMES = [
 /* Shown under "Join the Webinar" in the hero. Change it before each session,
    e.g. 'Sun, 29 Nov 2026 · 7:00 PM IST' once the start time is set. */
 export let WEBINAR_DATE = 'Sat 28 Nov 2026 · 9 AM – 1 PM IST in Tamil'
-/* The webinar's later dates from the admin (after the one in WEBINAR_DATE), as short labels: ['Sat 5 Dec', …]. */
+/* The webinar's later dates from the admin (after the one in WEBINAR_DATE), written the same way. */
 export let MORE_DATES = []
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
@@ -510,6 +510,13 @@ export let SALE = null
    originalPrice, form }. A key missing here means its button opens the payment link. */
 export const CHECKOUT = {}
 
+// 'Sat 28 Nov 2026 · 9 AM – 1 PM IST in Tamil' for a { startsAt, endsAt, language } date.
+function whenLine({ startsAt, endsAt, language }) {
+  const s = istParts(startsAt, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+  const span = endsAt ? `${istTime(startsAt, true)} – ${istTime(endsAt, true)} IST` : ''
+  return [`${s.weekday} ${s.day} ${s.month} ${s.year}`, span].filter(Boolean).join(' · ') + (language ? ` in ${language}` : '')
+}
+
 export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [] } = {}) {
   // Tab names and their one-line intro, where renamed in the admin.
   for (const t of pricingTabs) {
@@ -518,7 +525,10 @@ export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [] } = 
     if (g && t.blurb != null) g.blurb = t.blurb
   }
   if (whatsappUrl) WHATSAPP_COMMUNITY_URL = whatsappUrl
-  SALE = courses.find((c) => c.key === 'webinar' && c.offer)?.offer ?? courses.find((c) => c.offer && c.isVisible)?.offer ?? null
+  // The offer the site promotes (strip, popup, hero badge): the webinar's, else the first program's,
+  // with what it saves on that program.
+  const promo = courses.find((c) => c.key === 'webinar' && c.offer) ?? courses.find((c) => c.offer && c.isVisible)
+  SALE = promo ? { ...promo.offer, key: promo.key, title: promo.cardTitle || promo.name, price: Number(promo.price), originalPrice: Number(promo.originalPrice ?? promo.price), url: promo.paymentUrl } : null
   for (const k of Object.keys(CHECKOUT)) delete CHECKOUT[k]
   for (const c of courses) {
     if (c.checkout) CHECKOUT[c.key] = {
@@ -536,16 +546,14 @@ export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [] } = 
       if (c.key === 'webinar') {
         // The API sends the next date; once every date has passed there is none to show.
         if (!c.startsAt && courses.some((x) => x.key === 'webinar')) WEBINAR_DATE = 'New dates announced soon'
-        MORE_DATES = (c.upcoming ?? []).slice(1).map((u) => { const p = istParts(u.startsAt, { weekday: 'short', day: 'numeric', month: 'short' }); return `${p.weekday} ${p.day} ${p.month}` })
+        MORE_DATES = (c.upcoming ?? []).slice(1).map(whenLine)
       }
       if (c.startsAt) {
         const facts = hero.facts ?? []
         const setFact = (label, value) => { const f = facts.find(([l]) => l === label); if (f) f[1] = value }
         if (c.key === 'webinar') {
-          const s = istParts(c.startsAt, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
-          const span = c.endsAt ? `${istTime(c.startsAt, true)} – ${istTime(c.endsAt, true)} IST` : ''
           const longSpan = c.endsAt ? ` · ${istTime(c.startsAt)} – ${istTime(c.endsAt)} IST` : ''
-          WEBINAR_DATE = [`${s.weekday} ${s.day} ${s.month} ${s.year}`, span].filter(Boolean).join(' · ') + (c.language ? ` in ${c.language}` : '')
+          WEBINAR_DATE = whenLine(c)
           if (c.language) hero.title = hero.title.replace(/– [^–]+$/, `– ${c.language}`)
           hero.meta = `${longDay(c.startsAt)}${longSpan}${c.language ? ` · ${c.language}` : ''}`
         } else if (c.key === 'workshop') {

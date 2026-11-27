@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { Download, Trash2 } from 'lucide-react'
 import { api, fmtDateTime, money, STATUSES } from '../api.js'
 import { confirmAction, Drawer, ErrorNote, Pagination, toast } from '../ui.jsx'
-import { BulkBar, Entity, ListTable, ListToolbar, RowActions, STATUS_OPTIONS, StatusBadge } from '../list.jsx'
+import { BulkBar, dateParams, Entity, ListTable, ListToolbar, RowActions, standardFilters, StatusBadge } from '../list.jsx'
 
 const BUILT_IN = ['name', 'email', 'phone']
 // wa.me needs the country code; a bare 10-digit number is taken as Indian.
@@ -12,9 +12,10 @@ const waNumber = (phone) => { const d = phone.replace(/\D/g, ''); return d.lengt
    paid ("Registered"), with a column per form field, filterable by any of them. */
 export default function Registrations({ arg }) {
   const [courses, setCourses] = useState([])
-  const [courseId, setCourseId] = useState(arg ? +arg : '')
   const [q, setQ] = useState('')
-  const [filters, setFilters] = useState({}) // status, and "f.<fieldKey>" per question
+  // '' = every program; otherwise one program's id (its questions become columns and filters).
+  const [program, setProgram] = useState(arg ? String(+arg) : '')
+  const [filters, setFilters] = useState({}) // status, date, and "f.<fieldKey>" per question
   const [page, setPage] = useState(1)
   const [size, setSize] = useState(25)
   const [data, setData] = useState(null)
@@ -27,18 +28,17 @@ export default function Registrations({ arg }) {
     api('/courses').then((cs) => {
       const list = cs.filter((c) => c.category).sort((a, b) => a.sortOrder - b.sortOrder)
       setCourses(list)
-      if (!courseId && list[0]) setCourseId(list[0].id)
     }, (e) => setError(e.message))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const query = new URLSearchParams({ courseId, ...(q.trim() && { q: q.trim() }) })
-  for (const [k, v] of Object.entries(filters)) if (v && String(v).trim()) query.set(k, String(v).trim())
+  const { date, ...rest } = filters
+  const query = new URLSearchParams({ ...(program && { courseId: program }), ...(q.trim() && { q: q.trim() }) })
+  for (const [k, v] of Object.entries({ ...rest, ...dateParams(date) })) if (v && String(v).trim()) query.set(k, String(v).trim())
 
   // A new program, search or filter starts a new selection.
   useEffect(() => setSelected(new Set()), [query.toString()]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!courseId) return
     const t = setTimeout(() => {
       api(`/registrations?${query}&page=${page}&size=${size}`).then((d) => { setData(d); setError('') }, (e) => setError(e.message))
     }, 250)
@@ -50,7 +50,8 @@ export default function Registrations({ arg }) {
   const answer = (row, key) => row.answers.find((a) => a.key === key)?.value ?? ''
   const reset = () => setPage(1)
   const sections = [
-    { key: 'status', title: 'Status', type: 'pills', options: [{ value: 'Registered', label: 'Registered (not paid)', dot: '#2563eb' }, ...STATUS_OPTIONS] },
+    // Program has its own dropdown in the toolbar.
+    ...standardFilters(courses, { registered: true }).filter((x) => x.key !== 'program'),
     ...columns.map((c) => c.options?.length
       ? { key: `f.${c.key}`, title: c.label, type: 'pills', options: c.options.map((o) => ({ value: o, label: o })) }
       : { key: `f.${c.key}`, title: c.label, type: 'text' }),
@@ -91,8 +92,10 @@ export default function Registrations({ arg }) {
     <>
       <ListToolbar title="Registrations" count={data?.total} search={q} onSearch={(v) => { setQ(v); reset() }} placeholder="Search name, email, phone or ID"
         filters={sections} filterValue={filters} onFilters={(v) => { setFilters(v); reset() }}
-        exportHref={courseId ? `/api/registrations/export?${query}` : undefined}>
-        <select value={courseId} onChange={(e) => { setCourseId(+e.target.value); setFilters({}); reset(); setData(null) }} aria-label="Program" className="toolbar__program">
+        exportHref={`/api/registrations/export?${query}`}>
+        <select value={program} aria-label="Program" className="toolbar__program"
+          onChange={(e) => { setProgram(e.target.value); setFilters(({ status, date: d }) => ({ status, date: d })); reset() }}>
+          <option value="">All programs</option>
           {courses.map((c) => <option key={c.id} value={c.id}>{c.cardTitle || c.name}</option>)}
         </select>
       </ListToolbar>
@@ -119,6 +122,7 @@ export default function Registrations({ arg }) {
           state={!data ? 'Loading registrations…' : data.rows.length === 0 ? (q || Object.keys(filters).length ? 'Nobody matches these filters.' : 'No registrations for this program yet.') : null}
           columns={[
             { key: 'name', label: 'Name', render: (r) => <Entity name={r.customerName} meta={r.email} /> },
+            ...(program ? [] : [{ key: 'program', label: 'Program', render: (r) => r.program ?? <span className="text-muted">Unassigned</span> }]),
             { key: 'phone', label: 'Phone', render: (r) => r.phone },
             ...extra.map((c) => ({ key: c.key, label: c.label, render: (r) => <span className="slv-cell" title={answer(r, c.key)}>{answer(r, c.key)}</span> })),
             { key: 'status', label: 'Status', render: (r) => <StatusBadge status={r.status} /> },

@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { Download, Plus, Trash2 } from 'lucide-react'
 import { api, fmtDateTime, fromIstInput, METHODS, money, STATUSES, toIstInput } from '../api.js'
 import { confirmAction, Drawer, ErrorNote, Field, toast, Pagination } from '../ui.jsx'
-import { BulkBar, Entity, ListTable, ListToolbar, RowActions, STATUS_OPTIONS, StatusBadge } from '../list.jsx'
+import { BulkBar, dateParams, Entity, ListTable, ListToolbar, RowActions, standardFilters, StatusBadge } from '../list.jsx'
 
 // arg comes from the hash: #payments/new opens the form, #payments/edit/12 opens payment 12,
 // #payments/unassigned filters to Razorpay payments with no program.
@@ -30,8 +30,7 @@ export default function Payments({ arg }) {
   const query = new URLSearchParams(Object.entries({
     q: q.trim(), status,
     courseId: program === 'none' ? '' : program, unassigned: program === 'none' ? 'true' : '',
-    from: date?.from && `${date.from}T00:00:00+05:30`,
-    to: date?.to && new Date(+new Date(`${date.to}T00:00:00+05:30`) + 864e5).toISOString(),
+    ...dateParams(date),
   }).filter(([, v]) => v)).toString()
 
   // A new search or filter starts a new selection, so hidden rows are never acted on.
@@ -44,14 +43,7 @@ export default function Payments({ arg }) {
     return () => clearTimeout(t)
   }, [query, page, size, reload])
 
-  const sections = [
-    { key: 'status', title: 'Status', type: 'pills', options: STATUS_OPTIONS },
-    { key: 'program', title: 'Program', type: 'pills', options: [
-      ...courses.filter((c) => c.category).map((c) => ({ value: String(c.id), label: c.cardTitle || c.name })),
-      { value: 'none', label: 'Unassigned (from Razorpay)' },
-    ] },
-    { key: 'date', title: 'Paid on', type: 'dates' },
-  ]
+  const sections = standardFilters(courses, { unassigned: true })
   // Leave #payments/new or /edit/… so a reload doesn't reopen the form.
   const close = () => { setEditing(null); if (arg === 'new' || arg?.startsWith('edit/')) history.replaceState(null, '', '#payments') }
   const saved = () => { close(); setReload((n) => n + 1) }

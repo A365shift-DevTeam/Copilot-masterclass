@@ -516,7 +516,7 @@ END $EF$;
 DO $EF$
 BEGIN
     IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261127125252_ProgramSessions') THEN
-    INSERT INTO "CourseSessions" ("CourseId", "StartsAt", "EndsAt", "Language")
+    INSERT INTO "CourseSession" ("CourseId", "StartsAt", "EndsAt", "Language")
                     SELECT "Id", "StartsAt", "EndsAt", "Language" FROM "Courses" WHERE "StartsAt" IS NOT NULL;
     END IF;
 END $EF$;
