@@ -10,6 +10,7 @@ import Benefits from './components/Benefits.jsx'
 import Speaker from './components/Speaker.jsx'
 import Pricing from './components/Pricing.jsx'
 import Programs from './components/Programs.jsx'
+import PriceLadder from './components/PriceLadder.jsx'
 import Ecosystem from './components/Ecosystem.jsx'
 import Register from './components/Register.jsx'
 import Faq from './components/Faq.jsx'
@@ -58,6 +59,7 @@ const Page = memo(function Page() {
             in data/content.js. */}
         {/* <Pricing /> */}
         <Programs />
+        <PriceLadder />
         {/* <Ecosystem /> */}
         {/* <Register /> */}
         {/* <Faq /> */}

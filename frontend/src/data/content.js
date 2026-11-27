@@ -21,6 +21,7 @@ export const NAV_LINKS = [
   { href: '#benefits', label: 'Benefits' },
   { href: '#speaker', label: 'Speaker' },
   { href: '#programs', label: 'Programs' },
+  { href: '#pricing', label: 'Pricing' },
 ]
 
 /* 1:1 coaching programmes shown after the Speaker section.
@@ -421,3 +422,51 @@ export const DISCLAIMER = {
   moreLabel: 'Read full disclaimer',
 }
 
+/* Price list (PriceLadder.jsx), one tab per group. Every Enrol button goes to
+   the Razorpay store. */
+export const STORE_URL = 'https://rzp.io/rzp/VNhx9z1I'
+
+const MS_ICON = (app) => `https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/microsoft-365/${app}.svg`
+
+export const PRICE_LADDER = [
+  {
+    id: 'once',
+    name: 'One-time access',
+    blurb: 'A single session. Pay once, no commitment.',
+    items: [
+      { name: 'Live Webinar', includes: 'Microsoft 365 Copilot apps live training', price: 499, duration: '3-hour live session', icon: 'monitor-play', cta: 'Register' },
+      { name: 'Webinar Recording, Flexi Access', includes: 'Watch the recording at your preferred time', price: 999, duration: '3 hours, watch any time', icon: 'circle-play', cta: 'Get the recording' },
+    ],
+  },
+  {
+    id: 'single',
+    name: 'Individual programs',
+    blurb: 'Go deep on one app. 30 days of access each.',
+    items: [
+      { name: 'Copilot for Excel', includes: 'Excel skills and agent building', price: 1499, duration: '30 days access', logos: [MS_ICON('excel')], cta: 'Enrol' },
+      { name: 'Copilot for Word', includes: 'Word skills and agent building', price: 1499, duration: '30 days access', logos: [MS_ICON('word')], cta: 'Enrol' },
+      { name: 'Copilot for PowerPoint', includes: 'PowerPoint skills and agent building', price: 1499, duration: '30 days access', logos: [MS_ICON('powerpoint')], cta: 'Enrol' },
+      { name: 'Copilot for Outlook & Teams', includes: 'Outlook and Teams workflows', price: 1499, duration: '30 days access', logos: [MS_ICON('outlook'), MS_ICON('teams')], cta: 'Enrol' },
+      { name: 'Image Gallery & App Integration', includes: 'Image gallery and app integration', price: 1499, duration: '30 days access', icon: 'image', cta: 'Enrol' },
+    ],
+  },
+  {
+    id: 'bundle',
+    name: 'Skill bundles',
+    blurb: 'Several related skills, taught together.',
+    items: [
+      { name: 'Notebook & Copilot Schedule', includes: 'Reverse engineering, Copilot prompting, saving prompts and scheduling prompts', price: 3999, duration: '60 days access', icon: 'calendar-check', cta: 'Enrol' },
+      { name: 'Copilot Skills & Agents', includes: 'Build skills and agents for Excel, Word and PowerPoint', price: 3999, duration: '30 days access', icon: 'bot', cta: 'Enrol' },
+      { name: 'SharePoint & Web Applications', includes: 'To-Do lists, Forms, HTML dashboards and SharePoint websites', price: 3999, duration: '30 days access', logos: [MS_ICON('sharepoint')], cta: 'Enrol' },
+    ],
+  },
+  {
+    id: 'master',
+    name: 'Complete packages',
+    blurb: 'Microsoft 365 apps, end to end.',
+    items: [
+      { name: 'Master Package', includes: 'All programmes listed on this page', price: 9999, duration: '120 days access', icon: 'layers', featured: true, cta: 'Get the Master Package' },
+      { name: 'Premium', includes: 'Weekly Copilot updates, 1 project with 5 hours of 1-to-1 support, and access to all new video content', price: 24999, duration: '1 year access', icon: 'gem', cta: 'Get Premium' },
+    ],
+  },
+]
