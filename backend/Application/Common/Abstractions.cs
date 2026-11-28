@@ -20,8 +20,6 @@ public interface IAppDbContext
     DbSet<CheckoutAttempt> CheckoutAttempts { get; }
     DbSet<FormField> FormFields { get; }
     DbSet<PaymentAnswer> PaymentAnswers { get; }
-    DbSet<SitePage> SitePages { get; }
-    DbSet<SitePublish> SitePublishes { get; }
     ChangeTracker ChangeTracker { get; }
 
     void Log(string actor, string action, string summary);
@@ -67,11 +65,4 @@ public interface ICurrentUser
 {
     int Id { get; }
     string Name { get; }
-}
-
-/// <summary>Short-lived links that let the website show the draft page (Preview in the admin).</summary>
-public interface IPreviewTokens
-{
-    string Issue();
-    bool IsValid(string token);
 }

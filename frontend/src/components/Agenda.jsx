@@ -1,5 +1,5 @@
 import useReveal from '../hooks/useReveal.js'
-import { SHARED } from '../data/content.js'
+import { AGENDA } from '../data/content.js'
 
 function AgendaStep({ item }) {
   const ref = useReveal()
@@ -11,33 +11,31 @@ function AgendaStep({ item }) {
         <span className="agenda-step__dot" />
       </div>
       <div className="agenda-step__time">{item.day}</div>
-      <h3 className="agenda-step__title">{item.title}</h3>
+      <h3 className="agenda-step__title">{item.t}</h3>
       <ul className="agenda-step__desc">
-        {item.points.map((point, i) => (
-          <li key={i}>{point}</li>
+        {item.points.map((point) => (
+          <li key={point}>{point}</li>
         ))}
       </ul>
     </div>
   )
 }
 
-/* The heading is this section's; the cards are the shared agenda (Site-wide content > Webinar agenda),
-   which the deck in "What you'll learn" shows too. */
-export default function Agenda({ content, anchor }) {
+export default function Agenda() {
   const headRef = useReveal()
   const panelRef = useReveal()
 
   return (
-    <section id={anchor?.slice(1)} className="agenda-section">
+    <section id="agenda" className="agenda-section">
       <div ref={headRef} className="section-head" style={{ maxWidth: 'none', marginBottom: 40 }}>
-        <div className="eyebrow eyebrow--green">{content.eyebrow}</div>
-        <h2 className="h2" style={{ fontSize: 'clamp(27px,3.2vw,42px)' }}>{content.heading}</h2>
+        <div className="eyebrow eyebrow--green">WEBINAR AGENDA</div>
+        <h2 className="h2" style={{ fontSize: 'clamp(27px,3.2vw,42px)' }}>What You Will Master</h2>
         <span className="agenda-rule" />
       </div>
-      <div ref={panelRef} className="agenda-panel">
+      <div id="learn" ref={panelRef} className="agenda-panel">
         <div className="agenda-flow">
-          {(SHARED['agenda-items']?.items ?? []).map((item, i) => (
-            <AgendaStep key={i} item={item} />
+          {AGENDA.map((item) => (
+            <AgendaStep key={item.n} item={item} />
           ))}
         </div>
       </div>

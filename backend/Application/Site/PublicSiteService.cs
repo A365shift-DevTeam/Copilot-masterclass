@@ -1,23 +1,16 @@
 using Application.Common;
 using Application.Forms;
 using Application.Programs;
-using Application.Website;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Site;
 
 /* What the landing site reads on every load: programs, prices, dates, offers and forms. */
-public class PublicSiteService(IAppDbContext db, ISettingsStore settings, IPreviewTokens tokens)
+public class PublicSiteService(IAppDbContext db, ISettingsStore settings)
 {
-    /// <param name="preview">A token from the admin's Preview: the draft page instead of the published one.</param>
-    public async Task<object> GetAsync(string? preview)
+    public async Task<object> GetAsync()
     {
-        var page = await db.SitePages.AsNoTracking().FirstOrDefaultAsync(p => p.Key == Page.Home)
-            ?? throw new AppException(503, "The website page isn't set up yet.");
-        // An expired or wrong link shows the live page, flagged so the website can say so.
-        var draft = preview is not null && tokens.IsValid(preview);
-        var doc = Page.Read(draft ? page.Draft : page.Published);
         var now = DateTimeOffset.UtcNow;
         var courses = await db.Courses.AsNoTracking().Include(c => c.Sessions).OrderBy(c => c.SortOrder).ToListAsync();
         var offers = await Catalog.LiveOffers(db, now);
@@ -51,9 +44,6 @@ public class PublicSiteService(IAppDbContext db, ISettingsStore settings, IPrevi
             }),
             whatsappUrl = await settings.GetAsync(SiteSettings.WhatsappUrl),
             pricingTabs = await Catalog.PricingTabs(db),
-            sections = Page.Visible(doc),
-            shared = Page.SharedContent(doc),
-            preview = preview is null ? null : draft ? "draft" : "expired",
         };
     }
 }

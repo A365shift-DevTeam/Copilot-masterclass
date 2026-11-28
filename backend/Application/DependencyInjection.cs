@@ -5,7 +5,6 @@ using Application.Programs;
 using Application.Reports;
 using Application.Settings;
 using Application.Site;
-using Application.Website;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application;
@@ -26,6 +25,5 @@ public static class DependencyInjection
         .AddScoped<CustomerService>()
         .AddScoped<ActivityService>()
         .AddScoped<DashboardService>()
-        .AddScoped<SettingsService>()
-        .AddScoped<WebsiteService>();
+        .AddScoped<SettingsService>();
 }

@@ -20,21 +20,17 @@ test('applySiteData patches dates, prices, links and keeps indexes', () => {
     { key: 'skill-builder', name: 'Skill', price: 3999, listPrice: 9999, paymentUrl: 'https://pay.example/s', isVisible: true },
     { key: 'ladder-new', name: 'Copilot for Planner', price: 1299, paymentUrl: 'https://pay.example/p', isVisible: true, category: 'single', description: 'Plans', duration: '30 days access', cta: 'Enrol', icon: 'app:planner', isFeatured: true },
     { key: 'excel', name: 'Excel', price: 559, originalPrice: 799, paymentUrl: 'https://pay.example/sale', isVisible: true, offer: { badge: 'Black Friday sale', endsAt: '2026-12-01T18:29:00Z' } },
-  ], pricingTabs: [{ id: 'single', name: 'Single apps', blurb: null }], whatsappUrl: 'https://chat.whatsapp.com/NEW',
-  shared: { 'program-details': { items: [
-    { key: 'webinar', title: 'Webinar – Tamil', facts: [] },
-    { key: 'workshop', title: 'Workshop', highlights: ['Date to be announced', 'Venue'], facts: [{ label: 'Language', value: 'Tamil' }, { label: 'Date', value: 'To be announced' }] },
-  ] } } })
+  ], pricingTabs: [{ id: 'single', name: 'Single apps', blurb: null }], whatsappUrl: 'https://chat.whatsapp.com/NEW' })
   assert.equal(content.WHATSAPP_COMMUNITY_URL, 'https://chat.whatsapp.com/NEW')
   assert.equal(content.WEBINAR_DATE, 'Sat 5 Dec 2026 · 10 AM – 2 PM IST in English')
   assert.deepEqual(content.MORE_DATES, ['Sat 12 Dec 2026 · 10 AM – 2 PM IST in Tamil', 'Sat 19 Dec 2026'])
   assert.equal(content.HERO_PRICES[0].meta, 'Saturday, 5 December 2026 · 10:00 AM – 2:00 PM IST · English')
   assert.equal(content.PAYMENT_URL, 'https://pay.example/w')
+  assert.equal(content.FOOTER.webinar.find((l) => l.label === 'Reserve a seat').href, 'https://pay.example/w')
   assert.equal(content.HERO_PRICES[0].hidden, false) // the webinar can't be hidden
   const ws = content.HERO_PRICES.find((p) => p.key === 'workshop')
   assert.equal(ws.highlights[0], 'Saturday, 13 February 2027')
-  assert.equal(ws.facts.find((f) => f.label === 'Date').value, '13 February 2027')
-  assert.equal(content.HERO_PRICES[0].title, 'Webinar – English') // the language from the date
+  assert.deepEqual(ws.facts.find(([l]) => l === 'Date'), ['Date', '13 February 2027'])
   assert.equal(ws.hidden, true)
   assert.equal(ws.price, 5999)
   assert.deepEqual(content.HERO_PRICES.map((p) => p.key), keys)
@@ -51,16 +47,4 @@ test('applySiteData patches dates, prices, links and keeps indexes', () => {
   // When the offer ends the API stops sending it and the normal price comes back.
   content.applySiteData({ courses: [{ key: 'excel', name: 'Excel', price: 799, paymentUrl: 'https://pay.example/x', isVisible: true }] })
   assert.deepEqual([ex.price, ex.originalPrice, content.SALE], [799, null, null])
-})
-
-test('sections come from the admin, and links only point at sections that are shown', () => {
-  content.applySiteData({ courses: [], preview: 'draft', sections: [
-    { id: 'navbar', type: 'navbar', anchor: null, content: {} },
-    { id: 'overview', type: 'overview', anchor: '#overview', content: {} },
-  ] })
-  assert.deepEqual(content.SECTIONS.map((s) => s.type), ['navbar', 'overview'])
-  assert.equal(content.PREVIEW, 'draft')
-  assert.equal(content.linkLive('#overview'), true)
-  assert.equal(content.linkLive('#pricing'), false) // Pricing hidden in the admin
-  assert.equal(content.linkLive('https://pay.example/w'), true)
 })

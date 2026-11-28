@@ -1,4 +1,4 @@
-import { HERO_PRICES, label } from '../data/content.js'
+import { HERO_PRICES } from '../data/content.js'
 import { SalePrice } from './ui/SaleBanner.jsx'
 
 export const BOT_LOGO = '/assets/ambot-bot.webp'
@@ -19,7 +19,7 @@ const Amount = ({ amount, of }) =>
 export default function ReserveSeatLabel({ amount }) {
   return (
     <>
-      {label('reserveLabel')}{' '}
+      Reserve your seat for just{' '}
       <span className="btn-price-highlight"><Amount amount={amount} of="webinar" /></span>
     </>
   )
@@ -28,7 +28,7 @@ export default function ReserveSeatLabel({ amount }) {
 export function LiveSessionsLabel({ amount }) {
   return (
     <>
-      {label('liveSessionsLabel')}{' '}
+      Live Sessions{' '}
       <span className="btn-price-highlight"><Amount amount={amount} of="webinar" /></span>
     </>
   )
@@ -37,7 +37,7 @@ export function LiveSessionsLabel({ amount }) {
 export function RecordedVideosLabel({ amount }) {
   return (
     <>
-      {label('recordedLabel')}{' '}
+      Recorded Video{' '}
       <span className="btn-price-highlight"><Amount amount={amount} of="recorded" /></span>
     </>
   )

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PAYMENT_URL, SHARED, linkLive } from '../data/content.js'
+import { NAV_LINKS, PAYMENT_URL } from '../data/content.js'
 
 function SunIcon() {
   return (
@@ -28,10 +28,7 @@ function initialTheme() {
   return 'light'
 }
 
-/* Menu links and the button are edited in the admin (Website > Sections > Navigation bar). */
-export default function Navbar({ content }) {
-  const links = content.links.filter((l) => linkLive(l.href))
-  const cta = content.ctaLink || PAYMENT_URL
+export default function Navbar() {
   const [solid, setSolid] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [theme, setTheme] = useState(initialTheme)
@@ -61,15 +58,15 @@ export default function Navbar({ content }) {
   return (
     <>
       <nav className={`nav${solid ? ' solid' : ''}`}>
-        <a href="#top" aria-label={content.homeLabel} style={{ display: 'flex', alignItems: 'center' }}>
+        <a href="#top" aria-label="AmBot365 home" style={{ display: 'flex', alignItems: 'center' }}>
           <span className="nav__logo-plate">
-            <img src="/assets/logo-horizontal.webp" alt={SHARED.site?.logoAlt ?? ''} width="124" height="30" fetchpriority="high" />
+            <img src="/assets/logo-horizontal.webp" alt="AmBot365 — RPA & Digital IT Solutions" width="124" height="30" fetchpriority="high" />
           </span>
         </a>
         <div className="nav__right">
           <div className="nav__links">
-            {links.map((l, i) => (
-              <a key={i} href={l.href}>{l.label}</a>
+            {NAV_LINKS.map((l) => (
+              <a key={l.href} href={l.href}>{l.label}</a>
             ))}
           </div>
           <button
@@ -87,15 +84,15 @@ export default function Navbar({ content }) {
           >
             <span className="nav__burger"><span /><span /><span /></span>
           </button>
-          <a href={cta} target="_blank" rel="noopener noreferrer" className="nav__cta">{content.ctaLabel}</a>
+          <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="nav__cta">Contact Us</a>
         </div>
       </nav>
 
       <div className={`menu-panel${menuOpen ? ' open' : ''}`}>
-        {links.map((l, i) => (
-          <a key={i} href={l.href} onClick={close}>{l.label}</a>
+        {NAV_LINKS.map((l) => (
+          <a key={l.href} href={l.href} onClick={close}>{l.label}</a>
         ))}
-        <a href={cta} target="_blank" rel="noopener noreferrer" className="menu-panel__cta" onClick={close}>{content.ctaLabel}</a>
+        <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="menu-panel__cta" onClick={close}>Contact Us</a>
       </div>
     </>
   )

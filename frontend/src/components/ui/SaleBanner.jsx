@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { SALE, label } from '../../data/content.js'
+import { SALE } from '../../data/content.js'
 import { loadSiteData } from '../../data/siteData.js'
 
 /* Time left on an offer, ticking every second. At zero the site reloads its
@@ -43,7 +43,7 @@ export default function SaleBanner() {
   return (
     <p className="sale-banner" role="note">
       <span className="sale-banner__badge">{SALE.badge}</span>
-      <span className="sale-banner__clock">{label('saleEndsIn')} {t.days > 0 && `${t.days}d `}<span className="sale-banner__time">{t.hms}</span></span>
+      <span className="sale-banner__clock">Ends in {t.days > 0 && `${t.days}d `}<span className="sale-banner__time">{t.hms}</span></span>
     </p>
   )
 }
@@ -54,7 +54,7 @@ export function SalePrice({ price, originalPrice }) {
   if (originalPrice == null || originalPrice <= price) return fmt(price)
   return (
     <>
-      <s className="sale-was" aria-label={`${label('wasLabel')} ${fmt(originalPrice)}`}>{fmt(originalPrice)}</s> {fmt(price)}
+      <s className="sale-was" aria-label={`was ${fmt(originalPrice)}`}>{fmt(originalPrice)}</s> {fmt(price)}
     </>
   )
 }

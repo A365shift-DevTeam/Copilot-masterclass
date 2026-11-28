@@ -1,13 +1,11 @@
 import useReveal from '../hooks/useReveal.js'
-import { SHARED } from '../data/content.js'
+import { EXPERTISE, TRAINER } from '../data/content.js'
 import ReserveSeatButton from './ReserveSeatButton.jsx'
 import FeedbackStrip from './FeedbackStrip.jsx'
 import BorderBeam from './ui/BorderBeam.jsx'
 import FounderVoice from './ui/FounderVoice.jsx'
 
-/* The name, tags, bio and figures are the trainer profile (Site-wide content); the rest is this section's content. */
-export default function Speaker({ content }) {
-  const T = SHARED.trainer ?? { bio: [], expertise: [] }
+export default function Speaker() {
   const photoRef = useReveal()
   const bioRef = useReveal()
 
@@ -18,7 +16,7 @@ export default function Speaker({ content }) {
           <img
             className="speaker-photo__img"
             src="/assets/fonunder-800.webp"
-            alt={content.photoAlt}
+            alt="Ambrose Denny, Founder and CEO of AmBot365 — automate, simplify, transform: RPA, Microsoft 365, AI and analytics, digital solutions"
             width="800"
             height="800"
             loading="lazy"
@@ -27,19 +25,19 @@ export default function Speaker({ content }) {
           <BorderBeam className="speaker-photo__beam" duration={8} borderWidth={3} />
         </div>
         <div ref={bioRef}>
-          <div className="eyebrow eyebrow--lime">{content.eyebrow}</div>
+          <div className="eyebrow eyebrow--lime">MEET THE FOUNDER</div>
           <div className="speaker__name-row">
-            <h2 className="speaker__name">{T.name}</h2>
+            <h2 className="speaker__name">Ambrose Denny</h2>
             <FounderVoice />
           </div>
-          <div className="speaker__role">{content.role}</div>
-          <div className="speaker__tags">{T.tags}</div>
-          {T.bio.map((p, i) => <p key={i} className="speaker__bio">{p.text}</p>)}
+          <div className="speaker__role">Founder &amp; CEO — AmBot365</div>
+          <div className="speaker__tags">AI • Automation • Microsoft 365 Solutions</div>
+          {TRAINER.bio.map((p) => <p key={p.slice(0, 24)} className="speaker__bio">{p}</p>)}
           <div className="speaker__pills">
-            {T.expertise.map((e, i) => (
-              <span key={i}>
-                <b>{e.value}</b>
-                {e.label}
+            {EXPERTISE.map((e) => (
+              <span key={e.v}>
+                <b>{e.v}</b>
+                {e.l}
               </span>
             ))}
           </div>
@@ -51,7 +49,7 @@ export default function Speaker({ content }) {
 
       {/* Social proof sits with the person it is about, closing his section
           rather than opening one of its own. */}
-      <FeedbackStrip label={content.feedbackLabel} items={content.testimonials} ratingLabel={content.ratingLabel} />
+      <FeedbackStrip />
     </section>
   )
 }

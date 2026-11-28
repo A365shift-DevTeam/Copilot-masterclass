@@ -12,10 +12,10 @@ static class PublicEndpoints
     public static void MapPublic(this RouteGroupBuilder api)
     {
         // Not cached: the site is meant to show an admin change, or an offer starting or ending, on the next load.
-        api.MapGet("/public/site", async (PublicSiteService site, HttpContext http, string? preview) =>
+        api.MapGet("/public/site", async (PublicSiteService site, HttpContext http) =>
         {
             http.Response.Headers.CacheControl = "no-store";
-            return Results.Ok(await site.GetAsync(preview));
+            return Results.Ok(await site.GetAsync());
         }).AllowAnonymous().RequireCors("site");
 
         api.MapPost("/public/checkout/{key}", async (string key, HttpRequest req, CheckoutService checkout) =>

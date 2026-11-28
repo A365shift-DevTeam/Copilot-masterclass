@@ -1,4 +1,5 @@
 import useReveal from '../hooks/useReveal.js'
+import { AUDIENCE } from '../data/content.js'
 import AudienceGlyph from './ui/AudienceGlyph.jsx'
 
 function AudienceCard({ person, accent }) {
@@ -22,27 +23,27 @@ function AudienceCard({ person, accent }) {
           <AudienceGlyph icon={person.icon} />
           <i className="aud-card__sheen" />
         </span>
-        <h3 className="aud-card__title">{person.title}</h3>
-        <p className="aud-card__desc">{person.text}</p>
+        <h3 className="aud-card__title">{person.t}</h3>
+        <p className="aud-card__desc">{person.d}</p>
         <span className="aud-card__bar" />
       </article>
     </div>
   )
 }
 
-export default function Audience({ content }) {
+export default function Audience() {
   const headRef = useReveal()
   return (
     <section className="section--subtle" style={{ padding: 'var(--section-pad)' }}>
       <div className="section__inner" style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div ref={headRef} className="section-head" style={{ maxWidth: 700, marginBottom: 44 }}>
-          <div className="eyebrow eyebrow--teal">{content.eyebrow}</div>
-          <h2 className="h2" style={{ marginBottom: 12 }}>{content.heading}</h2>
-          <p style={{ fontSize: 16 }}>{content.intro}</p>
+          <div className="eyebrow eyebrow--teal">WHO IT IS FOR</div>
+          <h2 className="h2" style={{ marginBottom: 12 }}>Who Should Attend?</h2>
+          <p style={{ fontSize: 16 }}>Built for teams who already work in Microsoft 365 and want to work smarter.</p>
         </div>
         <div className="audience-grid">
-          {content.people.map((p, i) => (
-            <AudienceCard key={i} person={p} accent={i % 2 === 0 ? 'green' : 'blue'} />
+          {AUDIENCE.map((p, i) => (
+            <AudienceCard key={p.n} person={p} accent={i % 2 === 0 ? 'green' : 'blue'} />
           ))}
         </div>
       </div>

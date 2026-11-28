@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { scrollToTarget, getLenis } from '../hooks/useLenis.js'
 import useTypewriter from '../hooks/useTypewriter.js'
-import { PAYMENT_URL, HERO_PRICES, label } from '../data/content.js'
+import { PAYMENT_URL, HERO_PRICES } from '../data/content.js'
 import ReserveSeatLabel, { ReserveSeatBot } from './ReserveSeatLabel.jsx'
 import './ticket-scroll.css'
 import {
@@ -55,11 +55,12 @@ function fitFrame(boxW, boxH, iw, ih) {
 
 const PASS_PRICE = () => HERO_PRICES[0].price // read at render: the admin sets it
 
-// The headline, one span per character for the flip; its two lines are the section's content.
-function headlineChars(lines) {
-  let charIndex = 0
-  return lines.map((line) => [...line].map((ch) => ({ ch: ch === ' ' ? '\u00A0' : ch, i: charIndex++ })))
-}
+const HEADLINE_LINES = ['Your Seat', 'Is Waiting']
+const HEADLINE_TEXT = HEADLINE_LINES.join(' ')
+let charIndex = 0
+const HEADLINE_CHARS = HEADLINE_LINES.map((line) =>
+  [...line].map((ch) => ({ ch: ch === ' ' ? '\u00A0' : ch, i: charIndex++ }))
+)
 
 // The kicker splits so the turn of the sentence can carry a highlighter
 // stroke; the rest keeps its leading space so the two halves read as one line.
@@ -102,7 +103,7 @@ function setNavOverPass(over) {
   document.body.classList.toggle('nav-over-pass', over)
 }
 
-export default function TicketScrollExperience({ content }) {
+export default function TicketScrollExperience() {
   const sectionRef = useRef(null)
   const canvasRef = useRef(null)
   const ctxRef = useRef(null)
@@ -370,7 +371,7 @@ export default function TicketScrollExperience({ content }) {
       ref={sectionRef}
       className="ticket-scroll-section"
       id="ticket-experience"
-      aria-label={content.label}
+      aria-label="Interactive Masterclass Ticket Pass"
     >
       <div ref={stickyRef} className="ticket-scroll-sticky">
         {/* Canvas viewport */}
@@ -395,7 +396,7 @@ export default function TicketScrollExperience({ content }) {
           <div className="ticket-scroll-prompt__mouse">
             <div className="ticket-scroll-prompt__wheel" />
           </div>
-          <span>{content.prompt}</span>
+          <span>Scroll to tear off pass</span>
         </div>
 
         {/* Copy landing in the empty stage to the right of the torn pass, as
@@ -406,8 +407,8 @@ export default function TicketScrollExperience({ content }) {
 
           {/* Split per character for the flip, so the visible spans are hidden
               from assistive tech and the whole line is read off aria-label. */}
-          <h3 className="ticket-scroll-reveal__headline" aria-label={`${content.headline1} ${content.headline2}`}>
-            {headlineChars([content.headline1, content.headline2]).map((line, li) => (
+          <h3 className="ticket-scroll-reveal__headline" aria-label={HEADLINE_TEXT}>
+            {HEADLINE_CHARS.map((line, li) => (
               <span className="ticket-scroll-reveal__line" key={li} aria-hidden="true">
                 {line.map(({ ch, i }) => (
                   <span className="ticket-scroll-reveal__ch" key={i} style={{ '--i': String(i) }}>
@@ -420,7 +421,7 @@ export default function TicketScrollExperience({ content }) {
 
           <p className="ticket-scroll-reveal__price">
             <span className="ticket-scroll-reveal__amount">&#8377;{PASS_PRICE()}</span>
-            <span className="ticket-scroll-reveal__only">{content.onlyLabel}</span>
+            <span className="ticket-scroll-reveal__only">Only</span>
           </p>
 
           <div className="seat-cta-row ticket-scroll-cta-row">
@@ -430,7 +431,7 @@ export default function TicketScrollExperience({ content }) {
               rel="noopener noreferrer"
               className="ticket-scroll-cta"
               tabIndex={isEnding ? 0 : -1}
-              aria-label={`${label('reserveLabel')} ₹${PASS_PRICE()}`}
+              aria-label={`Reserve your seat for just ₹${PASS_PRICE()}`}
             >
               <span><ReserveSeatLabel /></span>
               <span className="btn-shine" aria-hidden="true" />
@@ -448,7 +449,7 @@ export default function TicketScrollExperience({ content }) {
         {!isReady && (
           <div className="ticket-scroll-loader">
             <div className="ticket-scroll-spinner" />
-            <span>{content.loading} ({loadedPercent}%)...</span>
+            <span>Loading pass preview ({loadedPercent}%)...</span>
           </div>
         )}
       </div>

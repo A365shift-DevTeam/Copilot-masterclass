@@ -40,7 +40,7 @@ export function FaqPlusMinus({ items, defaultOpen = 0, allowMultiple = false, cl
       {items.map((item, index) => {
         const isOpen = open.includes(index)
         return (
-          <div key={index} className={cx('fpm__item', isOpen && 'is-open')}>
+          <div key={item.q} className={cx('fpm__item', isOpen && 'is-open')}>
             <h3 className="fpm__heading">
               <button
                 type="button"

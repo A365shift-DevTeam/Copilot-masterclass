@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Check, ChevronRight, Mail } from 'lucide-react'
-import { SHARED, WHATSAPP_COMMUNITY_URL } from '../data/content.js'
+import { FOOTER, WHATSAPP_COMMUNITY_URL } from '../data/content.js'
 import Confetti from '../components/ui/motion-confetti.tsx'
 
 // Matches Confetti's duration so the redirect starts when the burst ends.
@@ -20,15 +20,12 @@ export function WhatsAppIcon() {
 /* The payment page redirects here after a successful checkout. The page
  * cannot verify the payment itself, so anyone opening /thank-you directly
  * also fires the Purchase event. */
-/* Its text is Site-wide content > Thank-you page; it renders again once that arrives. */
 export default function ThankYou() {
   const confettiRef = useRef(null)
   const leaving = useRef(false)
-  const c = SHARED['thank-you'] ?? {}
-
-  useEffect(() => { if (c.pageTitle) document.title = c.pageTitle }, [c.pageTitle])
 
   useEffect(() => {
+    document.title = 'Payment Successful - Copilot AmBot365'
 
     // Post-payment page: keep it out of search results.
     const robots = document.querySelector('meta[name="robots"]')
@@ -48,7 +45,7 @@ export default function ThankYou() {
     }, reduced ? 0 : CONFETTI_MS)
   }
 
-  const email = (SHARED.site?.email ?? '').toLowerCase()
+  const email = FOOTER.email.toLowerCase()
 
   return (
     <main className="ty">
@@ -87,27 +84,27 @@ export default function ThankYou() {
           </span>
         </div>
 
-        <p className="ty__badge">{c.badge}</p>
+        <p className="ty__badge">Payment Successful</p>
 
         <h1 className="ty__title">
-          {c.title}
+          Thank You!
           <br />
           <span className="ty__seat">
-            {c.seatLine} <span className="ty__confirmed">{c.seatHighlight}</span>
+            Your Seat is <span className="ty__confirmed">Confirmed</span>
           </span>
         </h1>
 
         <p className="ty__lead">
-          {c.leadLine}
+          You're registered for the
           <br />
-          <strong>{c.leadStrong}</strong>
+          <strong>Microsoft 365 Copilot Masterclass.</strong>
         </p>
 
         {/* The invite comes from the admin's Settings; without it there's nothing to join. */}
         {WHATSAPP_COMMUNITY_URL && (
           <>
             <p className="ty__desc">
-              {c.whatsappText}
+              Join our WhatsApp Community to receive session updates, joining links, reminders, and important announcements.
             </p>
 
             <a
@@ -119,9 +116,9 @@ export default function ThankYou() {
                 <WhatsAppIcon />
               </span>
               <span className="ty__wa-text">
-                {c.whatsappLine1}
+                Join the
                 <br />
-                {c.whatsappLine2}
+                WhatsApp Community
                 <ChevronRight aria-hidden="true" />
               </span>
             </a>
@@ -133,7 +130,7 @@ export default function ThankYou() {
             <Mail strokeWidth={1.75} />
           </span>
           <p>
-            {c.supportLine}
+            For any support, email us at
             <br />
             <a href={`mailto:${email}`}>{email}</a>
           </p>

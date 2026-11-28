@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   Activity as ActivityIcon, BadgePercent, ClipboardList, CalendarClock, ExternalLink, KeyRound, LayoutDashboard, LogOut, Menu, Moon, ReceiptIndianRupee,
-  Settings as SettingsIcon, Sun, UserRound, UsersRound, PanelsTopLeft,
+  Settings as SettingsIcon, Sun, UserRound, UsersRound,
 } from 'lucide-react'
 import { api } from './api.js'
 import { ErrorNote, Toaster } from './ui.jsx'
@@ -15,7 +15,6 @@ import Settings from './pages/Settings.jsx'
 import Team from './pages/Team.jsx'
 import Activity from './pages/Activity.jsx'
 import Account from './pages/Account.jsx'
-import Website from './pages/Website.jsx'
 
 const NAV = [
   { heading: 'Sales', pages: [
@@ -25,7 +24,6 @@ const NAV = [
     { id: 'customers', label: 'Customers', icon: UserRound, Page: Customers },
   ] },
   { heading: 'Website', pages: [
-    { id: 'website', label: 'Sections', icon: PanelsTopLeft, Page: Website },
     { id: 'programs', label: 'Pricing & dates', icon: CalendarClock, Page: Programs },
     { id: 'offers', label: 'Special offers', icon: BadgePercent, Page: Offers },
     { id: 'settings', label: 'Settings', icon: SettingsIcon, Page: Settings },

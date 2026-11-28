@@ -24,21 +24,27 @@ const RINGS = [
   { R: 287, ax: 37, az: -14, dur: 38, dir: 1 },
 ]
 
-// The apps' logos and places on the rings; their names and tips are the hero's content
-// (Website > Sections > Hero > Apps around the orbit), in this order.
 const APPS = [
-  { id: 'excel', mono: 'X', file: 'microsoft-365/excel.svg', ring: 0, mRing: 0 },
-  { id: 'word', mono: 'W', file: 'microsoft-365/word.svg', ring: 0, mRing: 0 },
-  { id: 'powerpoint', mono: 'P', file: 'microsoft-365/powerpoint.svg', ring: 0, mRing: 0 },
-  { id: 'outlook', mono: 'O', file: 'microsoft-365/outlook.svg', ring: 0, mRing: 1 },
-  { id: 'teams', mono: 'T', file: 'microsoft-365/teams.svg', ring: 1, mRing: 1 },
-  { id: 'onedrive', mono: 'D', file: 'microsoft-365/onedrive.svg', ring: 1, mRing: -1 },
-  { id: 'sharepoint', mono: 'S', file: 'microsoft-365/sharepoint.svg', ring: 1, mRing: -1 },
-  { id: 'forms', mono: 'F', file: 'microsoft-365/forms.svg', ring: 1, mRing: -1 },
-  { id: 'powerbi', mono: 'B', file: 'power-platform/power-bi.svg', ring: 2, mRing: 1 },
-  { id: 'powerapps', mono: 'A', file: 'power-platform/power-apps.svg', ring: 2, mRing: -1 },
-  { id: 'powerautomate', mono: 'U', file: 'power-platform/power-automate.svg', ring: 2, mRing: -1 },
-  { id: 'copilotstudio', mono: 'C', file: 'power-platform/copilot-studio.svg', ring: 2, mRing: -1 },
+  { id: 'excel', name: 'Excel', mono: 'X', file: 'microsoft-365/excel.svg', ring: 0, mRing: 0, tip: 'Analyse • Calculate • Automate' },
+  { id: 'word', name: 'Word', mono: 'W', file: 'microsoft-365/word.svg', ring: 0, mRing: 0, tip: 'Write • Summarise • Create' },
+  { id: 'powerpoint', name: 'PowerPoint', mono: 'P', file: 'microsoft-365/powerpoint.svg', ring: 0, mRing: 0, tip: 'Create • Design • Present' },
+  { id: 'outlook', name: 'Outlook', mono: 'O', file: 'microsoft-365/outlook.svg', ring: 0, mRing: 1, tip: 'Draft • Summarise • Prioritise' },
+  { id: 'teams', name: 'Teams', mono: 'T', file: 'microsoft-365/teams.svg', ring: 1, mRing: 1, tip: 'Meet • Collaborate • Summarise' },
+  { id: 'onedrive', name: 'OneDrive', mono: 'D', file: 'microsoft-365/onedrive.svg', ring: 1, mRing: -1, tip: 'Store • Access • Share' },
+  { id: 'sharepoint', name: 'SharePoint', mono: 'S', file: 'microsoft-365/sharepoint.svg', ring: 1, mRing: -1, tip: 'Knowledge • Content • Collaboration' },
+  { id: 'forms', name: 'Forms', mono: 'F', file: 'microsoft-365/forms.svg', ring: 1, mRing: -1, tip: 'Collect • Analyse • Respond' },
+  { id: 'powerbi', name: 'Power BI', mono: 'B', file: 'power-platform/power-bi.svg', ring: 2, mRing: 1, tip: 'Analyse • Visualise • Discover' },
+  { id: 'powerapps', name: 'Power Apps', mono: 'A', file: 'power-platform/power-apps.svg', ring: 2, mRing: -1, tip: 'Build • Connect • Transform' },
+  { id: 'powerautomate', name: 'Power Automate', mono: 'U', file: 'power-platform/power-automate.svg', ring: 2, mRing: -1, tip: 'Automate • Trigger • Execute' },
+  { id: 'copilotstudio', name: 'Copilot Studio', mono: 'C', file: 'power-platform/copilot-studio.svg', ring: 2, mRing: -1, tip: 'Build • Customize • Deploy Agents' },
+]
+
+const LINKS = [
+  { id: 'excel', text: 'Analyse Data' },
+  { id: 'outlook', text: 'Draft Email' },
+  { id: 'teams', text: 'Summarise Meeting' },
+  { id: 'powerpoint', text: 'Create Presentation' },
+  { id: 'powerautomate', text: 'Automate Workflow' },
 ]
 
 const RAD = Math.PI / 180
@@ -49,10 +55,7 @@ const RING_GRADS = [
 ]
 
 class OrbitEngine {
-  // apps: APPS with each one's name and tip; links: the prompt bubbles, { id, text }.
-  constructor(root, apps, links) {
-    this.apps = apps
-    this.links = links
+  constructor(root) {
     this.root = root
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     // One shared rotation per ring plus a fixed, evenly-spaced offset per app.
@@ -94,7 +97,7 @@ class OrbitEngine {
     const coreIcon = this.q('[data-core-icon]')
     if (coreIcon) this.loadIcon(coreIcon, 'copilot/copilot-365.svg')
 
-    this.apps.forEach((app) => {
+    APPS.forEach((app) => {
       const el = this.q(`[data-app="${app.id}"]`)
       if (!el) return
       this.els[app.id] = el
@@ -117,7 +120,7 @@ class OrbitEngine {
         this.hover === app.id ? hide() : show()
         // Clicking an app runs it: the core beams out with the action it
         // performs there. The idle timer restarts so the two never overlap.
-        const link = this.links.find((l) => l.id === app.id)
+        const link = LINKS.find((l) => l.id === app.id)
         this.fireBeam(app.id, link ? link.text : app.tip.split('•')[0].trim())
         clearTimeout(this.linkTimer)
         this.scheduleLink()
@@ -288,13 +291,13 @@ class OrbitEngine {
 
     const compactChanged = this.prevCompact !== this.compact
     this.prevCompact = this.compact
-    this.apps.forEach((app) => {
+    APPS.forEach((app) => {
       const el = this.els[app.id]
       if (!el) return
       const ringIdx = this.compact ? app.mRing : app.ring
       el.style.display = ringIdx < 0 ? 'none' : 'block'
       if (ringIdx >= 0 && (compactChanged || this.offsets[app.id] === undefined)) {
-        const peers = this.apps.filter((a) => (this.compact ? a.mRing : a.ring) === ringIdx)
+        const peers = APPS.filter((a) => (this.compact ? a.mRing : a.ring) === ringIdx)
         this.offsets[app.id] = (peers.indexOf(app) / peers.length) * Math.PI * 2 + ringIdx * 0.5
       }
       const img = el.querySelector('[data-app-icon]')
@@ -350,7 +353,7 @@ class OrbitEngine {
       // Hovering pauses the whole ring, not one icon, so spacing stays even.
       let hoverRing = -1
       if (this.hover) {
-        const ha = this.apps.find((a) => a.id === this.hover)
+        const ha = APPS.find((a) => a.id === this.hover)
         if (ha) hoverRing = this.compact ? ha.mRing : ha.ring
       }
       ;[0, 1, 2].forEach((i) => {
@@ -366,7 +369,7 @@ class OrbitEngine {
       }
     }
     let n = 0
-    this.apps.forEach((app) => {
+    APPS.forEach((app) => {
       const el = this.els[app.id]
       if (!el || el.style.display === 'none') return
       const ringIdx = this.compact ? app.mRing : app.ring
@@ -439,7 +442,7 @@ class OrbitEngine {
   }
 
   fireLink() {
-    const pool = this.links.filter((l) => this.els[l.id] && this.els[l.id].style.display !== 'none')
+    const pool = LINKS.filter((l) => this.els[l.id] && this.els[l.id].style.display !== 'none')
     if (!pool.length) return
     this.linkIdx = ((this.linkIdx || 0) + 1) % pool.length
     const link = pool[this.linkIdx]
@@ -504,16 +507,12 @@ class OrbitEngine {
   }
 }
 
-export default function CopilotOrbit({ content }) {
+export default function CopilotOrbit() {
   const rootRef = useRef(null)
-  const apps = APPS.map((a, i) => ({ ...a, name: content.orbitApps[i]?.name ?? '', tip: content.orbitApps[i]?.tip ?? '' }))
-  const links = content.orbitPrompts.map((p) => ({ id: p.app, text: p.text }))
-  // The engine reads them when it starts; a later edit shows on the next page load.
-  const start = useRef({ apps, links })
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (rootRef.current) rootRef.current._engine = new OrbitEngine(rootRef.current, start.current.apps, start.current.links)
+      if (rootRef.current) rootRef.current._engine = new OrbitEngine(rootRef.current)
     }, 50)
     return () => {
       clearTimeout(t)
@@ -558,7 +557,7 @@ export default function CopilotOrbit({ content }) {
           <div className="orbit-beam-dot" data-beam-dot="0" style={{ width: 4, height: 4, margin: '-2px 0 0 -2px', background: 'var(--orb-g)', boxShadow: '0 0 10px var(--orb-glow-g)' }} />
           <div className="orbit-beam-dot" data-beam-dot="1" style={{ width: 3, height: 3, margin: '-1.5px 0 0 -1.5px', background: 'var(--orb-a)', boxShadow: '0 0 8px var(--orb-glow-a)' }} />
           <div className="orbit-beam-dot" data-beam-dot="2" style={{ width: 3, height: 3, margin: '-1.5px 0 0 -1.5px', background: 'var(--orb-f)', boxShadow: '0 0 8px var(--orb-glow-f)' }} />
-          <div className="orbit-beam-label" data-beam-label="1">{links[0]?.text}</div>
+          <div className="orbit-beam-label" data-beam-label="1">Analyse Data</div>
         </div>
 
         <div className="orbit-core" data-core="1">
@@ -566,16 +565,16 @@ export default function CopilotOrbit({ content }) {
           <div className="orbit-core__energy" />
           <div className="orbit-core__sweep" />
           <div className="orbit-core__ball">
-            <img data-core-icon="1" alt={content.orbitCoreAlt} />
+            <img data-core-icon="1" alt="Microsoft 365 Copilot" />
           </div>
           <div className="orbit-core__label" data-core-label="1">
-            <div className="orbit-core__label-sub">{content.orbitCoreSub}</div>
-            <div className="orbit-core__label-main">{content.orbitCoreMain}</div>
+            <div className="orbit-core__label-sub">MICROSOFT 365</div>
+            <div className="orbit-core__label-main">COPILOT</div>
           </div>
         </div>
 
         <div style={{ position: 'absolute', inset: 0 }}>
-          {apps.map((app) => (
+          {APPS.map((app) => (
             <div key={app.id} className="orbit-app" data-app={app.id}>
               <div className="orbit-app__hit" data-app-hit={app.id} role="button" tabIndex={0} aria-label={app.name}>
                 <img data-app-icon={app.id} alt={app.name} />
@@ -587,8 +586,8 @@ export default function CopilotOrbit({ content }) {
         </div>
 
         <div className="orbit-tip" data-tip="1">
-          <div className="orbit-tip__title" data-tip-title="1">{apps[0].name.toUpperCase()}</div>
-          <div className="orbit-tip__sub" data-tip-sub="1">{apps[0].tip}</div>
+          <div className="orbit-tip__title" data-tip-title="1">EXCEL</div>
+          <div className="orbit-tip__sub" data-tip-sub="1">Analyse • Calculate • Automate</div>
         </div>
 
         <div className="orbit-dust">

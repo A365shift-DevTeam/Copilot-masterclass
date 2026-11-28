@@ -32,8 +32,7 @@ function setNavOverStage(over) {
   document.body.classList.toggle('nav-over-stage', over)
 }
 
-/* Its words are this section's content (Website > Sections > Reserve-your-seat scroll scene). */
-export default function SeatScrollExperience({ onBook, content }) {
+export default function SeatScrollExperience({ onBook }) {
   const sectionRef = useRef(null)
   const canvasRef = useRef(null)
   const ctxRef = useRef(null)
@@ -308,7 +307,7 @@ export default function SeatScrollExperience({ onBook, content }) {
       ref={sectionRef}
       className="seat-scroll-section"
       id="seat-experience"
-      aria-label={content.label}
+      aria-label="Interactive Seat Reservation Experience"
     >
       <div ref={stickyRef} className="seat-scroll-sticky">
         {/* Backdrop filling the letterbox margin: radial gradient with the
@@ -353,7 +352,7 @@ export default function SeatScrollExperience({ onBook, content }) {
         {/* The copy that used to be baked into the frames, now real DOM.
             `isEnding` only gates focusability, so the button is never a tab
             stop while it is still invisible. */}
-        <SeatReveal onBook={onBook} tabbable={isEnding} content={content} />
+        <SeatReveal onBook={onBook} tabbable={isEnding} />
 
         {/* Progress tracker bar */}
         <div className="seat-scroll-progress-bar" aria-hidden="true">
@@ -364,7 +363,7 @@ export default function SeatScrollExperience({ onBook, content }) {
         {!isReady && (
           <div className="seat-scroll-loader">
             <div className="seat-scroll-spinner" />
-            <span>{content.loading} ({loadedPercent}%)...</span>
+            <span>Loading interactive stage ({loadedPercent}%)...</span>
           </div>
         )}
       </div>

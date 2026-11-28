@@ -11,12 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The section field lists and the starting content (Website/PageDoc.cs reads them). -->
-    <EmbeddedResource Include="Website/sections.json" LogicalName="sections.json" />
-    <EmbeddedResource Include="Website/defaults.json" LogicalName="defaults.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 

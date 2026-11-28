@@ -1,5 +1,4 @@
 using Application.Forms;
-using Application.Website;
 using Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -80,22 +79,6 @@ public static class Seed
         // Every Pricing card starts with the name / email / phone registration form.
         foreach (var id in db.Courses.Where(c => c.Category != null && !c.FormFields.Any()).Select(c => c.Id).ToList())
             db.FormFields.AddRange(Checkout.DefaultFields(id));
-        db.SaveChanges();
-
-        // The website page: created once, then any section type added in a later release is put in, draft and live alike.
-        var page = db.SitePages.Find(Page.Home);
-        if (page is null)
-        {
-            var json = Page.Write(Page.Seed(null));
-            db.SitePages.Add(new SitePage { Key = Page.Home, Draft = json, Published = json, UpdatedBy = "setup" });
-        }
-        else
-        {
-            var draft = Page.Write(Page.Seed(Page.Read(page.Draft)));
-            var published = Page.Write(Page.Seed(Page.Read(page.Published)));
-            // Rewritten only when a new type arrived: an unchanged page keeps its version, so open admin screens stay valid.
-            if (draft != page.Draft || published != page.Published) { (page.Draft, page.Published) = (draft, published); page.Version++; }
-        }
         db.SaveChanges();
 
         // First admin comes from config (user-secrets or env vars), only while there is none.

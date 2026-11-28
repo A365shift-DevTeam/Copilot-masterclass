@@ -10,11 +10,11 @@
  * The row pauses on hover so a card can be read, and under reduced motion it
  * stops and becomes a normal scrollable strip.
  */
-import { fill } from '../data/content.js'
+import { TESTIMONIALS } from '../data/content.js'
 
-function Stars({ rating, label }) {
+function Stars({ rating }) {
   return (
-    <div className="testimonial-card__stars" aria-label={fill(label, { n: rating })}>
+    <div className="testimonial-card__stars" aria-label={`Rated ${rating} out of 5`}>
       {Array.from({ length: 5 }, (_, i) => (
         <span key={i} className={i < rating ? 'is-on' : undefined} aria-hidden="true">★</span>
       ))}
@@ -22,10 +22,10 @@ function Stars({ rating, label }) {
   )
 }
 
-function Card({ t, ratingLabel }) {
+function Card({ t }) {
   return (
     <figure className="testimonial-card">
-      <Stars rating={Number(t.rating)} label={ratingLabel} />
+      <Stars rating={t.rating} />
       <blockquote className="testimonial-card__quote">{t.quote}</blockquote>
       <figcaption>
         <span className="testimonial-card__name">{t.name}</span>
@@ -35,14 +35,12 @@ function Card({ t, ratingLabel }) {
   )
 }
 
-/* Part of the Speaker section; the testimonials are its content. */
-export default function FeedbackStrip({ label, items, ratingLabel }) {
-  if (!items.length) return null
-  const half = items.map((t, i) => <Card key={i} t={t} ratingLabel={ratingLabel} />)
+export default function FeedbackStrip() {
+  const half = TESTIMONIALS.map((t, i) => <Card key={i} t={t} />)
 
   return (
     <div className="feedback-strip">
-      <p className="feedback-strip__label">{label}</p>
+      <p className="feedback-strip__label">What participants say</p>
       <div className="marquee">
         <div className="marquee__track">
           <div className="marquee__half">{half}</div>

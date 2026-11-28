@@ -8,7 +8,6 @@ import {
   preloadLadder,
 } from '../utils/frameCache.js'
 import { firstLoad } from '../data/siteData.js'
-import { SECTIONS } from '../data/content.js'
 
 // Both scroll stages scrub a decoded frame sequence, so a frame that has not
 // arrived is a visibly stuck animation. Holding the page on all 225 of them was
@@ -35,13 +34,16 @@ const SEAT_RUNGS = 16
 // Only the ticket stage is held for. It sits directly below the fold, so its
 // frames are needed within a second of release. The seat stage is five sections
 // down; holding the loading screen for it just made everyone wait longer.
-// Held for only while the admin shows the ticket section (Website > Sections): frames
-// nobody sees would only slow the first paint. Known once the site data has loaded.
-const ticketTasks = () => (SECTIONS.some((s) => s.type === 'ticket-scroll')
-  ? ladderIndices('ticket', TICKET_RUNGS).map((index) => ({ type: 'ticket', index }))
-  : [])
+// Off while the ticket section is commented out of App.jsx: holding the
+// loading screen for frames nobody sees only slows the first paint.
+const TICKET_STAGE_ON = false
 
-const STATIC_TASKS = [{ type: 'static', url: '/assets/logo-horizontal.webp' }]
+const TASKS = [
+  ...(TICKET_STAGE_ON
+    ? ladderIndices('ticket', TICKET_RUNGS).map((index) => ({ type: 'ticket', index }))
+    : []),
+  { type: 'static', url: '/assets/logo-horizontal.webp' },
+]
 
 // Enough parallelism to saturate a connection without starving the main thread
 // of decode slots. Matches the per-section preloaders this one front-runs.
@@ -114,8 +116,7 @@ export default function useSitePreload() {
 
     // Two extra units so the bar does not sit at 100% while fonts and the
     // document's own load event are still outstanding.
-    const TASKS = [...STATIC_TASKS]
-    let total = TASKS.length + 2
+    const total = TASKS.length + 2
     let loaded = 0
     const step = () => {
       if (!active) return
@@ -147,15 +148,7 @@ export default function useSitePreload() {
       ...Array.from({ length: CONCURRENCY }, worker),
       whenFontsReady().then(step),
       whenWindowLoaded().then(step),
-      // The page, prices and offers from the admin, so nobody sees a stale price; then the ticket
-      // frames, if that section is shown, ahead of anything still queued.
-      firstLoad.then(() => {
-        const more = ticketTasks()
-        if (!more.length) return undefined
-        TASKS.splice(cursor, 0, ...more)
-        total += more.length
-        return Promise.all(Array.from({ length: CONCURRENCY }, worker))
-      }),
+      firstLoad, // prices, dates and offers from the admin, so nobody sees a stale price
     ]).then(release)
 
     return () => {
