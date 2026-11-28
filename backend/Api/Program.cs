@@ -132,9 +132,9 @@ app.MapGet("/api/public/site", async (AppDb db, SettingsStore settings, HttpCont
                 OriginalPrice = best is null ? (decimal?)null : c.Price,
                 PaymentUrl = best?.Item.SalePaymentUrl ?? c.PaymentUrl,
                 Offer = best is null ? null : new { best.Value.Offer.Badge, best.Value.Offer.EndsAt },
-                // No payment link: Register opens this form and pays on the site.
-                Checkout = canCheckout && string.IsNullOrEmpty(c.PaymentUrl) && c.IsVisible && c.Category != null,
-                Form = string.IsNullOrEmpty(c.PaymentUrl) ? forms[c.Id].Select(Checkout.ToDto) : null,
+                // Register opens this form, then pays on the site (no payment link) or goes on to the link (FormFirst).
+                Checkout = c.IsVisible && c.Category != null && (string.IsNullOrEmpty(c.PaymentUrl) ? canCheckout : c.FormFirst),
+                Form = string.IsNullOrEmpty(c.PaymentUrl) || c.FormFirst ? forms[c.Id].Select(Checkout.ToDto) : null,
             };
         }),
         whatsappUrl = await settings.GetAsync(SiteSettings.WhatsappUrl),
@@ -168,11 +168,11 @@ app.MapPost("/api/public/checkout/{key}", async (string key, HttpRequest req, Ap
     catch (JsonException) { return Results.Problem("The form couldn't be read. Please try again.", statusCode: 400); }
 
     var c = await db.Courses.AsNoTracking().Include(x => x.FormFields).Include(x => x.Sessions).FirstOrDefaultAsync(x => x.Key == key);
-    // Only programs shown on the website can be bought here.
-    // Only programs shown on the website, and taking payment here (no payment link), can be bought.
-    if (c is null || !c.IsVisible || c.Category is null || !string.IsNullOrEmpty(c.PaymentUrl)) return Results.NotFound();
+    // Only programs shown on the website, taking payment here (no payment link) or asking the form before their link.
+    var hasLink = !string.IsNullOrEmpty(c?.PaymentUrl);
+    if (c is null || !c.IsVisible || c.Category is null || (hasLink && !c.FormFirst)) return Results.NotFound();
     var rz = await settings.RazorpayAsync();
-    if (rz.KeyId is null || rz.KeySecret is null) return Results.Problem("Online payment isn't set up yet.", statusCode: 503);
+    if (!hasLink && (rz.KeyId is null || rz.KeySecret is null)) return Results.Problem("Online payment isn't set up yet.", statusCode: 503);
 
     var form = Checkout.ReadAnswers(c.FormFields.OrderBy(f => f.SortOrder).Select(Checkout.ToDto), body?.Answers);
     if (form.Error is not null) return Results.Problem(form.Error, statusCode: 400);
@@ -181,7 +181,19 @@ app.MapPost("/api/public/checkout/{key}", async (string key, HttpRequest req, Ap
     // Registrations are for the next date: saved as a "Session" answer, so they can be filtered by date.
     if (CourseSession.Upcoming(c.Sessions, now).FirstOrDefault() is { } next)
         form.Answers.Insert(0, new AnswerDto("session", "Session", next.Label()));
-    var price = OfferPricing.Best(c, await LiveOffers(db, now), now)?.Price ?? c.Price;
+    var best = OfferPricing.Best(c, await LiveOffers(db, now), now);
+    var price = best?.Price ?? c.Price;
+    if (hasLink)
+    {
+        // Saved as an unpaid registration; the link takes the money. "link-" keeps it apart from Razorpay order IDs.
+        db.CheckoutAttempts.Add(new CheckoutAttempt
+        {
+            OrderId = $"link-{Guid.NewGuid():N}", CourseId = c.Id, Amount = price, Name = form.Name, Email = form.Email, Phone = form.Phone,
+            Answers = form.Answers.Select(a => new CheckoutAnswer { FieldKey = a.Key, Label = a.Label, Value = a.Value }).ToList(),
+        });
+        await db.SaveChangesAsync();
+        return Results.Ok(new { redirect = best?.Item.SalePaymentUrl ?? c.PaymentUrl });
+    }
     if (price < 1) return Results.Problem("This program can't be paid for online. Please contact us.", statusCode: 400);
 
     var receipt = $"{c.Key}-{Guid.NewGuid():N}";
@@ -323,12 +335,14 @@ app.MapPut("/api/courses/{id:int}", async (int id, CourseDto dto, AppDb db, Clai
     Track("package price", c.ListPrice, dto.ListPrice);
     var link = string.IsNullOrWhiteSpace(dto.PaymentUrl) ? null : dto.PaymentUrl.Trim();
     Track(link is null ? "payment on the website" : "payment link", c.PaymentUrl, link);
+    Track(dto.FormFirst ? "form before the link" : "no form before the link", c.FormFirst, dto.FormFirst);
     Track(dto.IsVisible ? "shown on site" : "hidden from site", c.IsVisible, dto.IsVisible);
 
     c.Name = dto.Name!.Trim();
     c.Price = dto.Price;
     c.ListPrice = dto.ListPrice;
     c.PaymentUrl = link;
+    c.FormFirst = dto.FormFirst;
     c.RazorpayId = string.IsNullOrWhiteSpace(dto.RazorpayId) ? null : dto.RazorpayId.Trim();
     if (dto.Sessions is not null)
     {
@@ -367,6 +381,7 @@ app.MapPost("/api/courses", async (CourseDto dto, AppDb db, ClaimsPrincipal user
     var c = new Course { Key = key, Kind = "ladder", Name = dto.Name!.Trim(), PaymentUrl = string.IsNullOrWhiteSpace(dto.PaymentUrl) ? null : dto.PaymentUrl.Trim(),
         SortOrder = (await db.Courses.MaxAsync(x => (int?)x.SortOrder) ?? 0) + 1 };
     c.Price = dto.Price;
+    c.FormFirst = dto.FormFirst;
     c.RazorpayId = string.IsNullOrWhiteSpace(dto.RazorpayId) ? null : dto.RazorpayId.Trim();
     c.Description = dto.Description?.Trim() ?? "";
     c.Duration = dto.Duration?.Trim() ?? "";
@@ -1094,7 +1109,7 @@ static void Apply(Payment p, PaymentDto dto)
 record LoginDto(string? Email, string? Password);
 record PasswordDto(string? Current, string? Next);
 record AdminDto(string? Email, string? Name, string? Password);
-record CourseDto(string? Name, decimal Price, decimal? ListPrice, string? PaymentUrl, string? RazorpayId, bool IsVisible, string? Description = null, string? Duration = null, CardDto? Card = null, List<SessionDto>? Sessions = null);
+record CourseDto(string? Name, decimal Price, decimal? ListPrice, string? PaymentUrl, string? RazorpayId, bool IsVisible, string? Description = null, string? Duration = null, CardDto? Card = null, List<SessionDto>? Sessions = null, bool FormFirst = false);
 record SessionDto(DateTimeOffset StartsAt, DateTimeOffset? EndsAt, string? Language);
 // How a program appears as a Pricing section card. Null Category takes it off the Pricing section.
 // Position: where in its tab, as a sort value (e.g. another card's SortOrder + 0.5 for "after it"); null keeps it.

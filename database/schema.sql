@@ -549,5 +549,20 @@ BEGIN
     VALUES ('20261127125252_ProgramSessions', '9.0.6');
     END IF;
 END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261128021732_PaymentLinkFormFirst') THEN
+    ALTER TABLE "Courses" ADD "FormFirst" boolean NOT NULL DEFAULT FALSE;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261128021732_PaymentLinkFormFirst') THEN
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES ('20261128021732_PaymentLinkFormFirst', '9.0.6');
+    END IF;
+END $EF$;
 COMMIT;
 

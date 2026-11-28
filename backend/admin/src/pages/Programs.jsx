@@ -194,7 +194,7 @@ function CourseForm({ keysSet, tabs, course, courses, onClose, onSaved }) {
     if (!course) return
     setForm({
       ...course,
-      name: course.name ?? '', price: course.price ?? '', paymentUrl: course.paymentUrl ?? '',
+      name: course.name ?? '', price: course.price ?? '', paymentUrl: course.paymentUrl ?? '', formFirst: course.formFirst ?? false,
       isVisible: course.isVisible ?? true,
       listPrice: course.listPrice ?? '', language: course.language ?? '', razorpayId: course.razorpayId ?? '',
       description: course.description ?? '', duration: course.duration ?? (isNew ? '30 days access' : ''),
@@ -223,7 +223,7 @@ function CourseForm({ keysSet, tabs, course, courses, onClose, onSaved }) {
     try {
       const body = {
         name: form.name, price: +form.price, listPrice: form.listPrice === '' ? null : +form.listPrice,
-        paymentUrl: form.paymentUrl, razorpayId: form.razorpayId, isVisible: form.isVisible,
+        paymentUrl: form.paymentUrl, formFirst: form.formFirst, razorpayId: form.razorpayId, isVisible: form.isVisible,
         description: form.description, duration: form.duration,
         card: {
           category: form.category || null, cardTitle: form.cardTitle, cta: form.cta, icon: form.icon || null,
@@ -265,10 +265,18 @@ function CourseForm({ keysSet, tabs, course, courses, onClose, onSaved }) {
           )}
           <Field label="Payment link (optional)" wide
             hint={form.paymentUrl.trim()
-              ? 'The card\u2019s button opens this link. Clear it to take registration and payment on the website instead.'
+              ? (form.formFirst
+                ? 'The card\u2019s button opens its registration form (Form button), then this link.'
+                : 'The card\u2019s button opens this link. Clear it to take registration and payment on the website instead.')
               : 'Empty: the button opens this card\u2019s registration form (Form button), then Razorpay.'}>
             <input type="url" value={form.paymentUrl} onChange={set('paymentUrl')} pattern="https://.*" placeholder="https://… or leave empty" />
           </Field>
+          {form.paymentUrl.trim() && (
+            <label className="toggle field--wide">
+              <input type="checkbox" checked={form.formFirst} onChange={set('formFirst')} />
+              <span>Show form, then go to payment link<small>Visitors fill in the form on the website, then go to the payment link. Their details show in Registrations.</small></span>
+            </label>
+          )}
           {!form.paymentUrl.trim() && !keysSet && (
             <p className="notice field--wide">With no payment link, this card takes payment through Razorpay, but no Razorpay keys are saved yet. Add them in Settings, or the button won’t work.</p>
           )}

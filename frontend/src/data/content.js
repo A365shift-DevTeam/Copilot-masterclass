@@ -532,7 +532,7 @@ export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [] } = 
   for (const k of Object.keys(CHECKOUT)) delete CHECKOUT[k]
   for (const c of courses) {
     if (c.checkout) CHECKOUT[c.key] = {
-      title: c.cardTitle || c.name, price: Number(c.price), form: c.form ?? [],
+      title: c.cardTitle || c.name, price: Number(c.price), form: c.form ?? [], url: c.paymentUrl ?? null,
       originalPrice: c.originalPrice != null ? Number(c.originalPrice) : null,
     }
     const hero = HERO_PRICES.find((p) => p.key === c.key)

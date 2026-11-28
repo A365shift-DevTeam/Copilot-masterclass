@@ -185,6 +185,9 @@ namespace Api.Migrations
                     b.Property<string>("Duration")
                         .HasColumnType("text");
 
+                    b.Property<bool>("FormFirst")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Icon")
                         .HasColumnType("text");
 

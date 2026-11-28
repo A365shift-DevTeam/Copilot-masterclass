@@ -82,10 +82,12 @@ export default function FormBuilder({ course, onClose }) {
     >
       {fields && (
         <div className="fb">
-          <p className={course?.paymentUrl ? 'notice' : 'muted'}>
-            {course?.paymentUrl
-              ? 'This card has a payment link, so its button opens that link and this form isn\u2019t shown. Clear the link (Edit) to use the form.'
-              : 'Register opens this form, then Razorpay. Every answer is saved with the payment.'}
+          <p className={course?.paymentUrl && !course.formFirst ? 'notice' : 'muted'}>
+            {!course?.paymentUrl
+              ? 'Register opens this form, then Razorpay. Every answer is saved with the payment.'
+              : course.formFirst
+                ? 'Register opens this form, then the card\u2019s payment link. Answers show in Registrations.'
+                : 'This card has a payment link, so its button opens that link and this form isn\u2019t shown. Turn on \u201cShow form, then go to payment link\u201d (Edit) to use it.'}
           </p>
 
           <ol className="fb__list">

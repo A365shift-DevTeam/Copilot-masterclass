@@ -16,6 +16,7 @@ public class Course
     public decimal? ListPrice { get; set; } // the struck-through package price on coaching cards
     // Register goes to this link when set; when empty, the website takes registration and payment itself (form + Razorpay).
     public string? PaymentUrl { get; set; }
+    public bool FormFirst { get; set; } // with a payment link: show the registration form first, then open the link
     public string? RazorpayId { get; set; } // payment page or link ID, so webhook payments land on this program
     // Dates it runs on (a webinar can have several upcoming); the website shows the next one.
     public List<CourseSession> Sessions { get; set; } = [];
@@ -27,7 +28,7 @@ public class Course
     public string? Cta { get; set; } // button label, e.g. "Enrol"
     public string? Icon { get; set; } // a named icon (bot, gem…) or "app:excel" / "app:outlook,teams" for Microsoft logos
     public bool IsFeatured { get; set; } // the "Most popular" tag
-    // Registration form, one row per field (see FormField). Used when the program has no payment link.
+    // Registration form, one row per field (see FormField). Used when the program has no payment link, or FormFirst is on.
     public List<FormField> FormFields { get; set; } = [];
     public bool IsVisible { get; set; } = true;
     public int SortOrder { get; set; }
