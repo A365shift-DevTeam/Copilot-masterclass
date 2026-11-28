@@ -42,6 +42,13 @@
           "label": "Button link",
           "kind": "link",
           "hint": "Leave empty to use the webinar's payment link."
+        },
+        {
+          "key": "homeLabel",
+          "label": "Logo link, as read out",
+          "kind": "text",
+          "max": 60,
+          "hint": "Read out by screen readers; not shown."
         }
       ]
     },
@@ -201,6 +208,51 @@
             }
           ],
           "count": 5
+        }
+      ]
+    },
+    {
+      "type": "ticket-scroll",
+      "label": "Laptop ticket scroll scene",
+      "defaultVisible": false,
+      "fields": [
+        {
+          "key": "label",
+          "label": "Scene description",
+          "kind": "text",
+          "max": 120,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "prompt",
+          "label": "Scroll prompt",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "headline1",
+          "label": "Headline, line 1",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "headline2",
+          "label": "Headline, line 2",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "onlyLabel",
+          "label": "Word after the price",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "loading",
+          "label": "While the animation loads",
+          "kind": "text",
+          "max": 80,
+          "hint": "The percentage is added after it."
         }
       ]
     },

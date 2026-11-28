@@ -17,6 +17,7 @@ import FinalCta from './components/FinalCta.jsx'
 import Footer from './components/Footer.jsx'
 import StickyRevealFooter from './components/ui/StickyRevealFooter.jsx'
 import SeatScrollExperience from './components/SeatScrollExperience.jsx'
+import TicketScrollExperience from './components/TicketScrollExperience.jsx'
 import Preloader from './components/Preloader.jsx'
 import LogoTraveller from './components/LogoTraveller.jsx'
 import { memo } from 'react'
@@ -33,6 +34,7 @@ import { OfferPopup, PromoStrip } from './components/ui/OfferPromo.jsx'
    The navbar and footer are drawn in their own places below; a type not listed here is skipped. */
 const SECTION = {
   hero: Hero,
+  'ticket-scroll': TicketScrollExperience,
   overview: Overview,
   'copilot-studio': CopilotStudio,
   'seat-scroll': SeatScrollExperience,

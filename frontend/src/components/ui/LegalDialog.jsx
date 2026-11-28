@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
+import { label } from '../../data/content.js'
 
 /**
  * Modal that shows a legal text from the admin (Site-wide content > Terms / Privacy / Disclaimer text).
@@ -45,7 +46,7 @@ export default function LegalDialog({ doc, open, onOpenChange }) {
         <Dialog.Content className="legal-dialog" aria-describedby={undefined}>
           <header className="legal-dialog__header">
             <Dialog.Title className="legal-dialog__title">{doc.title}</Dialog.Title>
-            <Dialog.Close className="legal-dialog__close" aria-label="Close">
+            <Dialog.Close className="legal-dialog__close" aria-label={label('close')}>
               <X size={16} aria-hidden />
             </Dialog.Close>
           </header>

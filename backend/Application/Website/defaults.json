@@ -378,7 +378,8 @@
       }
     ],
     "ctaLabel": "Contact Us",
-    "ctaLink": ""
+    "ctaLink": "",
+    "homeLabel": "AmBot365 home"
   },
   "footer": {
     "webinarTitle": "Webinar",
@@ -1247,5 +1248,13 @@
     "whatsappLine1": "Join the",
     "whatsappLine2": "WhatsApp Community",
     "supportLine": "For any support, email us at"
+  },
+  "ticket-scroll": {
+    "label": "Interactive Masterclass Ticket Pass",
+    "prompt": "Scroll to tear off pass",
+    "headline1": "Your Seat",
+    "headline2": "Is Waiting",
+    "onlyLabel": "Only",
+    "loading": "Loading pass preview"
   }
 }

@@ -61,7 +61,7 @@ export default function Navbar({ content }) {
   return (
     <>
       <nav className={`nav${solid ? ' solid' : ''}`}>
-        <a href="#top" aria-label="AmBot365 home" style={{ display: 'flex', alignItems: 'center' }}>
+        <a href="#top" aria-label={content.homeLabel} style={{ display: 'flex', alignItems: 'center' }}>
           <span className="nav__logo-plate">
             <img src="/assets/logo-horizontal.webp" alt={SHARED.site?.logoAlt ?? ''} width="124" height="30" fetchpriority="high" />
           </span>
