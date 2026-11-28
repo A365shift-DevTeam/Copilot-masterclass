@@ -72,18 +72,21 @@ public static class Page
     {
         doc = doc is null ? new() : Clone(doc);
         var order = Types.Select(x => x.Type).ToList();
-        foreach (var t in Types.Where(t => !doc.SeededTypes.Contains(t.Type)))
+        foreach (var t in Types.Where(t => !t.Shared && !doc.SeededTypes.Contains(t.Type)))
         {
             var section = new SectionDoc { Id = t.Type, Type = t.Type, Visible = t.DefaultVisible };
-            if (t.Shared) doc.Shared.Add(section);
-            else
-            {
-                // After the last section whose type comes earlier in Types; else at the start (after the navbar).
-                var after = doc.Sections.FindLastIndex(s => order.IndexOf(s.Type) is var i && i >= 0 && i < order.IndexOf(t.Type));
-                var at = t.Bottom ? doc.Sections.Count : after >= 0 ? after + 1 : doc.Sections.Count(s => TypeOf(s.Type)?.Top == true);
-                doc.Sections.Insert(at, section);
-            }
+            // After the last section whose type comes earlier in Types; else at the start (after the navbar).
+            var after = doc.Sections.FindLastIndex(s => order.IndexOf(s.Type) is var i && i >= 0 && i < order.IndexOf(t.Type));
+            var at = t.Bottom ? doc.Sections.Count : after >= 0 ? after + 1 : doc.Sections.Count(s => TypeOf(s.Type)?.Top == true);
+            doc.Sections.Insert(at, section);
             doc.SeededTypes.Add(t.Type);
+        }
+        // Shared blocks can't be deleted, so a missing one was lost (e.g. saved by an older API that didn't
+        // know them): always put it back, with its starting content.
+        foreach (var t in Types.Where(t => t.Shared && doc.Shared.All(s => s.Type != t.Type)))
+        {
+            doc.Shared.Add(new SectionDoc { Id = t.Type, Type = t.Type });
+            if (!doc.SeededTypes.Contains(t.Type)) doc.SeededTypes.Add(t.Type);
         }
         foreach (var s in doc.Sections.Concat(doc.Shared))
             if (TypeOf(s.Type) is { } t) s.Content = SectionContent.FillMissing(t.FieldList, s.Content, Defaults.GetValueOrDefault(t.Type));

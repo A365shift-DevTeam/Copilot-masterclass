@@ -76,6 +76,17 @@ public class SectionContentTests
     }
 
     [Fact]
+    public void Lost_shared_blocks_come_back_with_their_starting_content()
+    {
+        var d = Page.Seed(null);
+        d.Shared.Clear(); // as an older API would save it; SeededTypes still lists them
+        var next = Page.Seed(d);
+        Assert.Equal(Page.Types.Where(t => t.Shared).Select(t => t.Type), next.Shared.Select(s => s.Type));
+        Assert.Equal(Page.Defaults["labels"].ToJsonString(), next.Shared.First(s => s.Type == "labels").Content.ToJsonString());
+        Assert.Equal(Page.Write(next), Page.Write(Page.Seed(next)));
+    }
+
+    [Fact]
     public void A_content_save_needs_the_sections_current_revision()
     {
         var d = Page.Seed(null);

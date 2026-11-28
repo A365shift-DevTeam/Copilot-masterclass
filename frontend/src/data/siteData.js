@@ -27,8 +27,8 @@ export function loadSiteData() {
   inflight = (api ? fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
     : Promise.reject(new Error('VITE_API_URL is not set')))
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`site data: ${r.status}`))))
-    // An API from before the page builder has no sections: nothing to draw.
-    .then((data) => (Array.isArray(data?.sections) ? data : Promise.reject(new Error('site data has no sections'))))
+    // An API from before the page builder (no sections) or before its content (no shared blocks): nothing to draw.
+    .then((data) => (Array.isArray(data?.sections) && data.shared && typeof data.shared === 'object' ? data : Promise.reject(new Error('site data has no sections or shared content'))))
     .then((data) => { applySiteData(data); version += 1; failed = false; rerender() })
     // A later refresh (an offer ending) that fails keeps the values already loaded from the API.
     .catch((e) => { console.warn('Admin API unavailable:', e.message); if (version === 0) { failed = true; rerender() } })
