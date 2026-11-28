@@ -1,0 +1,43 @@
+{
+  "faq": {
+    "heading": "Frequently Asked Questions",
+    "items": [
+      {
+        "q": "What is Microsoft 365 Copilot?",
+        "a": "Copilot is the AI assistant built into Microsoft 365. It works inside Word, Excel, PowerPoint, Outlook and Teams to draft content, analyse information and summarise work using your own business context."
+      },
+      {
+        "q": "Who should attend this webinar?",
+        "a": "Business owners, managers, and any team already working in Microsoft 365 who want practical ways to reduce manual effort. No technical background is required."
+      },
+      {
+        "q": "Do I need Microsoft 365 experience?",
+        "a": "Basic familiarity with Word, Excel or Outlook is enough. Every demonstration starts from a real everyday task."
+      },
+      {
+        "q": "Will the webinar include live demonstrations?",
+        "a": "Yes. Capabilities are shown live inside the actual applications, followed by a walkthrough of how to reproduce them."
+      },
+      {
+        "q": "Will Copilot Studio be covered?",
+        "a": "Yes. We cover how AI agents are built, connected to business data and published to your teams."
+      },
+      {
+        "q": "Can businesses use Copilot for automation?",
+        "a": "Yes. Copilot combined with Power Automate handles approvals, notifications, reporting and other repetitive processes across Microsoft 365."
+      },
+      {
+        "q": "Was the program shortened to fit one day?",
+        "a": "No. Day 1 and Day 2 now run together in one session on Saturday, 28 November, from 9 AM to 1 PM IST. All four modules are covered."
+      },
+      {
+        "q": "How do I join the webinar?",
+        "a": "Register on this page and the joining link is sent to your email, along with a calendar invitation and a reminder before the session."
+      },
+      {
+        "q": "Will learning resources be provided?",
+        "a": "Practical checklists and reference material are shared with registered participants where applicable."
+      }
+    ]
+  }
+}

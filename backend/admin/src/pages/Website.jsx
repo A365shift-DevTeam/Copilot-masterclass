@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
-import { ArrowDown, ArrowUp, Eye, GripVertical, History, Lock, RotateCcw, Send } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { ArrowDown, ArrowUp, Copy, Eye, GripVertical, History, Lock, Pencil, Plus, RotateCcw, Send, Trash2 } from 'lucide-react'
 import { api, fmtDateTime } from '../api.js'
 import { confirmAction, Drawer, ErrorNote, Field, toast } from '../ui.jsx'
+import ContentForm from './ContentForm.jsx'
 
 /* The website's sections: which show, in what order. Every change is saved to the draft at once;
    visitors see it only after Publish. Preview opens the website with the draft. */
@@ -12,6 +13,8 @@ export default function Website({ me }) {
   const [publishing, setPublishing] = useState(false)
   const [history, setHistory] = useState(null) // null closed, [] open
   const [dragId, setDragId] = useState(null)
+  const [editId, setEditId] = useState(null) // the section (or shared block) open in the editor
+  const [adding, setAdding] = useState(false)
 
   const load = () => api('/website').then((p) => { setPage(p); setError('') }, (e) => setError(e.message))
   useEffect(() => { load() }, [])
@@ -20,7 +23,9 @@ export default function Website({ me }) {
   async function send(path, body, done) {
     setBusy(true)
     try {
-      setPage(await api(path, { method: path === '/website/layout' ? 'PUT' : 'POST', body: { version: page.version, ...body } }))
+      const reply = await api(path, { method: path === '/website/layout' ? 'PUT' : 'POST', body: { version: page.version, ...body } })
+      setPage(reply.page ?? reply)
+      if (reply.added) setEditId(reply.added)
       if (done) toast(done)
       return true
     } catch (e) {
@@ -70,6 +75,17 @@ export default function Website({ me }) {
     if (!await confirmAction({ title: 'Discard unpublished changes?', text: 'The draft goes back to what the live website shows now.', confirmText: 'Discard changes' })) return
     send('/website/discard', {}, 'Changes discarded')
   }
+
+  async function remove(s) {
+    if (!await confirmAction({ title: `Remove ${s.label}?`, text: 'It comes off the draft now and off the website when you publish. You can add it back from "Add section".', confirmText: 'Remove section' })) return
+    setBusy(true)
+    try { setPage(await api(`/website/sections/${encodeURIComponent(s.id)}?version=${page.version}`, { method: 'DELETE' })); toast(`${s.label} removed from the draft`) }
+    catch (e) { toast(e.message, 'bad'); load() }
+    finally { setBusy(false) }
+  }
+
+  const typeOf = (t) => page.types.find((x) => x.type === t)
+  const editing = page && [...page.sections, ...page.shared].find((s) => s.id === editId)
 
   async function openHistory() {
     setHistory([])
@@ -125,12 +141,53 @@ export default function Website({ me }) {
               <span>{s.visible ? 'Shown' : 'Hidden'}</span>
             </label>
             <div className="programs__actions">
+              {s.editable && <button type="button" className="btn btn--sm" onClick={() => setEditId(s.id)}><Pencil size={14} aria-hidden="true" /> Edit</button>}
+              {typeOf(s.type)?.repeatable && <button type="button" className="icon-btn" disabled={busy} onClick={() => send('/website/sections', { type: s.type, after: s.id, copyOf: s.id }, `Copy of ${s.label} added`)} aria-label={`Duplicate ${s.label}`} title="Duplicate"><Copy size={16} /></button>}
+              {!s.alwaysOn && <button type="button" className="icon-btn" disabled={busy} onClick={() => remove(s)} aria-label={`Remove ${s.label}`} title="Remove"><Trash2 size={16} /></button>}
               <button type="button" className="icon-btn" onClick={() => move(i, i - 1)} disabled={!canGo(i, -1) || busy} aria-label={`Move ${s.label} up`}><ArrowUp size={16} /></button>
               <button type="button" className="icon-btn" onClick={() => move(i, i + 1)} disabled={!canGo(i, 1) || busy} aria-label={`Move ${s.label} down`}><ArrowDown size={16} /></button>
             </div>
           </li>
         ))}
       </ol>
+      <div className="website__add">
+        <button type="button" className="btn btn--sm" onClick={() => setAdding(true)} disabled={busy || !page.types.some((t) => t.canAdd)}><Plus size={14} aria-hidden="true" /> Add section</button>
+      </div>
+
+      {page.shared.length > 0 && (
+        <>
+          <div className="panel__head panel__head--pad website__subhead">
+            <div>
+              <h3>Site-wide content</h3>
+              <span className="muted">Used by several sections at once, whether or not those sections are shown.</span>
+            </div>
+          </div>
+          <ul className="programs website website--shared">
+            {page.shared.map((s) => (
+              <li key={s.id}>
+                <span className="website__grip" aria-hidden="true" />
+                <div className="programs__name"><strong>{s.label}{s.changed && <span className="website__dot" title="Changed since the last publish" aria-label="changed" />}</strong></div>
+                <span />
+                <div className="programs__actions"><button type="button" className="btn btn--sm" onClick={() => setEditId(s.id)}><Pencil size={14} aria-hidden="true" /> Edit</button></div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      <SectionEditor section={editing} fields={editing && typeOf(editing.type)?.fields} onClose={() => setEditId(null)}
+        onSaved={(state) => setPage(state)} onConflict={load} />
+
+      <Drawer open={adding} title="Add a section" subtitle="It goes in before the footer, shown, with its starting content. Move it where you want it." onClose={() => setAdding(false)}>
+        <ul className="website__history">
+          {page.types.filter((t) => t.canAdd).map((t) => (
+            <li key={t.type}>
+              <div><strong>{t.label}</strong>{t.repeatable && <span className="muted">Can appear more than once</span>}</div>
+              <button type="button" className="btn btn--sm" disabled={busy} onClick={async () => { if (await send('/website/sections', { type: t.type }, `${t.label} added`)) setAdding(false) }}>Add</button>
+            </li>
+          ))}
+        </ul>
+      </Drawer>
 
       <PublishForm open={publishing} page={page} onClose={() => setPublishing(false)}
         onPublish={async (summary) => { if (await send('/website/publish', { summary }, 'Published. The website shows it on its next load.')) setPublishing(false) }} />
@@ -157,7 +214,7 @@ export default function Website({ me }) {
 function PublishForm({ open, page, onClose, onPublish }) {
   const [summary, setSummary] = useState('')
   useEffect(() => { if (open) setSummary('') }, [open])
-  const changed = page.sections.filter((s) => s.changed)
+  const changed = [...page.sections, ...page.shared].filter((s) => s.changed)
   return (
     <Drawer open={open} title="Publish the website" subtitle="Visitors see these changes on their next page load." onClose={onClose}
       footer={<>
@@ -169,13 +226,87 @@ function PublishForm({ open, page, onClose, onPublish }) {
         <div className="field field--wide">
           <span className="field__label">What changes</span>
           <ul className="website__changes">
-            {changed.map((s) => <li key={s.id}>{s.label}: {s.visible === s.live ? 'moved' : s.visible ? 'shown' : 'hidden'}</li>)}
+            {changed.map((s) => <li key={s.id}>{s.label}: {s.visible !== s.live ? (s.visible ? 'shown' : 'hidden') : 'edited or moved'}</li>)}
           </ul>
         </div>
         <Field label="Note for the history (optional)" wide hint="e.g. Hid the FAQ for the Christmas sale.">
           <input value={summary} onChange={(e) => setSummary(e.target.value)} maxLength={200} />
         </Field>
       </form>
+    </Drawer>
+  )
+}
+
+/* One section's content. Saves to the draft by itself a few seconds after you stop typing, one save at
+   a time; each save carries the section's revision, so someone else's edit to it is never overwritten. */
+function SectionEditor({ section, fields, onClose, onSaved, onConflict }) {
+  const [value, setValue] = useState(null)
+  const [state, setState] = useState('saved') // saved | dirty | saving | error
+  const [error, setError] = useState('')
+  const rev = useRef(0)
+  const saved = useRef('')
+  const inflight = useRef(null)
+  const latest = useRef(null)
+  latest.current = value
+
+  // A different section opened: start from its content. (Not on every reply, or typing during a save would be lost.)
+  useEffect(() => {
+    if (!section) { setValue(null); return }
+    setValue(section.content); rev.current = section.rev; saved.current = JSON.stringify(section.content)
+    setState('saved'); setError('')
+  }, [section?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function save() {
+    if (inflight.current) return inflight.current
+    const sending = latest.current
+    if (!sending || JSON.stringify(sending) === saved.current) return undefined
+    setState('saving')
+    inflight.current = (async () => {
+      try {
+        const page = await api(`/website/sections/${encodeURIComponent(section.id)}`, { method: 'PUT', body: { rev: rev.current, content: sending } })
+        const mine = [...page.sections, ...page.shared].find((s) => s.id === section.id)
+        rev.current = mine.rev
+        saved.current = JSON.stringify(sending)
+        onSaved(page)
+        setError('')
+        setState(JSON.stringify(latest.current) === saved.current ? 'saved' : 'dirty')
+      } catch (e) {
+        setError(e.message); setState('error')
+        if (/someone else changed/i.test(e.message)) onConflict()
+      } finally {
+        inflight.current = null
+      }
+    })()
+    return inflight.current
+  }
+
+  useEffect(() => {
+    if (!value || JSON.stringify(value) === saved.current) return undefined
+    setState((st) => (st === 'saving' ? st : 'dirty'))
+    const t = setTimeout(save, 2500)
+    return () => clearTimeout(t)
+  }, [value]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function close() {
+    if (JSON.stringify(latest.current) !== saved.current) {
+      await save()
+      if (JSON.stringify(latest.current) !== saved.current
+        && !await confirmAction({ title: 'Close without saving?', text: 'Your last edits could not be saved and will be lost.', confirmText: 'Close anyway' })) return
+    }
+    onClose()
+  }
+
+  const label = { saved: 'All changes saved to the draft', dirty: 'Unsaved changes…', saving: 'Saving…', error: 'Not saved' }[state]
+  return (
+    <Drawer open={!!section && !!value} title={section ? `Edit ${section.label}` : ''} subtitle="Saved to the draft as you type. Visitors see it after you publish." onClose={close}
+      footer={<>
+        <span className={`website__save website__save--${state}`} role="status">{label}</span>
+        <span className="spacer" />
+        <button type="button" className="btn" onClick={save} disabled={state === 'saved' || state === 'saving'}>Save now</button>
+        <button type="button" className="btn btn--primary" onClick={close}>Done</button>
+      </>}>
+      <ErrorNote>{error}</ErrorNote>
+      {value && fields && <ContentForm fields={fields} value={value} onChange={setValue} />}
     </Drawer>
   )
 }

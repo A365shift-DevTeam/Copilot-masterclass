@@ -329,3 +329,24 @@ input[type='checkbox'], input[type='radio'] { min-height: 0; padding: 0; box-sha
 .website__history li div { display: grid; gap: 2px; }
 .website__changes li::before { content: "• "; color: var(--muted); }
 @media (max-width: 640px) { .website li { grid-template-columns: 20px minmax(0, 1fr) auto; } .website .programs__actions { grid-column: 2 / -1; } }
+
+/* Website page: adding sections, the shared group, and the section editor (pages/ContentForm.jsx). */
+.website__add { padding: 12px 24px 20px; }
+.website__subhead { border-top: 1px solid var(--line); }
+.website__subhead h3 { margin: 0; font-size: var(--text-base, 16px); }
+.website--shared li { cursor: default; }
+.website__save { font-size: 13px; color: var(--muted); }
+.website__save--dirty, .website__save--saving { color: var(--accent-warning); }
+.website__save--error { color: var(--danger, #c0392b); font-weight: 600; }
+.cform { display: grid; gap: 16px; }
+.cform__hint { display: flex; justify-content: space-between; gap: 12px; }
+.cform__count { flex: none; font-variant-numeric: tabular-nums; }
+.cform__count.is-near { color: var(--accent-warning); font-weight: 600; }
+.cform__list { margin: 0; padding: 14px 16px 16px; border: 1px solid var(--line); border-radius: 12px; display: grid; gap: 12px; }
+.cform__list legend { padding: 0 6px; font-weight: 600; color: var(--heading); }
+.cform__list > ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.cform__note { font-size: 12.5px; color: var(--muted); }
+.cform__item { padding: 12px; border-radius: 10px; background: var(--bg-card-hover, var(--surface-2)); display: grid; gap: 10px; }
+.cform__item-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cform__item-tools { display: flex; gap: 2px; }
+.cform__lines li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 4px; align-items: center; }

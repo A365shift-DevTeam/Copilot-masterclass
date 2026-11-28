@@ -317,18 +317,6 @@ export const TESTIMONIALS = [
 
 export const INCLUDED = ['Live training', 'Demonstrations', 'Q&A', 'Practical examples', 'Learning resources']
 
-export const FAQS = [
-  { q: 'What is Microsoft 365 Copilot?', a: 'Copilot is the AI assistant built into Microsoft 365. It works inside Word, Excel, PowerPoint, Outlook and Teams to draft content, analyse information and summarise work using your own business context.' },
-  { q: 'Who should attend this webinar?', a: 'Business owners, managers, and any team already working in Microsoft 365 who want practical ways to reduce manual effort. No technical background is required.' },
-  { q: 'Do I need Microsoft 365 experience?', a: 'Basic familiarity with Word, Excel or Outlook is enough. Every demonstration starts from a real everyday task.' },
-  { q: 'Will the webinar include live demonstrations?', a: 'Yes. Capabilities are shown live inside the actual applications, followed by a walkthrough of how to reproduce them.' },
-  { q: 'Will Copilot Studio be covered?', a: 'Yes. We cover how AI agents are built, connected to business data and published to your teams.' },
-  { q: 'Can businesses use Copilot for automation?', a: 'Yes. Copilot combined with Power Automate handles approvals, notifications, reporting and other repetitive processes across Microsoft 365.' },
-  { q: 'Was the program shortened to fit one day?', a: 'No. Day 1 and Day 2 now run together in one session on Saturday, 28 November, from 9 AM to 1 PM IST. All four modules are covered.' },
-  { q: 'How do I join the webinar?', a: 'Register on this page and the joining link is sent to your email, along with a calendar invitation and a reminder before the session.' },
-  { q: 'Will learning resources be provided?', a: 'Practical checklists and reference material are shared with registered participants where applicable.' },
-]
-
 // Footer content. Contact details are AmBot365's own, taken from the site.
 // TODO: the social hrefs, Disclaimer and Cookie Policy are placeholders — swap in the real URLs.
 // Terms and Privacy open the LegalDialog (key in `dialog`, copy in legal.js);
@@ -467,6 +455,9 @@ const longDay = (iso) => { const p = istParts(iso, { weekday: 'long', day: 'nume
 /* The page's sections from the admin, visible ones only, in order: [{ id, type, anchor, content }].
    App.jsx draws one component per entry. */
 export let SECTIONS = []
+/* Content several sections use (the agenda, the trainer profile, contact details…), by type. Always sent,
+   whether or not the sections that use it are shown. */
+export let SHARED = {}
 // 'draft' while the admin's Preview link is open, 'expired' for an old link (the live page is shown), else null.
 export let PREVIEW = null
 
@@ -489,8 +480,9 @@ function whenLine({ startsAt, endsAt, language }) {
   return [`${s.weekday} ${s.day} ${s.month} ${s.year}`, span].filter(Boolean).join(' · ') + (language ? ` in ${language}` : '')
 }
 
-export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [], sections = [], preview = null } = {}) {
+export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [], sections = [], shared = {}, preview = null } = {}) {
   SECTIONS = sections
+  SHARED = shared
   PREVIEW = preview
   // Tab names and their one-line intro, where renamed in the admin.
   for (const t of pricingTabs) {

@@ -11,6 +11,12 @@ static class WebsiteEndpoints
 
         api.MapPut("/website/layout", async (LayoutDto dto, WebsiteService site) => Results.Ok(await site.SaveLayoutAsync(dto)));
 
+        api.MapPut("/website/sections/{id}", async (string id, ContentDto dto, WebsiteService site) => Results.Ok(await site.SaveContentAsync(id, dto)));
+
+        api.MapPost("/website/sections", async (AddSectionDto dto, WebsiteService site) => Results.Ok(await site.AddSectionAsync(dto)));
+
+        api.MapDelete("/website/sections/{id}", async (string id, int version, WebsiteService site) => Results.Ok(await site.RemoveSectionAsync(id, new(version))));
+
         api.MapPost("/website/publish", async (PublishDto dto, WebsiteService site) => Results.Ok(await site.PublishAsync(dto)));
 
         api.MapPost("/website/discard", async (VersionDto dto, WebsiteService site) => Results.Ok(await site.DiscardAsync(dto)));

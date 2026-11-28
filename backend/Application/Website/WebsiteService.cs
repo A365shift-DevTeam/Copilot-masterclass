@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Application.Common;
 using Domain;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,35 @@ public class WebsiteService(IAppDbContext db, ICurrentUser me, IPreviewTokens to
         var page = await Load();
         Fresh(page, dto.Version);
         page.Draft = Page.Write(Page.SetLayout(Page.Read(page.Draft), dto.Sections ?? []));
+        await Save(page);
+        return State(page);
+    }
+
+    // A content save is checked against that section's revision, not the page version: someone reordering
+    // the page, or editing another section, doesn't block it.
+    public async Task<object> SaveContentAsync(string id, ContentDto dto)
+    {
+        var page = await Load();
+        page.Draft = Page.Write(Page.SetContent(Page.Read(page.Draft), id, dto.Rev, dto.Content));
+        await Save(page);
+        return State(page);
+    }
+
+    public async Task<object> AddSectionAsync(AddSectionDto dto)
+    {
+        var page = await Load();
+        Fresh(page, dto.Version);
+        var (doc, id) = Page.AddSection(Page.Read(page.Draft), dto.Type ?? "", dto.After, dto.CopyOf);
+        page.Draft = Page.Write(doc);
+        await Save(page);
+        return new { added = id, page = State(page) };
+    }
+
+    public async Task<object> RemoveSectionAsync(string id, VersionDto dto)
+    {
+        var page = await Load();
+        Fresh(page, dto.Version);
+        page.Draft = Page.Write(Page.RemoveSection(Page.Read(page.Draft), id));
         await Save(page);
         return State(page);
     }
@@ -91,29 +121,37 @@ public class WebsiteService(IAppDbContext db, ICurrentUser me, IPreviewTokens to
     {
         var draft = Page.Read(page.Draft);
         var published = Page.Read(page.Published);
-        var live = published.Sections.ToDictionary(s => s.Id);
+        var live = published.Sections.Concat(published.Shared).ToDictionary(s => s.Id);
+        object Row(SectionDoc s, bool shared)
+        {
+            var t = Page.TypeOf(s.Type);
+            var was = live.GetValueOrDefault(s.Id);
+            return new
+            {
+                s.Id, s.Type, s.Visible, s.Rev, s.Content, Label = t?.Label ?? s.Type, t?.Anchor,
+                AlwaysOn = t?.AlwaysOn ?? false, Pinned = t is { Top: true } or { Bottom: true },
+                Editable = t?.FieldList.Count > 0,
+                // Shown on the live site right now, and whether this section differs from it.
+                Live = shared || (was?.Visible ?? false),
+                Changed = was is null || was.Visible != s.Visible || was.Content.ToJsonString() != s.Content.ToJsonString()
+                    || (!shared && published.Sections.IndexOf(was) != draft.Sections.IndexOf(s)),
+            };
+        }
         return new
         {
             page.Version, page.UpdatedAt, page.UpdatedBy,
             HasChanges = page.Draft != page.Published,
-            Sections = draft.Sections.Select(s =>
-            {
-                var t = Page.TypeOf(s.Type);
-                var was = live.GetValueOrDefault(s.Id);
-                return new
-                {
-                    s.Id, s.Type, s.Visible, Label = t?.Label ?? s.Type, t?.Anchor,
-                    AlwaysOn = t?.AlwaysOn ?? false, Pinned = t is { Top: true } or { Bottom: true },
-                    // Shown on the live site right now, and whether this section differs from it.
-                    Live = was?.Visible ?? false,
-                    Changed = was is null || was.Visible != s.Visible
-                        || published.Sections.IndexOf(was) != draft.Sections.IndexOf(s) || was.Content.ToJsonString() != s.Content.ToJsonString(),
-                };
-            }),
+            Sections = draft.Sections.Select(s => Row(s, false)),
+            Shared = draft.Shared.Select(s => Row(s, true)),
+            // The field lists the editor builds its forms from, and what can be added.
+            Types = Page.Types.Select(t => new { t.Type, t.Label, t.Shared, t.Repeatable, Fields = t.FieldList,
+                CanAdd = !t.Shared && !t.AlwaysOn && (t.Repeatable || draft.Sections.All(s => s.Type != t.Type)) }),
         };
     }
 }
 
 public record LayoutDto(int Version, List<Page.LayoutItem>? Sections);
+public record ContentDto(int Rev, JsonObject? Content);
+public record AddSectionDto(int Version, string? Type, string? After, string? CopyOf);
 public record PublishDto(int Version, string? Summary);
 public record VersionDto(int Version);

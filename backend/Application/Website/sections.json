@@ -1,0 +1,35 @@
+{
+  "_about": "Every section the website can draw, in default page order, and the fields each one's content has. The backend checks every save against this; the admin builds its forms from it. Field kinds: text (one line), textarea, link (https://, #section, mailto:, tel:), select (one of options), strings (a list of lines), list (a list of items with their own fields). max is characters (text) or items (lists); count fixes a list's length where an animation needs exactly that many. Shared types are never drawn on their own: their content is used by several sections.",
+  "types": [
+    { "type": "navbar", "label": "Navigation bar", "defaultVisible": true, "alwaysOn": true, "top": true, "fields": [] },
+    { "type": "hero", "label": "Hero", "anchor": "#top", "defaultVisible": true, "alwaysOn": true, "fields": [] },
+    { "type": "overview", "label": "Overview", "anchor": "#overview", "defaultVisible": true, "fields": [] },
+    { "type": "copilot-studio", "label": "What you'll learn", "anchor": "#learn", "defaultVisible": true, "fields": [] },
+    { "type": "seat-scroll", "label": "Reserve-your-seat scroll scene", "defaultVisible": true, "fields": [] },
+    { "type": "agenda", "label": "Agenda", "anchor": "#agenda", "defaultVisible": false, "fields": [] },
+    { "type": "audience", "label": "Who it's for", "defaultVisible": false, "fields": [] },
+    { "type": "use-cases", "label": "Use cases", "defaultVisible": false, "fields": [] },
+    { "type": "live-demo", "label": "Live demo", "defaultVisible": false, "fields": [] },
+    { "type": "benefits", "label": "Benefits", "anchor": "#benefits", "defaultVisible": true, "fields": [] },
+    { "type": "speaker", "label": "Speaker", "anchor": "#speaker", "defaultVisible": true, "fields": [] },
+    { "type": "coaching", "label": "1:1 coaching programmes", "anchor": "#pricing", "defaultVisible": false, "fields": [] },
+    { "type": "programs", "label": "Other programs", "anchor": "#programs", "defaultVisible": false, "fields": [] },
+    { "type": "price-ladder", "label": "Pricing", "anchor": "#pricing", "defaultVisible": true, "fields": [] },
+    { "type": "ecosystem", "label": "Ecosystem", "defaultVisible": false, "fields": [] },
+    {
+      "type": "faq", "label": "FAQ", "anchor": "#faq", "defaultVisible": false, "repeatable": true,
+      "fields": [
+        { "key": "heading", "label": "Heading", "kind": "text", "max": 120 },
+        {
+          "key": "items", "label": "Questions", "kind": "list", "itemLabel": "Question", "min": 1, "max": 30,
+          "fields": [
+            { "key": "q", "label": "Question", "kind": "text", "max": 200, "required": true },
+            { "key": "a", "label": "Answer", "kind": "textarea", "max": 1500, "required": true }
+          ]
+        }
+      ]
+    },
+    { "type": "final-cta", "label": "Final call to action", "defaultVisible": false, "fields": [] },
+    { "type": "footer", "label": "Footer", "defaultVisible": true, "alwaysOn": true, "bottom": true, "fields": [] }
+  ]
+}

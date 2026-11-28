@@ -68,7 +68,7 @@ const Page = memo(function Page({ version }) {
       <div className="page-stack">
         {SECTIONS.map((s) => {
           const Section = SECTION[s.type]
-          return Section ? <Section key={s.id} content={s.content} /> : null
+          return Section ? <Section key={s.id} content={s.content} anchor={s.anchor} /> : null
         })}
       </div>
 

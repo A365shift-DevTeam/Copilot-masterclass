@@ -16,6 +16,8 @@ export function Drawer({ open, title, subtitle, onClose, children, footer }) {
       ref={ref}
       className="drawer"
       onClose={onClose}
+      // Esc asks the page, like the close button, so a form with unsaved edits can say so first.
+      onCancel={(e) => { e.preventDefault(); onClose() }}
       // No close on a backdrop click: one stray click would throw away a half-filled form. Close button, Cancel or Esc.
       aria-labelledby="drawer-title"
     >
