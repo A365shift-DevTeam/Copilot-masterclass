@@ -135,6 +135,8 @@ app.MapGet("/api/public/site", async (AppDb db, SettingsStore settings, HttpCont
                 // Register opens this form, then pays on the site (no payment link) or goes on to the link (FormFirst).
                 Checkout = c.IsVisible && c.Category != null && (string.IsNullOrEmpty(c.PaymentUrl) ? canCheckout : c.FormFirst),
                 Form = string.IsNullOrEmpty(c.PaymentUrl) || c.FormFirst ? forms[c.Id].Select(Checkout.ToDto) : null,
+                // The program's own link, not PaymentUrl above: a sale link doesn't move an on-site card off Razorpay.
+                PaysByLink = !string.IsNullOrEmpty(c.PaymentUrl),
             };
         }),
         whatsappUrl = await settings.GetAsync(SiteSettings.WhatsappUrl),

@@ -57,9 +57,10 @@ export default function CheckoutDialog() {
     setBusy(true)
     setError('')
     try {
+      const [order] = await Promise.all([post(`checkout/${key}`, { answers }), program.paysByLink ? null : loadRazorpay()])
       // A card with a payment link saves the form, then hands over to that link.
-      if (program.url) return window.location.assign((await post(`checkout/${key}`, { answers })).redirect)
-      const [order] = await Promise.all([post(`checkout/${key}`, { answers }), loadRazorpay()])
+      if (order.redirect) return window.location.assign(order.redirect)
+      await loadRazorpay()
       // Razorpay's window must open with this dialog closed: an open Radix dialog makes the rest of the page unclickable.
       const reopen = (msg) => { setError(msg); setKey(key) }
       setKey(null)
@@ -124,7 +125,7 @@ export default function CheckoutDialog() {
                   </button>
                 </div>
               </footer>
-              {!program.url && <p className="checkout-dialog__secure"><Lock aria-hidden="true" /> Secure payment by Razorpay. UPI, cards and net banking.</p>}
+              {!program.paysByLink &&<p className="checkout-dialog__secure"><Lock aria-hidden="true" /> Secure payment by Razorpay. UPI, cards and net banking.</p>}
             </form>
           </Dialog.Content>
         </Dialog.Portal>
