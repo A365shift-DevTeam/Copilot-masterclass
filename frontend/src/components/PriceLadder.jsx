@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Bot, CalendarCheck, CirclePlay, Gem, Image, Layers, Lock, MonitorPlay } from 'lucide-react'
-import { PRICE_LADDER, STORE_URL } from '../data/content.js'
+import { PRICE_LADDER } from '../data/content.js'
 import { OfferCountdown, SalePrice } from './ui/SaleBanner.jsx'
 import { startCheckout } from './CheckoutDialog.jsx'
 
@@ -29,7 +29,7 @@ function Offer({ ckey, name, includes, price, originalPrice, offer, url, duratio
         {offer && <OfferCountdown endsAt={offer.endsAt} className="pl-card__countdown" />}
       </div>
       <a
-        href={url ?? STORE_URL}
+        href={url ?? undefined} // none: the card pays on the site, and startCheckout opens its form
         target="_blank"
         rel="noopener noreferrer"
         className="pl-card__cta"

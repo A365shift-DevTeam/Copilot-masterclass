@@ -100,25 +100,30 @@ export default function ThankYou() {
           <strong>Microsoft 365 Copilot Masterclass.</strong>
         </p>
 
-        <p className="ty__desc">
-          Join our WhatsApp Community to receive session updates, joining links, reminders, and important announcements.
-        </p>
+        {/* The invite comes from the admin's Settings; without it there's nothing to join. */}
+        {WHATSAPP_COMMUNITY_URL && (
+          <>
+            <p className="ty__desc">
+              Join our WhatsApp Community to receive session updates, joining links, reminders, and important announcements.
+            </p>
 
-        <a
-          className="ty__wa"
-          href={WHATSAPP_COMMUNITY_URL}
-          onClick={joinCommunity}
-        >
-          <span className="ty__wa-icon" aria-hidden="true">
-            <WhatsAppIcon />
-          </span>
-          <span className="ty__wa-text">
-            Join the
-            <br />
-            WhatsApp Community
-            <ChevronRight aria-hidden="true" />
-          </span>
-        </a>
+            <a
+              className="ty__wa"
+              href={WHATSAPP_COMMUNITY_URL}
+              onClick={joinCommunity}
+            >
+              <span className="ty__wa-icon" aria-hidden="true">
+                <WhatsAppIcon />
+              </span>
+              <span className="ty__wa-text">
+                Join the
+                <br />
+                WhatsApp Community
+                <ChevronRight aria-hidden="true" />
+              </span>
+            </a>
+          </>
+        )}
 
         <div className="ty__support">
           <span className="ty__mail" aria-hidden="true">

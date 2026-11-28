@@ -25,7 +25,8 @@ import LogoTraveller from './components/LogoTraveller.jsx'
 import { memo } from 'react'
 import useLenis from './hooks/useLenis.js'
 import useSitePreload from './hooks/useSitePreload.js'
-import { version } from './data/siteData.js'
+import { version, failed } from './data/siteData.js'
+import SiteUnavailable from './components/SiteUnavailable.jsx'
 import CheckoutDialog from './components/CheckoutDialog.jsx'
 import { OfferPopup, PromoStrip } from './components/ui/OfferPromo.jsx'
 
@@ -92,15 +93,21 @@ export default function App() {
   useLenis()
   const { progress, done } = useSitePreload()
 
+  // Prices, links and cards only come from the admin API: no page without them.
+  if (failed) return <SiteUnavailable />
   return (
     <div style={{ overflowX: 'clip', overflowY: 'visible' }}>
       <Preloader progress={progress} done={done} />
-      <Page version={version} />
-      {/* Outside the memoised Page: it opens over whatever section the button was in. */}
-      <CheckoutDialog />
-      {/* A running offer: the strip above the navbar, and the popup once the page is ready. */}
-      <PromoStrip />
-      <OfferPopup ready={done} />
+      {version > 0 && (
+        <>
+          <Page version={version} />
+          {/* Outside the memoised Page: it opens over whatever section the button was in. */}
+          <CheckoutDialog />
+          {/* A running offer: the strip above the navbar, and the popup once the page is ready. */}
+          <PromoStrip />
+          <OfferPopup ready={done} />
+        </>
+      )}
     </div>
   )
 }

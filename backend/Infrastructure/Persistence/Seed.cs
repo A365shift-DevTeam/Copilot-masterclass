@@ -56,11 +56,13 @@ public static class Seed
     public static void Run(AppDb db, IConfiguration config)
     {
         // Adds any program the database doesn't have yet (by key), and fills card text that is still empty.
-        // Never overwrites what an admin has set.
+        // Never overwrites what an admin has set. Pricing cards ("ladder") only go into a new database:
+        // an admin can delete those, and a deleted card must stay deleted after a restart.
         var existing = db.Courses.ToDictionary(c => c.Key);
+        var fresh = existing.Count == 0;
         foreach (var seed in Courses())
         {
-            if (!existing.TryGetValue(seed.Key, out var row)) db.Courses.Add(seed);
+            if (!existing.TryGetValue(seed.Key, out var row)) { if (fresh || seed.Kind != "ladder") db.Courses.Add(seed); }
             else
             {
                 row.Description ??= seed.Description;

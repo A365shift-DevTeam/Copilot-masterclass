@@ -1,16 +1,17 @@
 // Microsoft Copilot icon used by the pricing cards and the hero course popup.
 export const COPILOT_ICON = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/copilot/copilot-365.svg'
 
-/* Every "Reserve a seat" CTA on the page — nav, hero, the ticket and seat
-   reveals, the repeating section pill and the footer link — sends the viewer
-   straight to the hosted payment page. There is no on-page registration form
-   any more (Register.jsx is commented out of App.jsx), so this is the single
-   place the checkout URL lives. */
-export let PAYMENT_URL = 'https://link.trym.co.in/widget/form/NkftkuuLIgwagCAj0LQL'
-export const RECORDED_PAYMENT_URL = 'https://link.trym.co.in/widget/form/Py8Ql9ccGxzsI9b63vRs'
+/* Names, prices, payment links, dates, Pricing cards and the WhatsApp link come only
+   from the admin backend (applySiteData below). Nothing here is a fallback: the page
+   isn't shown until the API answers (see siteData.js). */
 
-/* Thank-you page. Paste the real WhatsApp Community invite over this placeholder. */
-export let WHATSAPP_COMMUNITY_URL = 'https://chat.whatsapp.com/Fe1uU0KfSq86Hdk4wX0zhr'
+/* Every "Reserve a seat" CTA on the page — nav, hero, the ticket and seat
+   reveals, the repeating section pill and the footer link — goes to the webinar's
+   payment link from the admin. */
+export let PAYMENT_URL = null
+
+/* Thank-you page: the WhatsApp Community invite, from the admin's Settings. */
+export let WHATSAPP_COMMUNITY_URL = null
 
 /* Every entry must point at a section that is actually rendered in App.jsx.
    Agenda and FAQ were dropped because Agenda.jsx and Faq.jsx are commented
@@ -23,41 +24,33 @@ export const NAV_LINKS = [
   { href: '#pricing', label: 'Pricing' },
 ]
 
-/* 1:1 coaching programmes shown after the Speaker section.
-   An empty `url` hides that card's Enrol button. */
+/* 1:1 coaching programmes shown after the Speaker section. Hidden until the admin
+   sends them; name, price, package price and link come from there. */
 export const PROGRAMMES = [
   {
     key: 'skill-builder',
-    name: 'AI Skill Builder',
+    hidden: true,
     tagline: 'Build hands-on Copilot skills with a personal coach.',
     points: ['15-day programme', '2.5 hours of 1:1 coaching', '5 calls of 30 minutes'],
-    pkg: '₹16,249',
-    save: '₹11,250',
-    price: '₹4,999',
-    url: 'https://rzp.io/rzp/8b0AZrP',
   },
   {
     key: 'project-builder',
-    name: 'AI Project Builder',
+    hidden: true,
     tagline: 'Ship a real AI project with guided reviews.',
     points: ['30-day programme', '5 hours of 1:1 coaching', 'Project guidance and review'],
-    pkg: '₹32,499',
-    save: '₹22,500',
-    price: '₹4,999',
-    url: 'https://rzp.io/rzp/OMsvnqoC',
     featured: true,
   },
 ]
 
-/* Shown under "Join the Webinar" in the hero. Change it before each session,
-   e.g. 'Sun, 29 Nov 2026 · 7:00 PM IST' once the start time is set. */
-export let WEBINAR_DATE = 'Sat 28 Nov 2026 · 9 AM – 1 PM IST in Tamil'
+/* Shown under "Join the Webinar" in the hero: the webinar's next date from the admin. */
+export let WEBINAR_DATE = ''
 /* The webinar's later dates from the admin (after the one in WEBINAR_DATE), written the same way. */
 export let MORE_DATES = []
 
 export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
 
-/* Hero price table. `name` is the table row and `url` is where Register goes.
+/* Hero price table. `name`, `price`, `url` (where Register goes) and the dates come
+   from the admin; an entry it doesn't send stays hidden.
    The rest fills the "View details" popup; every popup field is optional:
    `meta` bold line, `facts` [label, value] lines, `descLead` bold start of
    `desc`, `pointsHeading` above the `points` list.
@@ -68,11 +61,9 @@ export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A se
 export const HERO_PRICES = [
   {
     key: 'webinar',
-    name: 'M365 Apps using copilot',
-    price: 499,
-    url: PAYMENT_URL,
+    hidden: true,
     title: 'Microsoft Copilot Live Webinar – Tamil',
-    meta: 'Saturday, 28 November 2026 · 9:00 AM – 1:00 PM IST · Tamil',
+    meta: '',
     desc: 'Explore Microsoft 365 apps, AI tips and tricks through live Copilot product demonstrations.',
     pointsHeading: 'What you will explore',
     points: [
@@ -87,9 +78,7 @@ export const HERO_PRICES = [
   },
   {
     key: 'excel',
-    name: 'Microsoft Excel with Copilot',
-    price: 799,
-    url: 'https://link.trym.co.in/widget/form/z4WbJOkIp0CdLuPuXAiE', // TODO: replace with this program's own form link
+    hidden: true,
     title: 'Microsoft Excel with Copilot',
     scene: 'excel',
     format: 'Excel only',
@@ -107,9 +96,7 @@ export const HERO_PRICES = [
   },
   {
     key: 'recorded',
-    name: 'M365 Copilot Recorded Videos',
-    price: 999,
-    url: RECORDED_PAYMENT_URL,
+    hidden: true,
     title: 'Copilot Recorded Videos',
     scene: 'video',
     format: 'Self-paced',
@@ -120,9 +107,7 @@ export const HERO_PRICES = [
   },
   {
     key: 'project-support',
-    name: 'M365 copilot 1 to 1 Project support',
-    price: 4999,
-    url: PROGRAMMES[0].url, // same Razorpay link as the ₹4,999 AI Skill Builder card
+    hidden: true,
     title: '1-to-1 Project Support – 15 Days',
     scene: 'coach',
     format: '1-to-1, 15 days',
@@ -143,17 +128,15 @@ export const HERO_PRICES = [
   },
   {
     key: 'workshop',
-    name: 'M365Copilot offline Workshop',
-    price: 4999,
-    url: 'https://rzp.io/rzp/OMsvnqoC',
+    hidden: true,
     title: 'Offline Copilot Workshop – Chennai',
     scene: 'workshop',
     format: 'In person, Chennai',
     summary: 'A full day of hands-on Copilot demonstrations, in Tamil.',
-    highlights: ['Saturday, 23 January 2027', 'Venue to be announced'],
+    highlights: ['Date to be announced', 'Venue to be announced'],
     facts: [
       ['Language', 'Tamil'],
-      ['Date', '23 January 2027'],
+      ['Date', 'To be announced'],
       ['Format', 'One-day, in-person workshop'],
       ['Venue', 'Chennai; exact venue to be announced'],
     ],
@@ -364,7 +347,7 @@ export const FOOTER = {
     { href: '#agenda', label: 'Agenda' },
     { href: '#speaker', label: 'Speaker' },
     { href: '#faq', label: 'FAQ' },
-    { href: PAYMENT_URL, label: 'Reserve a seat' },
+    { href: null, label: 'Reserve a seat' }, // the webinar's payment link, set by applySiteData
   ],
   offerings: [
     { href: '#', label: 'M365 Copilot' },
@@ -430,55 +413,34 @@ export const DISCLAIMER = {
   moreLabel: 'Read full disclaimer',
 }
 
-/* Price list (PriceLadder.jsx), one tab per group. Every Enrol button goes to
-   the Razorpay store. */
-export const STORE_URL = 'https://rzp.io/rzp/VNhx9z1I'
-
 const MS_ICON = (app) => `https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/microsoft-365/${app}.svg`
 
-/* The Pricing section. The tabs are fixed here; the cards come from the admin
-   (applySiteData rebuilds each tab's items), so these are only the fallback for
-   when the API is down. `key` matches the program in the admin. */
+/* The Pricing section. The tabs are fixed here (the admin can rename them); every
+   card comes from the admin: applySiteData fills each tab's items. */
 export const PRICE_LADDER = [
   {
     id: 'once',
     name: 'One-time access',
     blurb: 'A single session. Pay once, no commitment.',
-    items: [
-      { key: 'webinar', name: 'Live Webinar', includes: 'Microsoft 365 Copilot apps live training', price: 499, duration: '3-hour live session', icon: 'monitor-play', cta: 'Register' },
-      { key: 'recorded', name: 'Webinar Recording, Flexi Access', includes: 'Watch the recording at your preferred time', price: 999, duration: '3 hours, watch any time', icon: 'circle-play', cta: 'Get the recording' },
-    ],
+    items: [],
   },
   {
     id: 'single',
     name: 'Individual programs',
     blurb: 'Go deep on one app. 30 days of access each.',
-    items: [
-      { key: 'ladder-excel', name: 'Copilot for Excel', includes: 'Excel skills and agent building', price: 1499, duration: '30 days access', logos: [MS_ICON('excel')], cta: 'Enrol' },
-      { key: 'ladder-word', name: 'Copilot for Word', includes: 'Word skills and agent building', price: 1499, duration: '30 days access', logos: [MS_ICON('word')], cta: 'Enrol' },
-      { key: 'ladder-powerpoint', name: 'Copilot for PowerPoint', includes: 'PowerPoint skills and agent building', price: 1499, duration: '30 days access', logos: [MS_ICON('powerpoint')], cta: 'Enrol' },
-      { key: 'ladder-outlook-teams', name: 'Copilot for Outlook & Teams', includes: 'Outlook and Teams workflows', price: 1499, duration: '30 days access', logos: [MS_ICON('outlook'), MS_ICON('teams')], cta: 'Enrol' },
-      { key: 'ladder-image-gallery', name: 'Image Gallery & App Integration', includes: 'Image gallery and app integration', price: 1499, duration: '30 days access', icon: 'image', cta: 'Enrol' },
-    ],
+    items: [],
   },
   {
     id: 'bundle',
     name: 'Skill bundles',
     blurb: 'Several related skills, taught together.',
-    items: [
-      { key: 'ladder-notebook', name: 'Notebook & Copilot Schedule', includes: 'Reverse engineering, Copilot prompting, saving prompts and scheduling prompts', price: 3999, duration: '60 days access', icon: 'calendar-check', cta: 'Enrol' },
-      { key: 'ladder-skills-agents', name: 'Copilot Skills & Agents', includes: 'Build skills and agents for Excel, Word and PowerPoint', price: 3999, duration: '30 days access', icon: 'bot', cta: 'Enrol' },
-      { key: 'ladder-sharepoint', name: 'SharePoint & Web Applications', includes: 'To-Do lists, Forms, HTML dashboards and SharePoint websites', price: 3999, duration: '30 days access', logos: [MS_ICON('sharepoint')], cta: 'Enrol' },
-    ],
+    items: [],
   },
   {
     id: 'master',
     name: 'Complete packages',
     blurb: 'Microsoft 365 apps, end to end.',
-    items: [
-      { key: 'ladder-master', name: 'Master Package', includes: 'All programmes listed on this page', price: 9999, duration: '120 days access', icon: 'layers', featured: true, cta: 'Get the Master Package' },
-      { key: 'ladder-premium', name: 'Premium', includes: 'Weekly Copilot updates, 1 project with 5 hours of 1-to-1 support, and access to all new video content', price: 24999, duration: '1 year access', icon: 'gem', cta: 'Get Premium' },
-    ],
+    items: [],
   },
 ]
 
@@ -570,18 +532,17 @@ export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [] } = 
       if (was != null) Object.assign(coaching, { pkg: inr(was), save: inr(Number(was) - Number(c.price)) })
     }
   }
-  // The Pricing section is rebuilt from the admin's cards: every program with a tab (category), in its order.
-  if (courses.some((c) => c.category)) {
-    for (const g of PRICE_LADDER) {
-      g.items = courses.filter((c) => c.category === g.id).map((c) => ({
-        key: c.key, name: c.cardTitle || c.name, includes: c.description ?? '', duration: c.duration ?? '',
-        price: Number(c.price), originalPrice: c.originalPrice != null ? Number(c.originalPrice) : null, offer: c.offer ?? null,
-        url: c.paymentUrl, hidden: !c.isVisible, cta: c.cta || 'Enrol', featured: !!c.isFeatured,
-        ...(c.icon?.startsWith('app:') ? { logos: c.icon.slice(4).split(',').map(MS_ICON) } : { icon: c.icon || 'bot' }),
-      }))
-    }
+  // The Pricing section is built from the admin's cards: every program with a tab (category), in its order.
+  for (const g of PRICE_LADDER) {
+    g.items = courses.filter((c) => c.category === g.id).map((c) => ({
+      key: c.key, name: c.cardTitle || c.name, includes: c.description ?? '', duration: c.duration ?? '',
+      price: Number(c.price), originalPrice: c.originalPrice != null ? Number(c.originalPrice) : null, offer: c.offer ?? null,
+      url: c.paymentUrl, hidden: !c.isVisible, cta: c.cta || 'Enrol', featured: !!c.isFeatured,
+      ...(c.icon?.startsWith('app:') ? { logos: c.icon.slice(4).split(',').map(MS_ICON) } : { icon: c.icon || 'bot' }),
+    }))
   }
   // Every "Reserve a seat" button sells the webinar.
-  PAYMENT_URL = HERO_PRICES[0].url
+  PAYMENT_URL = HERO_PRICES[0].url ?? null
+  FOOTER.webinar.find((l) => l.label === 'Reserve a seat').href = PAYMENT_URL
   HERO_PRICES[0].hidden = false
 }
