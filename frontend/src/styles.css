@@ -8138,7 +8138,8 @@ html[data-theme="dark"] .pl {
 }
 .pl-panel--master .pl-panel__cards { grid-template-columns: repeat(auto-fit, minmax(260px, 380px)); }
 @media (min-width: 1000px) {
-  .pl-panel--single .pl-panel__cards { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  /* fifth-width tracks; auto-fit drops the empty ones so fewer cards centre */
+  .pl-panel--single .pl-panel__cards { grid-template-columns: repeat(auto-fit, calc((100% - 64px) / 5)); }
 }
 
 /* Card */

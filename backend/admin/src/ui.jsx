@@ -16,7 +16,7 @@ export function Drawer({ open, title, subtitle, onClose, children, footer }) {
       ref={ref}
       className="drawer"
       onClose={onClose}
-      onClick={(e) => e.target === ref.current && onClose()}
+      // No close on a backdrop click: one stray click would throw away a half-filled form. Close button, Cancel or Esc.
       aria-labelledby="drawer-title"
     >
       {open && (

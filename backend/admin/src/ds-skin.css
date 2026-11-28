@@ -295,7 +295,7 @@ input[type='checkbox'], input[type='radio'] { min-height: 0; padding: 0; box-sha
 
 /* Hero section dates: date, status, actions */
 .hero-dates li { grid-template-columns: 1fr auto auto; }
-.hero-dates .programs__name strong { display: inline-flex; align-items: center; gap: 8px; }
+.hero-dates .programs__name strong { display: flex; align-items: center; gap: 8px; }
 .hero-dates .programs__name strong svg { color: var(--accent-warning); }
 .panel__head--pad > div { display: grid; gap: 2px; }
 
