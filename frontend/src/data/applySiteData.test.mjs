@@ -20,7 +20,11 @@ test('applySiteData patches dates, prices, links and keeps indexes', () => {
     { key: 'skill-builder', name: 'Skill', price: 3999, listPrice: 9999, paymentUrl: 'https://pay.example/s', isVisible: true },
     { key: 'ladder-new', name: 'Copilot for Planner', price: 1299, paymentUrl: 'https://pay.example/p', isVisible: true, category: 'single', description: 'Plans', duration: '30 days access', cta: 'Enrol', icon: 'app:planner', isFeatured: true },
     { key: 'excel', name: 'Excel', price: 559, originalPrice: 799, paymentUrl: 'https://pay.example/sale', isVisible: true, offer: { badge: 'Black Friday sale', endsAt: '2026-12-01T18:29:00Z' } },
-  ], pricingTabs: [{ id: 'single', name: 'Single apps', blurb: null }], whatsappUrl: 'https://chat.whatsapp.com/NEW' })
+  ], pricingTabs: [{ id: 'single', name: 'Single apps', blurb: null }], whatsappUrl: 'https://chat.whatsapp.com/NEW',
+  shared: { 'program-details': { items: [
+    { key: 'webinar', title: 'Webinar – Tamil', facts: [] },
+    { key: 'workshop', title: 'Workshop', highlights: ['Date to be announced', 'Venue'], facts: [{ label: 'Language', value: 'Tamil' }, { label: 'Date', value: 'To be announced' }] },
+  ] } } })
   assert.equal(content.WHATSAPP_COMMUNITY_URL, 'https://chat.whatsapp.com/NEW')
   assert.equal(content.WEBINAR_DATE, 'Sat 5 Dec 2026 · 10 AM – 2 PM IST in English')
   assert.deepEqual(content.MORE_DATES, ['Sat 12 Dec 2026 · 10 AM – 2 PM IST in Tamil', 'Sat 19 Dec 2026'])
@@ -29,7 +33,8 @@ test('applySiteData patches dates, prices, links and keeps indexes', () => {
   assert.equal(content.HERO_PRICES[0].hidden, false) // the webinar can't be hidden
   const ws = content.HERO_PRICES.find((p) => p.key === 'workshop')
   assert.equal(ws.highlights[0], 'Saturday, 13 February 2027')
-  assert.deepEqual(ws.facts.find(([l]) => l === 'Date'), ['Date', '13 February 2027'])
+  assert.equal(ws.facts.find((f) => f.label === 'Date').value, '13 February 2027')
+  assert.equal(content.HERO_PRICES[0].title, 'Webinar – English') // the language from the date
   assert.equal(ws.hidden, true)
   assert.equal(ws.price, 5999)
   assert.deepEqual(content.HERO_PRICES.map((p) => p.key), keys)

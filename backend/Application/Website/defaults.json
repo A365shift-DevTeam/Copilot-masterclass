@@ -761,5 +761,491 @@
         "text": "Your trained agent is ready to answer, assist and support your process anytime."
       }
     ]
+  },
+  "hero": {
+    "quoteLine": "Master Microsoft Copilot",
+    "quoteHighlight": "Register Webinar Now",
+    "quoteLabel": "“AI won’t replace you. Someone using AI will.”",
+    "day1": "Day 1",
+    "dayMerged": "1 Day",
+    "day2": "Day 2",
+    "daysNote": "Now together in one session",
+    "registerLabel": "Register",
+    "detailsLabel": "View details",
+    "pageHeading": "Microsoft 365 Copilot Masterclass — 1-Day Live Online Program",
+    "moreLabel": "Other Copilot 365 Programs",
+    "moreLink": "#pricing",
+    "orbitCoreAlt": "Microsoft 365 Copilot",
+    "orbitCoreSub": "MICROSOFT 365",
+    "orbitCoreMain": "COPILOT",
+    "orbitApps": [
+      {
+        "name": "Excel",
+        "tip": "Analyse • Calculate • Automate"
+      },
+      {
+        "name": "Word",
+        "tip": "Write • Summarise • Create"
+      },
+      {
+        "name": "PowerPoint",
+        "tip": "Create • Design • Present"
+      },
+      {
+        "name": "Outlook",
+        "tip": "Draft • Summarise • Prioritise"
+      },
+      {
+        "name": "Teams",
+        "tip": "Meet • Collaborate • Summarise"
+      },
+      {
+        "name": "OneDrive",
+        "tip": "Store • Access • Share"
+      },
+      {
+        "name": "SharePoint",
+        "tip": "Knowledge • Content • Collaboration"
+      },
+      {
+        "name": "Forms",
+        "tip": "Collect • Analyse • Respond"
+      },
+      {
+        "name": "Power BI",
+        "tip": "Analyse • Visualise • Discover"
+      },
+      {
+        "name": "Power Apps",
+        "tip": "Build • Connect • Transform"
+      },
+      {
+        "name": "Power Automate",
+        "tip": "Automate • Trigger • Execute"
+      },
+      {
+        "name": "Copilot Studio",
+        "tip": "Build • Customize • Deploy Agents"
+      }
+    ],
+    "orbitPrompts": [
+      {
+        "app": "excel",
+        "text": "Analyse Data"
+      },
+      {
+        "app": "outlook",
+        "text": "Draft Email"
+      },
+      {
+        "app": "teams",
+        "text": "Summarise Meeting"
+      },
+      {
+        "app": "powerpoint",
+        "text": "Create Presentation"
+      },
+      {
+        "app": "powerautomate",
+        "text": "Automate Workflow"
+      }
+    ]
+  },
+  "speaker": {
+    "eyebrow": "MEET THE FOUNDER",
+    "role": "Founder & CEO — AmBot365",
+    "photoAlt": "Ambrose Denny, Founder and CEO of AmBot365 — automate, simplify, transform: RPA, Microsoft 365, AI and analytics, digital solutions",
+    "feedbackLabel": "What participants say",
+    "testimonials": [
+      {
+        "quote": "I automated my monthly sales report in Excel the same week. What took a full day now takes twenty minutes.",
+        "name": "Priya Raghavan",
+        "role": "Sales Manager",
+        "rating": "5"
+      },
+      {
+        "quote": "Building an agent in Copilot Studio was the part I expected to lose. Ambrose walked it through without jargon.",
+        "name": "Vinod Menon",
+        "role": "Operations Head",
+        "rating": "5"
+      },
+      {
+        "quote": "Our finance team drafts the month-end summary with Copilot now and reviews it, instead of retyping it.",
+        "name": "Fatima Al-Harbi",
+        "role": "Finance Lead",
+        "rating": "5"
+      },
+      {
+        "quote": "Practical from the first minute. Every demonstration used a task I actually do on a Monday morning.",
+        "name": "Sneha Kulkarni",
+        "role": "HR Manager",
+        "rating": "4"
+      },
+      {
+        "quote": "I came for the Excel tips and left with a prompt library I reuse across Word and Outlook every day.",
+        "name": "Arjun Desai",
+        "role": "Business Owner",
+        "rating": "5"
+      },
+      {
+        "quote": "Straight answers in the Q&A, even on the awkward rollout and licensing questions.",
+        "name": "Rahul Iyer",
+        "role": "IT Administrator",
+        "rating": "5"
+      }
+    ],
+    "ratingLabel": "Rated {n} out of 5"
+  },
+  "coaching": {
+    "eyebrow": "1:1 COACHING PROGRAMMES",
+    "heading": "Only Limited Seats for a Month",
+    "intro": "Personal coaching after the webinar. Pick the track that fits your goal.",
+    "saveLabel": "Save",
+    "buttonLabel": "Pay now",
+    "plans": [
+      {
+        "key": "skill-builder",
+        "tagline": "Build hands-on Copilot skills with a personal coach.",
+        "points": [
+          "15-day programme",
+          "2.5 hours of 1:1 coaching",
+          "5 calls of 30 minutes"
+        ],
+        "badge": ""
+      },
+      {
+        "key": "project-builder",
+        "tagline": "Ship a real AI project with guided reviews.",
+        "points": [
+          "30-day programme",
+          "5 hours of 1:1 coaching",
+          "Project guidance and review"
+        ],
+        "badge": "popular"
+      }
+    ]
+  },
+  "programs": {
+    "heading": "Other Copilot programs",
+    "intro": "Want more after the webinar? Pick the format that suits how you learn: self-paced, one-to-one or in the room.",
+    "detailsLabel": "View details",
+    "registerLabel": "Register",
+    "priceLabel": "Price:",
+    "sceneFormula": "=COPILOT(\"summarise sales\")",
+    "sceneStatus": "Runing...",
+    "sceneChapters": [
+      "Prompts",
+      "Excel",
+      "Agents"
+    ],
+    "sceneYou": "You",
+    "sceneMonth": "Jan 2027",
+    "sceneDay": "23",
+    "sceneCity": "Chennai"
+  },
+  "price-ladder": {
+    "heading": "Pricing",
+    "intro": "Start with one session or cover every Microsoft 365 app.",
+    "note": "Secure checkout through Razorpay. Enrol opens the store in a new tab.",
+    "tabsLabel": "Pricing categories"
+  },
+  "seat-scroll": {
+    "label": "Interactive Seat Reservation Experience",
+    "headline1": "Your Seat",
+    "headline2": "Is Waiting",
+    "onlyLabel": "Only",
+    "loading": "Loading interactive stage"
+  },
+  "trainer": {
+    "name": "Ambrose Denny",
+    "role": "Founder & CEO, AmBot365",
+    "tags": "AI • Automation • Microsoft 365 Solutions",
+    "location": "Dubai, UAE · Coimbatore, India",
+    "linkedin": "https://www.linkedin.com/in/ambrose-denny-39320692/",
+    "typed": [
+      "Know your trainer",
+      "Ambrose Denny",
+      "18+ years in automation",
+      "Microsoft 365 & Copilot trainer"
+    ],
+    "bio": [
+      {
+        "text": "Ambrose brings extensive experience across Microsoft 365, Business Automation, Lean Transformation, AI and Digital Transformation. His journey spans corporate transformation, large-scale automation delivery, product development and building AmBot365 across India and the UAE, with experience presenting solutions to VPs, Directors, senior business leaders and Ministers."
+      },
+      {
+        "text": "Today, he transforms this real-world experience into structured, visual and practical learning, helping professionals learn, apply and replicate Microsoft Copilot, AI and automation solutions in their workplace."
+      }
+    ],
+    "path": [
+      {
+        "org": "Tata Consultancy Services",
+        "role": "14 years of global experience",
+        "note": "Specialised automation skills, built on global delivery."
+      },
+      {
+        "org": "AmBot365",
+        "role": "Founder & CEO",
+        "note": "RPA, Microsoft 365, AI and analytics solutions across India and the UAE."
+      },
+      {
+        "org": "Copilot trainer",
+        "role": "Today",
+        "note": "Structured, visual, practical learning you can repeat at work."
+      }
+    ],
+    "expertise": [
+      {
+        "value": "18+ Years",
+        "label": "Professional Experience"
+      },
+      {
+        "value": "47+ Clients",
+        "label": "Global Delivery Experience"
+      },
+      {
+        "value": "Microsoft 365",
+        "label": "Expertise"
+      },
+      {
+        "value": "1,200+",
+        "label": "Automation Deliveries"
+      },
+      {
+        "value": "200+",
+        "label": "Lean Projects"
+      },
+      {
+        "value": "10+",
+        "label": "Products Built"
+      },
+      {
+        "value": "India Patent",
+        "label": "Innovation"
+      }
+    ],
+    "services": [
+      "Data reporting",
+      "Application development",
+      "IT consulting",
+      "Custom software development",
+      "Business analytics",
+      "Business consulting"
+    ],
+    "chipLead": "Your trainer",
+    "chipCta": "View profile",
+    "chipLabel": "Know your trainer: view {name}'s profile",
+    "question": "Who is {name}, my trainer?",
+    "pathTitle": "Career path",
+    "statsTitle": "Track record",
+    "servicesTitle": "Services",
+    "showAll": "Show all",
+    "voiceLabel": "Hear from Ambrose",
+    "linkedinLabel": "Open LinkedIn",
+    "reserveLabel": "Reserve your seat for",
+    "writingLabel": "Writing"
+  },
+  "program-details": {
+    "items": [
+      {
+        "key": "webinar",
+        "title": "Microsoft Copilot Live Webinar – Tamil",
+        "descLead": "",
+        "desc": "Explore Microsoft 365 apps, AI tips and tricks through live Copilot product demonstrations.",
+        "pointsHeading": "What you will explore",
+        "points": [
+          "Copilot fundamentals",
+          "Building AI agents and skills",
+          "Excel, Word and PowerPoint",
+          "Copilot Notebook",
+          "AI image generation",
+          "Building AI apps",
+          "Practical demonstrations and Q&A"
+        ],
+        "facts": [],
+        "scene": "",
+        "format": "",
+        "formatIcon": "",
+        "summary": "",
+        "highlights": []
+      },
+      {
+        "key": "excel",
+        "title": "Microsoft Excel with Copilot",
+        "descLead": "End-to-end Excel with Copilot",
+        "desc": "training with practical examples, demonstrations and sample datasets.",
+        "pointsHeading": "",
+        "points": [
+          "80% Excel: Copilot in Excel, end-to-end workflows, data analysis, practical exercises and sample data",
+          "10% PowerPoint: Copilot tips for presentations",
+          "10% Word: Copilot tips for documents",
+          "Building Copilot skills and agents"
+        ],
+        "facts": [],
+        "scene": "excel",
+        "format": "Excel only",
+        "formatIcon": "excel",
+        "summary": "Analyse data, build workflows and practise on sample datasets with Copilot in Excel.",
+        "highlights": [
+          "80% Excel, 20% Word and PowerPoint",
+          "Build Copilot skills and agents"
+        ]
+      },
+      {
+        "key": "recorded",
+        "title": "Copilot Recorded Videos",
+        "descLead": "",
+        "desc": "One-time recorded videos for flexible, self-paced viewing of Microsoft Copilot demonstrations and workflows.",
+        "pointsHeading": "",
+        "points": [],
+        "facts": [
+          {
+            "label": "Languages",
+            "value": "Tamil / English"
+          }
+        ],
+        "scene": "video",
+        "format": "Self-paced",
+        "formatIcon": "",
+        "summary": "Watch the Copilot demonstrations and workflows whenever it suits you.",
+        "highlights": [
+          "Tamil and English",
+          "One-time payment"
+        ]
+      },
+      {
+        "key": "project-support",
+        "title": "1-to-1 Project Support – 15 Days",
+        "descLead": "",
+        "desc": "",
+        "pointsHeading": "",
+        "points": [
+          "Identify and define your real-world problem",
+          "Receive access to a personalized tool to monitor project progress",
+          "Build your Copilot project with guided one-to-one support",
+          "Schedule calls flexibly based on project requirements",
+          "Work through implementation and delivery"
+        ],
+        "facts": [
+          {
+            "label": "Languages",
+            "value": "Tamil / English"
+          },
+          {
+            "label": "Duration",
+            "value": "15 days"
+          },
+          {
+            "label": "One-to-one calls",
+            "value": "3 hours total"
+          }
+        ],
+        "scene": "coach",
+        "format": "1-to-1, 15 days",
+        "formatIcon": "",
+        "summary": "Bring a real problem and build your Copilot project with personal guidance.",
+        "highlights": [
+          "3 hours of one-to-one calls",
+          "Progress tracking tool included"
+        ]
+      },
+      {
+        "key": "workshop",
+        "title": "Offline Copilot Workshop – Chennai",
+        "descLead": "",
+        "desc": "Hands-on Copilot demonstrations covering:",
+        "pointsHeading": "",
+        "points": [
+          "Excel, Word and PowerPoint",
+          "Building Copilot agents and skills",
+          "Copilot Notebook",
+          "OneDrive and SharePoint",
+          "Microsoft Forms and To Do",
+          "Microsoft Bookings"
+        ],
+        "facts": [
+          {
+            "label": "Language",
+            "value": "Tamil"
+          },
+          {
+            "label": "Date",
+            "value": "To be announced"
+          },
+          {
+            "label": "Format",
+            "value": "One-day, in-person workshop"
+          },
+          {
+            "label": "Venue",
+            "value": "Chennai; exact venue to be announced"
+          }
+        ],
+        "scene": "workshop",
+        "format": "In person, Chennai",
+        "formatIcon": "",
+        "summary": "A full day of hands-on Copilot demonstrations, in Tamil.",
+        "highlights": [
+          "Date to be announced",
+          "Venue to be announced"
+        ]
+      }
+    ]
+  },
+  "labels": {
+    "reserveLabel": "Reserve your seat for just",
+    "liveSessionsLabel": "Live Sessions",
+    "recordedLabel": "Recorded Video",
+    "noDates": "New dates announced soon",
+    "popularLabel": "Most popular",
+    "wasLabel": "was",
+    "close": "Close",
+    "courseEyebrow": "AMBOT365 · COURSE DETAILS",
+    "courseFeeLabel": "Program fee",
+    "courseRegister": "Register",
+    "checkoutKicker": "Register for",
+    "checkoutToPay": "To pay",
+    "checkoutContinue": "Continue to payment",
+    "checkoutWait": "Please wait…",
+    "checkoutSecure": "Secure payment by Razorpay. UPI, cards and net banking.",
+    "checkoutChoose": "Choose…",
+    "checkoutMerchant": "AmBot365",
+    "checkoutFailed": "The payment failed ({reason}). Your details are still here; please try again.",
+    "checkoutCancelled": "Payment wasn’t completed. Your details are still here; try again when you’re ready.",
+    "checkoutError": "Something went wrong. Please try again.",
+    "checkoutLoadError": "Payment window could not load. Check your connection and try again.",
+    "saleEndsIn": "Ends in",
+    "stripEndsIn": "Ends in",
+    "stripSave": "Save",
+    "stripOn": "on",
+    "stripLabel": "Special offer",
+    "stripClose": "Close offer bar",
+    "offerSpecial": "Special offer",
+    "offerSave": "Save",
+    "offerOn": "on",
+    "offerEndsIn": "Offer ends in",
+    "offerRegister": "Register now",
+    "offerLater": "Maybe later",
+    "offerUnits": [
+      "Days",
+      "Hours",
+      "Minutes",
+      "Seconds"
+    ],
+    "voicePlay": "Play the founder’s voice note",
+    "voicePause": "Pause the founder’s voice note",
+    "voicePauseLabel": "Pause voice note"
+  },
+  "thank-you": {
+    "pageTitle": "Payment Successful - Copilot AmBot365",
+    "badge": "Payment Successful",
+    "title": "Thank You!",
+    "seatLine": "Your Seat is",
+    "seatHighlight": "Confirmed",
+    "leadLine": "You're registered for the",
+    "leadStrong": "Microsoft 365 Copilot Masterclass.",
+    "whatsappText": "Join our WhatsApp Community to receive session updates, joining links, reminders, and important announcements.",
+    "whatsappLine1": "Join the",
+    "whatsappLine2": "WhatsApp Community",
+    "supportLine": "For any support, email us at"
   }
 }

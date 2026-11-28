@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Check, MapPin } from 'lucide-react'
 import CourseDialog, { rippleClick } from './CourseDialog.jsx'
-import { HERO_PRICES, TRAINER } from '../data/content.js'
+import { HERO_PRICES } from '../data/content.js'
 import { SalePrice } from './ui/SaleBanner.jsx'
 
 
@@ -11,13 +11,14 @@ import { SalePrice } from './ui/SaleBanner.jsx'
    track filling, a pin landing on Chennai. Pure CSS. The loops only run while
    the section is on screen (.programs.is-live); reduced motion shows a still. */
 
-function ExcelScene() {
+// The card pictures' little bits of text are this section's content (scene* fields).
+function ExcelScene({ c }) {
   const bars = [42, 64, 50, 86]
   return (
     <div className="pscene pscene--excel" aria-hidden="true">
       <div className="pscene__formula">
         <span className="pscene__fx">fx</span>
-        <span className="pscene__typed">=COPILOT("summarise sales")</span>
+        <span className="pscene__typed">{c.sceneFormula}</span>
         <span className="pscene__caret" />
       </div>
       <div className="pscene__sheet">
@@ -32,14 +33,14 @@ function ExcelScene() {
   )
 }
 
-function VideoScene() {
+function VideoScene({ c }) {
   return (
     <div className="pscene pscene--video" aria-hidden="true">
       <div className="pscene__screen">
         <span className="pscene__play" />
-        <span className="pscene__live"><span />Runing...</span>
+        <span className="pscene__live"><span />{c.sceneStatus}</span>
         <div className="pscene__chapters">
-          {['Prompts', 'Excel', 'Agents'].map((c, n) => <span key={c} style={{ '--k': n }}>{c}</span>)}
+          {c.sceneChapters.map((ch, n) => <span key={n} style={{ '--k': n }}>{ch}</span>)}
         </div>
       </div>
       <div className="pscene__track"><span className="pscene__progress" /><span className="pscene__head" /></div>
@@ -47,16 +48,16 @@ function VideoScene() {
   )
 }
 
-function CoachScene() {
+function CoachScene({ c }) {
   return (
     <div className="pscene pscene--coach" aria-hidden="true">
       <div className="pscene__people">
-        <span className="pscene__avatar pscene__avatar--you">You</span>
+        <span className="pscene__avatar pscene__avatar--you">{c.sceneYou}</span>
         <svg className="pscene__link" viewBox="0 0 100 10" preserveAspectRatio="none">
           <line x1="0" y1="5" x2="100" y2="5" />
         </svg>
         <span className="pscene__avatar pscene__avatar--coach">
-          <img src={TRAINER.photo} alt="" width="44" height="44" loading="lazy" />
+          <img src="/assets/fonunder-200.webp" alt="" width="44" height="44" loading="lazy" />
         </span>
       </div>
       <div className="pscene__days">
@@ -66,12 +67,12 @@ function CoachScene() {
   )
 }
 
-function WorkshopScene() {
+function WorkshopScene({ c }) {
   return (
     <div className="pscene pscene--workshop" aria-hidden="true">
       <div className="pscene__cal">
-        <span className="pscene__cal-month">Jan 2027</span>
-        <span className="pscene__cal-day">23</span>
+        <span className="pscene__cal-month">{c.sceneMonth}</span>
+        <span className="pscene__cal-day">{c.sceneDay}</span>
       </div>
       <div className="pscene__map">
         <svg viewBox="0 0 120 60" preserveAspectRatio="none">
@@ -79,7 +80,7 @@ function WorkshopScene() {
         </svg>
         <span className="pscene__ring" />
         <span className="pscene__pin"><MapPin /></span>
-        <span className="pscene__city">Chennai</span>
+        <span className="pscene__city">{c.sceneCity}</span>
       </div>
     </div>
   )
@@ -101,7 +102,7 @@ const FORMAT_ICONS = { excel: ExcelIcon }
 
 const SCENES = { excel: ExcelScene, video: VideoScene, coach: CoachScene, workshop: WorkshopScene }
 
-export default function Programs() {
+export default function Programs({ content }) {
   const ref = useRef(null)
   const [openIndex, setOpenIndex] = useState(null)
   // Every program except the main webinar (HERO_PRICES[0], which the hero sells).
@@ -127,8 +128,8 @@ export default function Programs() {
   return (
     <section id="programs" className="section programs" ref={ref}>
       <div className="section-head programs__head">
-        <h2 className="h2">Other Copilot programs</h2>
-        <p>Want more after the webinar? Pick the format that suits how you learn: self-paced, one-to-one or in the room.</p>
+        <h2 className="h2">{content.heading}</h2>
+        <p>{content.intro}</p>
       </div>
 
       <ul className="programs__grid">
@@ -136,8 +137,8 @@ export default function Programs() {
           const Scene = SCENES[p.scene]
           const FormatIcon = FORMAT_ICONS[p.formatIcon]
           return (
-            <li key={p.name} className={`pcard pcard--${p.scene}`} style={{ '--i': i }}>
-              <Scene />
+            <li key={p.key} className={`pcard pcard--${p.scene}`} style={{ '--i': i }}>
+              <Scene c={content} />
               <div className="pcard__body">
                 <span className="pcard__format">
                   {FormatIcon && <FormatIcon />}
@@ -146,18 +147,18 @@ export default function Programs() {
                 <h3 className="pcard__title">{p.title}</h3>
                 <p className="pcard__summary">{p.summary}</p>
                 <ul className="pcard__highlights">
-                  {p.highlights.map((h) => <li key={h}><Check aria-hidden="true" />{h}</li>)}
+                  {p.highlights.map((h, k) => <li key={k}><Check aria-hidden="true" />{h}</li>)}
                 </ul>
                 <div className="pcard__foot">
                   <p className="pcard__price">
-                    <span className="sr-only">Price: </span><SalePrice price={p.price} originalPrice={p.originalPrice} />
+                    <span className="sr-only">{content.priceLabel} </span><SalePrice price={p.price} originalPrice={p.originalPrice} />
                   </p>
                   <button type="button" className="pcard__details" onClick={() => setOpenIndex(p.index)}>
-                    View details
+                    {content.detailsLabel}
                   </button>
                 </div>
                 <a href={p.url} target="_blank" rel="noopener noreferrer" className="btn-primary pcard__cta" onClick={rippleClick}>
-                  Register <ArrowRight aria-hidden="true" />
+                  {content.registerLabel} <ArrowRight aria-hidden="true" />
                   <span className="btn-shine" aria-hidden="true" />
                 </a>
               </div>

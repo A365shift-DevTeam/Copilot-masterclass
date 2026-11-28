@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowRight, X } from 'lucide-react'
-import { SALE } from '../../data/content.js'
+import { SALE, SHARED, label } from '../../data/content.js'
 import { startCheckout } from '../CheckoutDialog.jsx'
 import { useCountdown } from './SaleBanner.jsx'
 
@@ -39,20 +39,20 @@ export function PromoStrip() {
     <span className="promo-strip__item">
       <strong>{SALE.badge}</strong>
       <span className="promo-strip__star" aria-hidden="true">✦</span>
-      {save > 0 ? <>Save {inr(save)} on {SALE.title}</> : SALE.title}
+      {save > 0 ? <>{label('stripSave')} {inr(save)} {label('stripOn')} {SALE.title}</> : SALE.title}
       <span className="promo-strip__star" aria-hidden="true">✦</span>
-      Ends in <span className="promo-strip__time">{clock(t)}</span>
+      {label('stripEndsIn')} <span className="promo-strip__time">{clock(t)}</span>
       <span className="promo-strip__star" aria-hidden="true">✦</span>
     </span>
   )
   return (
-    <div className="promo-strip" role="region" aria-label="Special offer">
+    <div className="promo-strip" role="region" aria-label={label('stripLabel')}>
       <a href={SALE.url ?? '#pricing'} className="promo-strip__track" onClick={register}>
         {/* The same message four times over two halves, so the scroll loops without a seam. */}
         <span className="promo-strip__run">{item}{item}{item}{item}</span>
         <span className="promo-strip__run" aria-hidden="true">{item}{item}{item}{item}</span>
       </a>
-      <button type="button" className="promo-strip__close" aria-label="Close offer bar" onClick={() => { remember(key); setClosed(true) }}>
+      <button type="button" className="promo-strip__close" aria-label={label('stripClose')} onClick={() => { remember(key); setClosed(true) }}>
         <X size={15} />
       </button>
     </div>
@@ -74,33 +74,34 @@ export function OfferPopup({ ready }) {
   const close = () => { remember(key); setOpen(false) }
   if (!SALE || !t) return null
   const save = SALE.originalPrice - SALE.price
-  const units = [[t.days, 'Days'], ...t.hms.split(':').map((n, i) => [n, ['Hours', 'Minutes', 'Seconds'][i]])]
+  const names = SHARED.labels?.offerUnits ?? ['', '', '', '']
+  const units = [[t.days, names[0]], ...t.hms.split(':').map((n, i) => [n, names[i + 1]])]
 
   return (
     <Dialog.Root open={open} onOpenChange={(o) => { if (!o) close() }}>
       <Dialog.Portal>
         <Dialog.Overlay className="legal-dialog__overlay" />
         <Dialog.Content className="legal-dialog offer-popup" aria-describedby={undefined}>
-          <Dialog.Close className="course-dialog__close" aria-label="Close"><X size={18} aria-hidden /></Dialog.Close>
+          <Dialog.Close className="course-dialog__close" aria-label={label('close')}><X size={18} aria-hidden /></Dialog.Close>
           <p className="offer-popup__badge">{SALE.badge}</p>
           <Dialog.Title className="offer-popup__title">
-            {save > 0 ? <>Save <span>{inr(save)}</span></> : 'Special offer'}
+            {save > 0 ? <>{label('offerSave')} <span>{inr(save)}</span></> : label('offerSpecial')}
           </Dialog.Title>
-          <p className="offer-popup__program">on {SALE.title}</p>
+          <p className="offer-popup__program">{label('offerOn')} {SALE.title}</p>
           {save > 0 && (
             <p className="offer-popup__price"><s>{inr(SALE.originalPrice)}</s> <strong>{inr(SALE.price)}</strong></p>
           )}
-          <p className="offer-popup__ends">Offer ends in</p>
+          <p className="offer-popup__ends">{label('offerEndsIn')}</p>
           <div className="offer-popup__clock" role="timer" aria-live="off">
-            {units.map(([n, label]) => (
-              <div key={label}><strong>{String(n).padStart(2, '0')}</strong><span>{label}</span></div>
+            {units.map(([n, unit]) => (
+              <div key={unit}><strong>{String(n).padStart(2, '0')}</strong><span>{unit}</span></div>
             ))}
           </div>
           <a href={SALE.url ?? '#pricing'} className="btn-primary offer-popup__cta" onClick={(e) => { close(); register(e) }}>
-            Register now <ArrowRight aria-hidden="true" />
+            {label('offerRegister')} <ArrowRight aria-hidden="true" />
             <span className="btn-shine" aria-hidden="true" />
           </a>
-          <button type="button" className="offer-popup__later" onClick={close}>Maybe later</button>
+          <button type="button" className="offer-popup__later" onClick={close}>{label('offerLater')}</button>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

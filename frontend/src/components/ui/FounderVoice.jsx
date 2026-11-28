@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { Pause, Volume2 } from 'lucide-react'
+import { label as text } from '../../data/content.js'
 
 // Spaces in the filename have to be escaped: the browser requests this path
 // verbatim and an unescaped space is not a valid URL.
@@ -36,10 +37,10 @@ export default function FounderVoice({ className = 'speaker__voice', label }) {
         className={`${className}${playing ? ' is-playing' : ''}`}
         onClick={toggle}
         aria-pressed={playing}
-        aria-label={label ? undefined : playing ? 'Pause the founder’s voice note' : 'Play the founder’s voice note'}
+        aria-label={label ? undefined : playing ? text('voicePause') : text('voicePlay')}
       >
         <Icon strokeWidth={2} aria-hidden="true" />
-        {label && <span>{playing ? 'Pause voice note' : label}</span>}
+        {label && <span>{playing ? text('voicePauseLabel') : label}</span>}
       </button>
       <audio
         ref={audioRef}

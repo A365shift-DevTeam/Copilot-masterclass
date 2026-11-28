@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowRight, Lock, X } from 'lucide-react'
-import { CHECKOUT, COPILOT_ICON } from '../data/content.js'
+import { CHECKOUT, COPILOT_ICON, label } from '../data/content.js'
 import { SalePrice } from './ui/SaleBanner.jsx'
 
 const API = import.meta.env.VITE_API_URL
@@ -23,7 +23,7 @@ function loadRazorpay() {
     const s = document.createElement('script')
     s.src = 'https://checkout.razorpay.com/v1/checkout.js'
     s.onload = resolve
-    s.onerror = () => { razorpayScript = null; reject(new Error('Payment window could not load. Check your connection and try again.')) }
+    s.onerror = () => { razorpayScript = null; reject(new Error(label('checkoutLoadError'))) }
     document.head.appendChild(s)
   })
   return razorpayScript
@@ -32,7 +32,7 @@ function loadRazorpay() {
 async function post(path, body) {
   const res = await fetch(`${API}/api/public/${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   const data = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(data?.detail || 'Something went wrong. Please try again.')
+  if (!res.ok) throw new Error(data?.detail || label('checkoutError'))
   return data
 }
 
@@ -70,7 +70,7 @@ export default function CheckoutDialog() {
         order_id: order.orderId,
         amount: order.amount,
         currency: order.currency,
-        name: 'AmBot365',
+        name: label('checkoutMerchant'),
         description: order.description,
         prefill: order.prefill,
         theme: { color: '#3D7B80' },
@@ -81,7 +81,7 @@ export default function CheckoutDialog() {
           await post('checkout/verify', { orderId: r.razorpay_order_id, paymentId: r.razorpay_payment_id, signature: r.razorpay_signature }).catch(() => {})
           window.location.assign(`/thank-you?value=${order.amount / 100}`)
         },
-        modal: { ondismiss: () => reopen(failed ? `The payment failed (${failed}). Your details are still here; please try again.` : 'Payment wasn’t completed. Your details are still here; try again when you’re ready.') },
+        modal: { ondismiss: () => reopen(failed ? label('checkoutFailed', { reason: failed }) : label('checkoutCancelled')) },
       })
       rzp.on('payment.failed', (r) => { failed = r.error?.description || 'declined' })
       rzp.open()
@@ -98,13 +98,13 @@ export default function CheckoutDialog() {
         <Dialog.Portal>
           <Dialog.Overlay className="legal-dialog__overlay" />
           <Dialog.Content className="legal-dialog course-dialog checkout-dialog" aria-describedby={undefined}>
-            <Dialog.Close className="course-dialog__close" aria-label="Close"><X size={18} aria-hidden /></Dialog.Close>
+            <Dialog.Close className="course-dialog__close" aria-label={label('close')}><X size={18} aria-hidden /></Dialog.Close>
             <form onSubmit={submit} noValidate={false}>
               <div className="course-dialog__body" data-lenis-prevent>
                 <header className="plan__head">
                   <span className="plan__icon"><img src={COPILOT_ICON} alt="" /></span>
                   <div>
-                    <p className="checkout-dialog__kicker">Register for</p>
+                    <p className="checkout-dialog__kicker">{label('checkoutKicker')}</p>
                     <Dialog.Title className="plan__name">{program.title}</Dialog.Title>
                   </div>
                 </header>
@@ -115,17 +115,17 @@ export default function CheckoutDialog() {
               </div>
               <footer className="course-dialog__footer">
                 <div>
-                  <p className="course-dialog__fee-label">To pay</p>
+                  <p className="course-dialog__fee-label">{label('checkoutToPay')}</p>
                   <p className="plan__price course-dialog__fee"><SalePrice price={program.price} originalPrice={program.originalPrice} /></p>
                 </div>
                 <div className="course-dialog__actions">
                   <button type="submit" className="btn-primary" disabled={busy}>
-                    {busy ? 'Please wait…' : <>Continue to payment <ArrowRight aria-hidden="true" /></>}
+                    {busy ? label('checkoutWait') : <>{label('checkoutContinue')} <ArrowRight aria-hidden="true" /></>}
                     <span className="btn-shine" />
                   </button>
                 </div>
               </footer>
-              {!program.paysByLink &&<p className="checkout-dialog__secure"><Lock aria-hidden="true" /> Secure payment by Razorpay. UPI, cards and net banking.</p>}
+              {!program.paysByLink &&<p className="checkout-dialog__secure"><Lock aria-hidden="true" /> {label('checkoutSecure')}</p>}
             </form>
           </Dialog.Content>
         </Dialog.Portal>
@@ -164,7 +164,7 @@ function Field({ f, value, onChange }) {
         <textarea id={id} rows={3} value={value ?? ''} onChange={(e) => onChange(e.target.value)} required={f.required} placeholder={f.placeholder ?? ''} maxLength={2000} />
       ) : f.type === 'select' ? (
         <select id={id} value={value ?? ''} onChange={(e) => onChange(e.target.value)} required={f.required}>
-          <option value="">{f.placeholder || 'Choose…'}</option>
+          <option value="">{f.placeholder || label('checkoutChoose')}</option>
           {f.options.map((o) => <option key={o}>{o}</option>)}
         </select>
       ) : (

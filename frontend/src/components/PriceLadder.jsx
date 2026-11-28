@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Bot, CalendarCheck, CirclePlay, Gem, Image, Layers, Lock, MonitorPlay } from 'lucide-react'
-import { PRICE_LADDER } from '../data/content.js'
+import { PRICE_LADDER, label } from '../data/content.js'
 import { OfferCountdown, SalePrice } from './ui/SaleBanner.jsx'
 import { startCheckout } from './CheckoutDialog.jsx'
 
@@ -19,7 +19,7 @@ function Offer({ ckey, name, includes, price, originalPrice, offer, url, duratio
             ? logos.map((src) => <img key={src} src={src} alt="" width="24" height="24" loading="lazy" />)
             : Icon && <Icon />}
         </span>
-        {(offer || featured) && <span className="pl-card__tag">{offer ? offer.badge : 'Most popular'}</span>}
+        {(offer || featured) && <span className="pl-card__tag">{offer ? offer.badge : label('popularLabel')}</span>}
       </div>
       <h4 className="pl-card__name">{name}</h4>
       <p className="pl-card__includes">{includes}</p>
@@ -42,7 +42,8 @@ function Offer({ ckey, name, includes, price, originalPrice, offer, url, duratio
   )
 }
 
-export default function PriceLadder() {
+/* The cards are the programs in Pricing & dates; the heading, intro and note are this section's content. */
+export default function PriceLadder({ content }) {
   const [selected, setActive] = useState(0)
   const tabRefs = useRef([])
   // Cards hidden in the admin drop out; a tab left with none drops out too.
@@ -66,11 +67,11 @@ export default function PriceLadder() {
   return (
     <section id="pricing" className="section pl">
       <div className="section-head">
-        <h2 className="h2">Pricing</h2>
-        <p>Start with one session or cover every Microsoft 365 app.</p>
+        <h2 className="h2">{content.heading}</h2>
+        <p>{content.intro}</p>
       </div>
 
-      <div className="pl__tabs" role="tablist" aria-label="Pricing categories" onKeyDown={onTabKey}>
+      <div className="pl__tabs" role="tablist" aria-label={content.tabsLabel} onKeyDown={onTabKey}>
         {groups.map((g, i) => (
           <button
             key={g.id}
@@ -102,7 +103,7 @@ export default function PriceLadder() {
         </ul>
       </div>
 
-      <p className="pl__note"><Lock aria-hidden="true" />Secure checkout through Razorpay. Enrol opens the store in a new tab.</p>
+      <p className="pl__note"><Lock aria-hidden="true" />{content.note}</p>
     </section>
   )
 }

@@ -51,7 +51,158 @@
       "anchor": "#top",
       "defaultVisible": true,
       "alwaysOn": true,
-      "fields": []
+      "fields": [
+        {
+          "key": "quoteLine",
+          "label": "Big line",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "quoteHighlight",
+          "label": "Big line, highlighted",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "quoteLabel",
+          "label": "Big lines, as read out",
+          "kind": "text",
+          "max": 160,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "day1",
+          "label": "Chip: first day",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "dayMerged",
+          "label": "Chip: merged days",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "day2",
+          "label": "Chip: second day",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "daysNote",
+          "label": "Note typed beside the chips",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "registerLabel",
+          "label": "Register button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "detailsLabel",
+          "label": "Details button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "pageHeading",
+          "label": "Page heading for search engines",
+          "kind": "text",
+          "max": 160,
+          "hint": "Not shown; read by search engines and screen readers."
+        },
+        {
+          "key": "moreLabel",
+          "label": "Link under the buttons",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "moreLink",
+          "label": "Link under the buttons goes to",
+          "kind": "link"
+        },
+        {
+          "key": "orbitCoreAlt",
+          "label": "Centre logo description",
+          "kind": "text",
+          "max": 80,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "orbitCoreSub",
+          "label": "Centre label, small line",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "orbitCoreMain",
+          "label": "Centre label, big line",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "orbitApps",
+          "label": "Apps around the orbit",
+          "kind": "list",
+          "itemLabel": "App",
+          "fields": [
+            {
+              "key": "name",
+              "label": "Name",
+              "kind": "text",
+              "max": 30,
+              "required": true
+            },
+            {
+              "key": "tip",
+              "label": "Tip on hover",
+              "kind": "text",
+              "max": 80
+            }
+          ],
+          "count": 12,
+          "hint": "In orbit order: Excel, Word, PowerPoint, Outlook, Teams, OneDrive, SharePoint, Forms, Power BI, Power Apps, Power Automate, Copilot Studio. Logos and positions are part of the animation."
+        },
+        {
+          "key": "orbitPrompts",
+          "label": "Prompt bubbles",
+          "kind": "list",
+          "itemLabel": "Bubble",
+          "fields": [
+            {
+              "key": "app",
+              "label": "From app",
+              "kind": "select",
+              "options": [
+                "excel",
+                "word",
+                "powerpoint",
+                "outlook",
+                "teams",
+                "onedrive",
+                "sharepoint",
+                "forms",
+                "powerbi",
+                "powerapps",
+                "powerautomate",
+                "copilotstudio"
+              ]
+            },
+            {
+              "key": "text",
+              "label": "Text",
+              "kind": "text",
+              "max": 40,
+              "required": true
+            }
+          ],
+          "count": 5
+        }
+      ]
     },
     {
       "type": "overview",
@@ -221,7 +372,40 @@
       "type": "seat-scroll",
       "label": "Reserve-your-seat scroll scene",
       "defaultVisible": true,
-      "fields": []
+      "fields": [
+        {
+          "key": "label",
+          "label": "Scene description",
+          "kind": "text",
+          "max": 120,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "headline1",
+          "label": "Headline, line 1",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "headline2",
+          "label": "Headline, line 2",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "onlyLabel",
+          "label": "Word after the price",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "loading",
+          "label": "While the animation loads",
+          "kind": "text",
+          "max": 80,
+          "hint": "The percentage is added after it."
+        }
+      ]
     },
     {
       "type": "agenda",
@@ -737,28 +921,274 @@
       "label": "Speaker",
       "anchor": "#speaker",
       "defaultVisible": true,
-      "fields": []
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Small label above the name",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "role",
+          "label": "Role line",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "photoAlt",
+          "label": "Photo description",
+          "kind": "text",
+          "max": 200,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "feedbackLabel",
+          "label": "Testimonials heading",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "testimonials",
+          "label": "Testimonials",
+          "kind": "list",
+          "itemLabel": "Testimonial",
+          "fields": [
+            {
+              "key": "quote",
+              "label": "Quote",
+              "kind": "textarea",
+              "max": 300,
+              "required": true
+            },
+            {
+              "key": "name",
+              "label": "Name",
+              "kind": "text",
+              "max": 60,
+              "required": true
+            },
+            {
+              "key": "role",
+              "label": "Role",
+              "kind": "text",
+              "max": 60
+            },
+            {
+              "key": "rating",
+              "label": "Stars",
+              "kind": "select",
+              "options": [
+                "5",
+                "4",
+                "3",
+                "2",
+                "1"
+              ]
+            }
+          ],
+          "max": 12,
+          "hint": "Use real participants' words, with their permission. The starting ones are placeholders."
+        },
+        {
+          "key": "ratingLabel",
+          "label": "Stars, as read out",
+          "kind": "text",
+          "max": 60,
+          "hint": "{n} becomes the number of stars."
+        }
+      ]
     },
     {
       "type": "coaching",
       "label": "1:1 coaching programmes",
       "anchor": "#pricing",
       "defaultVisible": false,
-      "fields": []
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Small label above the heading",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "kind": "textarea",
+          "max": 300
+        },
+        {
+          "key": "saveLabel",
+          "label": "\"Save\" before the saving",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "buttonLabel",
+          "label": "Button label",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "plans",
+          "label": "Plans",
+          "kind": "list",
+          "itemLabel": "Plan",
+          "fields": [
+            {
+              "key": "key",
+              "label": "Program",
+              "kind": "select",
+              "options": [
+                "skill-builder",
+                "project-builder"
+              ],
+              "hint": "Name, price and link come from Pricing & dates."
+            },
+            {
+              "key": "tagline",
+              "label": "Tagline",
+              "kind": "text",
+              "max": 120
+            },
+            {
+              "key": "points",
+              "label": "Points",
+              "kind": "strings",
+              "max": 6
+            },
+            {
+              "key": "badge",
+              "label": "Badge",
+              "kind": "select",
+              "options": [
+                "",
+                "popular"
+              ]
+            }
+          ],
+          "max": 2
+        }
+      ]
     },
     {
       "type": "programs",
       "label": "Other programs",
       "anchor": "#programs",
       "defaultVisible": false,
-      "fields": []
+      "fields": [
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "kind": "textarea",
+          "max": 300
+        },
+        {
+          "key": "detailsLabel",
+          "label": "Details button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "registerLabel",
+          "label": "Register button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "priceLabel",
+          "label": "Before each price, as read out",
+          "kind": "text",
+          "max": 30,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "sceneFormula",
+          "label": "Excel card: formula",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "sceneStatus",
+          "label": "Video card: status",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "sceneChapters",
+          "label": "Video card: chapters",
+          "kind": "strings",
+          "count": 3
+        },
+        {
+          "key": "sceneYou",
+          "label": "Coaching card: \"you\" bubble",
+          "kind": "text",
+          "max": 10
+        },
+        {
+          "key": "sceneMonth",
+          "label": "Workshop card: month",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "sceneDay",
+          "label": "Workshop card: day",
+          "kind": "text",
+          "max": 4
+        },
+        {
+          "key": "sceneCity",
+          "label": "Workshop card: city",
+          "kind": "text",
+          "max": 30
+        }
+      ]
     },
     {
       "type": "price-ladder",
       "label": "Pricing",
       "anchor": "#pricing",
       "defaultVisible": true,
-      "fields": []
+      "fields": [
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "kind": "textarea",
+          "max": 300
+        },
+        {
+          "key": "note",
+          "label": "Note under the cards",
+          "kind": "text",
+          "max": 160
+        },
+        {
+          "key": "tabsLabel",
+          "label": "Tabs, as read out",
+          "kind": "text",
+          "max": 60,
+          "hint": "Read out by screen readers; not shown."
+        }
+      ]
     },
     {
       "type": "ecosystem",
@@ -1342,6 +1772,637 @@
             }
           ],
           "max": 30
+        }
+      ]
+    },
+    {
+      "type": "trainer",
+      "label": "Trainer profile",
+      "defaultVisible": false,
+      "shared": true,
+      "fields": [
+        {
+          "key": "name",
+          "label": "Name",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "role",
+          "label": "Role",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "tags",
+          "label": "Tags line",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "location",
+          "label": "Location",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "linkedin",
+          "label": "LinkedIn link",
+          "kind": "link"
+        },
+        {
+          "key": "typed",
+          "label": "Lines typed beside the photo",
+          "kind": "strings",
+          "min": 1,
+          "max": 6
+        },
+        {
+          "key": "bio",
+          "label": "Bio",
+          "kind": "list",
+          "itemLabel": "Paragraph",
+          "fields": [
+            {
+              "key": "text",
+              "label": "Text",
+              "kind": "textarea",
+              "max": 800,
+              "required": true
+            }
+          ],
+          "min": 1,
+          "max": 5
+        },
+        {
+          "key": "path",
+          "label": "Career path",
+          "kind": "list",
+          "itemLabel": "Step",
+          "fields": [
+            {
+              "key": "org",
+              "label": "Where",
+              "kind": "text",
+              "max": 80,
+              "required": true
+            },
+            {
+              "key": "role",
+              "label": "Role",
+              "kind": "text",
+              "max": 80
+            },
+            {
+              "key": "note",
+              "label": "Note",
+              "kind": "text",
+              "max": 160
+            }
+          ],
+          "max": 6
+        },
+        {
+          "key": "expertise",
+          "label": "Track record",
+          "kind": "list",
+          "itemLabel": "Figure",
+          "fields": [
+            {
+              "key": "value",
+              "label": "Figure",
+              "kind": "text",
+              "max": 30,
+              "required": true,
+              "hint": "Numbers count up, e.g. 1,200+."
+            },
+            {
+              "key": "label",
+              "label": "What it counts",
+              "kind": "text",
+              "max": 60
+            }
+          ],
+          "max": 10
+        },
+        {
+          "key": "services",
+          "label": "Services",
+          "kind": "strings",
+          "max": 12
+        },
+        {
+          "key": "chipLead",
+          "label": "Hero chip: label",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "chipCta",
+          "label": "Hero chip: button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "chipLabel",
+          "label": "Hero chip, as read out",
+          "kind": "text",
+          "max": 120,
+          "hint": "{name} becomes the trainer's name."
+        },
+        {
+          "key": "question",
+          "label": "Profile: question typed first",
+          "kind": "text",
+          "max": 120,
+          "hint": "{name} becomes the trainer's name."
+        },
+        {
+          "key": "pathTitle",
+          "label": "Profile: career path title",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "statsTitle",
+          "label": "Profile: track record title",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "servicesTitle",
+          "label": "Profile: services title",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "showAll",
+          "label": "Profile: skip button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "voiceLabel",
+          "label": "Profile: voice note button",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "linkedinLabel",
+          "label": "Profile: LinkedIn button",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "reserveLabel",
+          "label": "Profile: reserve button",
+          "kind": "text",
+          "max": 60,
+          "hint": "The webinar price is added after it."
+        },
+        {
+          "key": "writingLabel",
+          "label": "Profile: \"writing\" indicator, as read out",
+          "kind": "text",
+          "max": 30,
+          "hint": "Read out by screen readers; not shown."
+        }
+      ]
+    },
+    {
+      "type": "program-details",
+      "label": "Program details",
+      "defaultVisible": false,
+      "shared": true,
+      "fields": [
+        {
+          "key": "items",
+          "label": "Programs",
+          "kind": "list",
+          "itemLabel": "Program",
+          "fields": [
+            {
+              "key": "key",
+              "label": "Program",
+              "kind": "select",
+              "options": [
+                "webinar",
+                "excel",
+                "recorded",
+                "project-support",
+                "workshop"
+              ],
+              "hint": "Name, price, link and dates come from Pricing & dates."
+            },
+            {
+              "key": "title",
+              "label": "Title in the details popup",
+              "kind": "text",
+              "max": 120
+            },
+            {
+              "key": "descLead",
+              "label": "Description, bold start",
+              "kind": "text",
+              "max": 80
+            },
+            {
+              "key": "desc",
+              "label": "Description",
+              "kind": "textarea",
+              "max": 600
+            },
+            {
+              "key": "pointsHeading",
+              "label": "Heading above the points",
+              "kind": "text",
+              "max": 80
+            },
+            {
+              "key": "points",
+              "label": "Points",
+              "kind": "strings",
+              "max": 10
+            },
+            {
+              "key": "facts",
+              "label": "Facts",
+              "kind": "list",
+              "itemLabel": "Fact",
+              "fields": [
+                {
+                  "key": "label",
+                  "label": "Label",
+                  "kind": "text",
+                  "max": 40,
+                  "required": true
+                },
+                {
+                  "key": "value",
+                  "label": "Value",
+                  "kind": "text",
+                  "max": 120
+                }
+              ],
+              "max": 8,
+              "hint": "A \"Date\" or \"Language\" fact is filled in from Pricing & dates when the program has a date."
+            },
+            {
+              "key": "scene",
+              "label": "Card picture (Other programs)",
+              "kind": "select",
+              "options": [
+                "",
+                "excel",
+                "video",
+                "coach",
+                "workshop"
+              ],
+              "hint": "Empty: not shown in Other programs."
+            },
+            {
+              "key": "format",
+              "label": "Card: format label",
+              "kind": "text",
+              "max": 40
+            },
+            {
+              "key": "formatIcon",
+              "label": "Card: format logo",
+              "kind": "select",
+              "options": [
+                "",
+                "excel"
+              ]
+            },
+            {
+              "key": "summary",
+              "label": "Card: summary",
+              "kind": "textarea",
+              "max": 300
+            },
+            {
+              "key": "highlights",
+              "label": "Card: highlights",
+              "kind": "strings",
+              "max": 4,
+              "hint": "For the workshop, the first one is replaced by its date when it has one."
+            }
+          ],
+          "max": 5
+        }
+      ]
+    },
+    {
+      "type": "labels",
+      "label": "Buttons, popups & messages",
+      "defaultVisible": false,
+      "shared": true,
+      "fields": [
+        {
+          "key": "reserveLabel",
+          "label": "Reserve button",
+          "kind": "text",
+          "max": 60,
+          "hint": "The webinar price is added after it."
+        },
+        {
+          "key": "liveSessionsLabel",
+          "label": "Live sessions button",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "recordedLabel",
+          "label": "Recorded video button",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "noDates",
+          "label": "Hero: when the webinar has no date",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "popularLabel",
+          "label": "\"Most popular\" tag",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "wasLabel",
+          "label": "Old price, as read out",
+          "kind": "text",
+          "max": 20,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "close",
+          "label": "Close button",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "courseEyebrow",
+          "label": "Details popup: small label",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "courseFeeLabel",
+          "label": "Details popup: price label",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "courseRegister",
+          "label": "Details popup: register button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "checkoutKicker",
+          "label": "Registration form: label above the title",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "checkoutToPay",
+          "label": "Registration form: price label",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "checkoutContinue",
+          "label": "Registration form: button",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "checkoutWait",
+          "label": "Registration form: while sending",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "checkoutSecure",
+          "label": "Registration form: payment note",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "checkoutChoose",
+          "label": "Registration form: empty dropdown",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "checkoutMerchant",
+          "label": "Name in the Razorpay window",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "checkoutFailed",
+          "label": "Payment failed message",
+          "kind": "text",
+          "max": 200,
+          "hint": "{reason} becomes Razorpay's reason."
+        },
+        {
+          "key": "checkoutCancelled",
+          "label": "Payment closed message",
+          "kind": "text",
+          "max": 200
+        },
+        {
+          "key": "checkoutError",
+          "label": "Something went wrong message",
+          "kind": "text",
+          "max": 200
+        },
+        {
+          "key": "checkoutLoadError",
+          "label": "Payment window didn't load message",
+          "kind": "text",
+          "max": 200
+        },
+        {
+          "key": "saleEndsIn",
+          "label": "Hero offer: \"ends in\"",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "stripEndsIn",
+          "label": "Offer bar: \"ends in\"",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "stripSave",
+          "label": "Offer bar: \"save\"",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "stripOn",
+          "label": "Offer bar: \"on\"",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "stripLabel",
+          "label": "Offer bar, as read out",
+          "kind": "text",
+          "max": 40,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "stripClose",
+          "label": "Offer bar close, as read out",
+          "kind": "text",
+          "max": 40,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "offerSpecial",
+          "label": "Offer popup: title without a saving",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "offerSave",
+          "label": "Offer popup: \"save\"",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "offerOn",
+          "label": "Offer popup: \"on\"",
+          "kind": "text",
+          "max": 20
+        },
+        {
+          "key": "offerEndsIn",
+          "label": "Offer popup: \"ends in\"",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "offerRegister",
+          "label": "Offer popup: button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "offerLater",
+          "label": "Offer popup: dismiss",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "offerUnits",
+          "label": "Offer popup: clock units",
+          "kind": "strings",
+          "count": 4,
+          "hint": "Days, hours, minutes, seconds."
+        },
+        {
+          "key": "voicePlay",
+          "label": "Voice note: play, as read out",
+          "kind": "text",
+          "max": 60,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "voicePause",
+          "label": "Voice note: pause, as read out",
+          "kind": "text",
+          "max": 60,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "voicePauseLabel",
+          "label": "Voice note: pause button",
+          "kind": "text",
+          "max": 40
+        }
+      ]
+    },
+    {
+      "type": "thank-you",
+      "label": "Thank-you page",
+      "defaultVisible": false,
+      "shared": true,
+      "fields": [
+        {
+          "key": "pageTitle",
+          "label": "Browser tab title",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "badge",
+          "label": "Badge",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "seatLine",
+          "label": "Line under the title",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "seatHighlight",
+          "label": "Line under the title, highlighted end",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "leadLine",
+          "label": "Lead",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "leadStrong",
+          "label": "Lead, bold line",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "whatsappText",
+          "label": "WhatsApp text",
+          "kind": "textarea",
+          "max": 300
+        },
+        {
+          "key": "whatsappLine1",
+          "label": "WhatsApp button, line 1",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "whatsappLine2",
+          "label": "WhatsApp button, line 2",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "supportLine",
+          "label": "Support line",
+          "kind": "text",
+          "max": 80,
+          "hint": "The email from Company & contact details follows it."
         }
       ]
     }

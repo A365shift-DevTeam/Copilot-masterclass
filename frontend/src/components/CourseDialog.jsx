@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowRight, CalendarDays, Check, X } from 'lucide-react'
-import { COPILOT_ICON } from '../data/content.js'
+import { COPILOT_ICON, label } from '../data/content.js'
 import { SalePrice } from './ui/SaleBanner.jsx'
 import { startCheckout } from './CheckoutDialog.jsx'
 
@@ -28,18 +28,18 @@ export default function CourseDialog({ course, onClose }) {
           <Dialog.Portal>
             <Dialog.Overlay className="legal-dialog__overlay" />
             <Dialog.Content className="legal-dialog course-dialog" aria-describedby={undefined}>
-              <Dialog.Close className="course-dialog__close" aria-label="Close">
+              <Dialog.Close className="course-dialog__close" aria-label={label('close')}>
                 <X size={18} aria-hidden />
               </Dialog.Close>
               <div className="course-dialog__body" data-lenis-prevent>
-                <div className="eyebrow eyebrow--green">AMBOT365 · COURSE DETAILS</div>
+                <div className="eyebrow eyebrow--green">{label('courseEyebrow')}</div>
                 <header className="plan__head">
                   <span className="plan__icon"><img src={COPILOT_ICON} alt="" /></span>
                   <Dialog.Title className="plan__name">{title}</Dialog.Title>
                 </header>
                 {meta && <p className="course-dialog__meta"><CalendarDays aria-hidden="true" />{meta}</p>}
-                {facts?.map(([label, value]) => (
-                  <p key={label} className="course-dialog__fact"><strong>{label}:</strong> {value}</p>
+                {facts?.map((f, i) => (
+                  <p key={i} className="course-dialog__fact"><strong>{f.label}:</strong> {f.value}</p>
                 ))}
                 {desc && (
                   <p className="course-dialog__desc">
@@ -48,22 +48,22 @@ export default function CourseDialog({ course, onClose }) {
                   </p>
                 )}
                 {pointsHeading && <h3 className="course-dialog__heading">{pointsHeading}</h3>}
-                {points && (
+                {points?.length > 0 && (
                   <ul className="plan__features">
-                    {points.map((p) => <li key={p}><Check aria-hidden="true" />{p}</li>)}
+                    {points.map((p, i) => <li key={i}><Check aria-hidden="true" />{p}</li>)}
                   </ul>
                 )}
               </div>
               <footer className="course-dialog__footer">
                 <div>
-                  <p className="course-dialog__fee-label">Program fee</p>
+                  <p className="course-dialog__fee-label">{label('courseFeeLabel')}</p>
                   <p className="plan__price course-dialog__fee"><SalePrice price={price} originalPrice={originalPrice} /></p>
                 </div>
                 <div className="course-dialog__actions">
-                  <Dialog.Close className="course-dialog__ghost">Close</Dialog.Close>
+                  <Dialog.Close className="course-dialog__ghost">{label('close')}</Dialog.Close>
                   <a href={url} target="_blank" rel="noopener noreferrer" className="btn-primary"
                     onClick={(e) => { rippleClick(e); if (startCheckout(e, key)) onClose() }}>
-                    Register <ArrowRight aria-hidden="true" />
+                    {label('courseRegister')} <ArrowRight aria-hidden="true" />
                     <span className="btn-shine" />
                   </a>
                 </div>

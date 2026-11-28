@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { ArrowUpRight, MapPin, X } from 'lucide-react'
-import { TRAINER, EXPERTISE, PAYMENT_URL, HERO_PRICES } from '../data/content.js'
+import { PAYMENT_URL, HERO_PRICES, SHARED, fill, label } from '../data/content.js'
 import { startCheckout } from './CheckoutDialog.jsx'
 import useTypewriter from '../hooks/useTypewriter.js'
 import { LinkedinIcon } from './ui/SocialIcons.jsx'
@@ -9,11 +9,11 @@ import FounderVoice from './ui/FounderVoice.jsx'
 import './trainer-profile.css'
 
 const BOT_AVATAR = '/assets/ambot-bot.webp'
-const QUESTION = `Who is ${TRAINER.name}, my trainer?`
+// The photo stays a file until images come from the admin.
+const PHOTO = '/assets/fonunder-200.webp'
 
-// The bio streams word by word, paragraph breaks kept.
-const BIO_WORDS = TRAINER.bio.map((p) => p.split(' '))
-const TOTAL_WORDS = BIO_WORDS.reduce((n, p) => n + p.length, 0)
+// Site-wide content > Trainer profile, read when the profile renders.
+const trainer = () => SHARED.trainer ?? { name: '', bio: [], typed: [''], path: [], expertise: [], services: [] }
 
 /*
  * The reply is one orchestrated sequence, gated by stage:
@@ -64,6 +64,11 @@ function CountUp({ value, run }) {
 }
 
 function ProfileThread({ reduced }) {
+  const T = trainer()
+  const QUESTION = fill(T.question, { name: T.name })
+  // The bio streams word by word, paragraph breaks kept.
+  const BIO_WORDS = T.bio.map((p) => p.text.split(' '))
+  const TOTAL_WORDS = BIO_WORDS.reduce((n, p) => n + p.length, 0)
   const [stage, setStage] = useState(reduced ? DONE : 0)
   const [chars, setChars] = useState(reduced ? QUESTION.length : 0)
   const [words, setWords] = useState(reduced ? TOTAL_WORDS : 0)
@@ -84,7 +89,7 @@ function ProfileThread({ reduced }) {
       t = setTimeout(() => setStage((s) => s + 1), STAGE_HOLD[stage])
     }
     return () => clearTimeout(t)
-  }, [stage, chars, words])
+  }, [stage, chars, words]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Follow the reply down as it grows, until the reader scrolls themselves.
   useEffect(() => {
@@ -139,7 +144,7 @@ function ProfileThread({ reduced }) {
             <img className="tp-reply__bot" src={BOT_AVATAR} alt="" width="36" height="36" />
             <div className="tp-reply__body">
               {stage === 1 ? (
-                <span className="tp-thinking" role="status" aria-label="Writing">
+                <span className="tp-thinking" role="status" aria-label={T.writingLabel}>
                   <i /><i /><i />
                 </span>
               ) : (
@@ -150,10 +155,10 @@ function ProfileThread({ reduced }) {
 
                   {stage >= 3 && (
                     <div className="tp-block">
-                      <h3>Career path</h3>
+                      <h3>{T.pathTitle}</h3>
                       <ol className="tp-path">
-                        {TRAINER.path.map((x, i) => (
-                          <li key={x.org} style={{ '--i': i }}>
+                        {T.path.map((x, i) => (
+                          <li key={i} style={{ '--i': i }}>
                             <span className="tp-path__step" aria-hidden="true">{i + 1}</span>
                             <div>
                               <p className="tp-path__org">{x.org}</p>
@@ -168,12 +173,12 @@ function ProfileThread({ reduced }) {
 
                   {stage >= 4 && (
                     <div className="tp-block">
-                      <h3>Track record</h3>
+                      <h3>{T.statsTitle}</h3>
                       <ul className="tp-stats">
-                        {EXPERTISE.map((e, i) => (
-                          <li key={e.v} style={{ '--i': i }}>
-                            <b><CountUp value={e.v} run={!reduced} /></b>
-                            <span>{e.l}</span>
+                        {T.expertise.map((e, i) => (
+                          <li key={i} style={{ '--i': i }}>
+                            <b><CountUp value={e.value} run={!reduced} /></b>
+                            <span>{e.label}</span>
                           </li>
                         ))}
                       </ul>
@@ -182,9 +187,9 @@ function ProfileThread({ reduced }) {
 
                   {stage >= 5 && (
                     <div className="tp-block">
-                      <h3>Services</h3>
+                      <h3>{T.servicesTitle}</h3>
                       <ul className="tp-tags">
-                        {TRAINER.services.map((s, i) => <li key={s} style={{ '--i': i }}>{s}</li>)}
+                        {T.services.map((s, i) => <li key={i} style={{ '--i': i }}>{s}</li>)}
                       </ul>
                     </div>
                   )}
@@ -197,15 +202,17 @@ function ProfileThread({ reduced }) {
 
       <footer className="tp-suggest">
         {stage < DONE ? (
-          <button type="button" className="tp-skip" onClick={skip}>Show all</button>
+          <button type="button" className="tp-skip" onClick={skip}>{T.showAll}</button>
         ) : (
           <>
-            <FounderVoice className="tp-chip tp-chip--voice" label="Hear from Ambrose" />
-            <a className="tp-chip tp-chip--li" href={TRAINER.linkedin} target="_blank" rel="noopener noreferrer">
-              <LinkedinIcon size={15} /> Open LinkedIn
-            </a>
+            <FounderVoice className="tp-chip tp-chip--voice" label={T.voiceLabel} />
+            {T.linkedin && (
+              <a className="tp-chip tp-chip--li" href={T.linkedin} target="_blank" rel="noopener noreferrer">
+                <LinkedinIcon size={15} /> {T.linkedinLabel}
+              </a>
+            )}
             <a className="tp-chip tp-chip--cta" href={PAYMENT_URL} onClick={(e) => startCheckout(e, 'webinar')}>
-              Reserve your seat for ₹{HERO_PRICES[0].price.toLocaleString('en-IN')} <ArrowUpRight aria-hidden="true" />
+              {T.reserveLabel} ₹{(HERO_PRICES[0].price ?? 0).toLocaleString('en-IN')} <ArrowUpRight aria-hidden="true" />
             </a>
           </>
         )}
@@ -220,32 +227,33 @@ function ProfileThread({ reduced }) {
  * conversation, which suits a Copilot class.
  */
 export default function TrainerProfile() {
+  const T = trainer()
   const [open, setOpen] = useState(false)
   const reduced = useReducedMotion()
   const { displayedText } = useTypewriter({
-    text: TRAINER.typed,
+    text: T.typed,
     typingSpeed: 38,
     deletingSpeed: 18,
     pauseDuration: 1500,
     deletePauseDuration: 200,
     loop: true,
   })
-  const line = reduced ? TRAINER.typed[0] : displayedText
+  const line = reduced ? T.typed[0] : displayedText
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="trainer-chip" aria-label={`Know your trainer: view ${TRAINER.name}'s profile`}>
+      <Dialog.Trigger className="trainer-chip" aria-label={fill(T.chipLabel, { name: T.name })}>
         <span className="trainer-chip__avatar" aria-hidden="true">
-          <img src={TRAINER.photo} alt="" width="56" height="56" decoding="async" />
+          <img src={PHOTO} alt="" width="56" height="56" decoding="async" />
         </span>
         <span className="trainer-chip__text" aria-hidden="true">
-          <span className="trainer-chip__lead">Your trainer</span>
+          <span className="trainer-chip__lead">{T.chipLead}</span>
           <span className="trainer-chip__typed">
             {line || '​'}
             {!reduced && <span className="trainer-chip__cursor" />}
           </span>
         </span>
-        <span className="trainer-chip__cta" aria-hidden="true">View profile</span>
+        <span className="trainer-chip__cta" aria-hidden="true">{T.chipCta}</span>
       </Dialog.Trigger>
 
       <Dialog.Portal>
@@ -254,14 +262,14 @@ export default function TrainerProfile() {
           <header className="tp-head">
             <span className="tp-head__aurora" aria-hidden="true"><i /><i /><i /></span>
             <span className="tp-head__ring">
-              <img src={TRAINER.photo} alt={TRAINER.name} width="76" height="76" />
+              <img src={PHOTO} alt={T.name} width="76" height="76" />
             </span>
             <div className="tp-head__text">
-              <Dialog.Title className="tp-head__name">{TRAINER.name}</Dialog.Title>
-              <p className="tp-head__role">{TRAINER.role}</p>
-              <p className="tp-head__place"><MapPin aria-hidden="true" />{TRAINER.location}</p>
+              <Dialog.Title className="tp-head__name">{T.name}</Dialog.Title>
+              <p className="tp-head__role">{T.role}</p>
+              <p className="tp-head__place"><MapPin aria-hidden="true" />{T.location}</p>
             </div>
-            <Dialog.Close className="tp-close" aria-label="Close">
+            <Dialog.Close className="tp-close" aria-label={label('close')}>
               <X size={18} aria-hidden />
             </Dialog.Close>
           </header>

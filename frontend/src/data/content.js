@@ -17,160 +17,19 @@ export let WHATSAPP_COMMUNITY_URL = null
    Agenda and FAQ were dropped because Agenda.jsx and Faq.jsx are commented
    out there — re-add them here if those sections come back. */
 
-/* 1:1 coaching programmes shown after the Speaker section. Hidden until the admin
-   sends them; name, price, package price and link come from there. */
-export const PROGRAMMES = [
-  {
-    key: 'skill-builder',
-    hidden: true,
-    tagline: 'Build hands-on Copilot skills with a personal coach.',
-    points: ['15-day programme', '2.5 hours of 1:1 coaching', '5 calls of 30 minutes'],
-  },
-  {
-    key: 'project-builder',
-    hidden: true,
-    tagline: 'Ship a real AI project with guided reviews.',
-    points: ['30-day programme', '5 hours of 1:1 coaching', 'Project guidance and review'],
-    featured: true,
-  },
-]
+/* 1:1 coaching programmes (the coaching section). Hidden until the admin sends them: name, price, package
+   price and link come from Pricing & dates, the tagline and points from the section's content. */
+export const PROGRAMMES = ['skill-builder', 'project-builder'].map((key) => ({ key, hidden: true }))
 
 /* Shown under "Join the Webinar" in the hero: the webinar's next date from the admin. */
 export let WEBINAR_DATE = ''
 /* The webinar's later dates from the admin (after the one in WEBINAR_DATE), written the same way. */
 export let MORE_DATES = []
 
-export const HERO_CHECKS = ['Live demonstration', 'Practical use cases', 'Q&A session', 'Limited seats']
-
-/* Hero price table. `name`, `price`, `url` (where Register goes) and the dates come
-   from the admin; an entry it doesn't send stays hidden.
-   The rest fills the "View details" popup; every popup field is optional:
-   `meta` bold line, `facts` [label, value] lines, `descLead` bold start of
-   `desc`, `pointsHeading` above the `points` list.
-   The first entry gets the row highlight.
-   `scene`, `format`, `summary` and `highlights` drive the Other Programs cards
-   (`formatIcon: 'excel'` puts the Excel logo in the format label)
-   (Programs.jsx); `scene` picks the animated header: excel | video | coach | workshop. */
-export const HERO_PRICES = [
-  {
-    key: 'webinar',
-    hidden: true,
-    title: 'Microsoft Copilot Live Webinar – Tamil',
-    meta: '',
-    desc: 'Explore Microsoft 365 apps, AI tips and tricks through live Copilot product demonstrations.',
-    pointsHeading: 'What you will explore',
-    points: [
-      'Copilot fundamentals',
-      'Building AI agents and skills',
-      'Excel, Word and PowerPoint',
-      'Copilot Notebook',
-      'AI image generation',
-      'Building AI apps',
-      'Practical demonstrations and Q&A',
-    ],
-  },
-  {
-    key: 'excel',
-    hidden: true,
-    title: 'Microsoft Excel with Copilot',
-    scene: 'excel',
-    format: 'Excel only',
-    formatIcon: 'excel',
-    summary: 'Analyse data, build workflows and practise on sample datasets with Copilot in Excel.',
-    highlights: ['80% Excel, 20% Word and PowerPoint', 'Build Copilot skills and agents'],
-    descLead: 'End-to-end Excel with Copilot',
-    desc: 'training with practical examples, demonstrations and sample datasets.',
-    points: [
-      '80% Excel: Copilot in Excel, end-to-end workflows, data analysis, practical exercises and sample data',
-      '10% PowerPoint: Copilot tips for presentations',
-      '10% Word: Copilot tips for documents',
-      'Building Copilot skills and agents',
-    ],
-  },
-  {
-    key: 'recorded',
-    hidden: true,
-    title: 'Copilot Recorded Videos',
-    scene: 'video',
-    format: 'Self-paced',
-    summary: 'Watch the Copilot demonstrations and workflows whenever it suits you.',
-    highlights: ['Tamil and English', 'One-time payment'],
-    facts: [['Languages', 'Tamil / English']],
-    desc: 'One-time recorded videos for flexible, self-paced viewing of Microsoft Copilot demonstrations and workflows.',
-  },
-  {
-    key: 'project-support',
-    hidden: true,
-    title: '1-to-1 Project Support – 15 Days',
-    scene: 'coach',
-    format: '1-to-1, 15 days',
-    summary: 'Bring a real problem and build your Copilot project with personal guidance.',
-    highlights: ['3 hours of one-to-one calls', 'Progress tracking tool included'],
-    facts: [
-      ['Languages', 'Tamil / English'],
-      ['Duration', '15 days'],
-      ['One-to-one calls', '3 hours total'],
-    ],
-    points: [
-      'Identify and define your real-world problem',
-      'Receive access to a personalized tool to monitor project progress',
-      'Build your Copilot project with guided one-to-one support',
-      'Schedule calls flexibly based on project requirements',
-      'Work through implementation and delivery',
-    ],
-  },
-  {
-    key: 'workshop',
-    hidden: true,
-    title: 'Offline Copilot Workshop – Chennai',
-    scene: 'workshop',
-    format: 'In person, Chennai',
-    summary: 'A full day of hands-on Copilot demonstrations, in Tamil.',
-    highlights: ['Date to be announced', 'Venue to be announced'],
-    facts: [
-      ['Language', 'Tamil'],
-      ['Date', 'To be announced'],
-      ['Format', 'One-day, in-person workshop'],
-      ['Venue', 'Chennai; exact venue to be announced'],
-    ],
-    desc: 'Hands-on Copilot demonstrations covering:',
-    points: [
-      'Excel, Word and PowerPoint',
-      'Building Copilot agents and skills',
-      'Copilot Notebook',
-      'OneDrive and SharePoint',
-      'Microsoft Forms and To Do',
-      'Microsoft Bookings',
-    ],
-  },
-]
-
-/* The founder profile: the hero "know your trainer" chip, its popup, and the
-   Speaker section's bio all read from here. Public LinkedIn shows only the
-   location, current company, the 14 years at TCS and the services list. */
-export const TRAINER = {
-  name: 'Ambrose Denny',
-  photo: '/assets/fonunder-200.webp',
-  role: 'Founder & CEO, AmBot365',
-  tags: 'AI • Automation • Microsoft 365 Solutions',
-  location: 'Dubai, UAE · Coimbatore, India',
-  linkedin: 'https://www.linkedin.com/in/ambrose-denny-39320692/',
-  // Cycled by the typewriter beside the photo.
-  typed: ['Know your trainer', 'Ambrose Denny', '18+ years in automation', 'Microsoft 365 & Copilot trainer'],
-  bio: [
-    'Ambrose brings extensive experience across Microsoft 365, Business Automation, Lean Transformation, AI and Digital Transformation. His journey spans corporate transformation, large-scale automation delivery, product development and building AmBot365 across India and the UAE, with experience presenting solutions to VPs, Directors, senior business leaders and Ministers.',
-    'Today, he transforms this real-world experience into structured, visual and practical learning, helping professionals learn, apply and replicate Microsoft Copilot, AI and automation solutions in their workplace.',
-  ],
-  // In order: where he started, what he built, what he does now.
-  path: [
-    { org: 'Tata Consultancy Services', role: '14 years of global experience', note: 'Specialised automation skills, built on global delivery.' },
-    { org: 'AmBot365', role: 'Founder & CEO', note: 'RPA, Microsoft 365, AI and analytics solutions across India and the UAE.' },
-    { org: 'Copilot trainer', role: 'Today', note: 'Structured, visual, practical learning you can repeat at work.' },
-  ],
-  services: ['Data reporting', 'Application development', 'IT consulting', 'Custom software development', 'Business analytics', 'Business consulting'],
-}
-
-export const HERO_TITLE_PHRASES = ['Master Prompt', 'Develop AI Skills', 'Build Intelligent Agents']
+/* The programs the hero and "Other programs" sell, in order ([0] is the webinar the hero leads with).
+   Name, price, link and dates come from Pricing & dates; the title, description, points, facts and card
+   text from Site-wide content > Program details. An entry the admin doesn't send stays hidden. */
+export const HERO_PRICES = ['webinar', 'excel', 'recorded', 'project-support', 'workshop'].map((key) => ({ key, hidden: true }))
 
 // Left column = what the agent reads from. Right column = where it acts.
 export const AGENT_APPS = [
@@ -182,40 +41,6 @@ export const AGENT_APPS = [
   { id: 'teams', name: 'Teams', mono: 'T', file: 'microsoft-365/teams.svg', side: 'out' },
   { id: 'copilot-chat', name: 'Copilot Chat', mono: 'C', file: 'copilot/copilot-365.svg', side: 'out' },
   { id: 'sharepoint', name: 'SharePoint', mono: 'S', file: 'microsoft-365/sharepoint.svg', side: 'out' },
-]
-
-export const BENEFITS = [
-  { i: 'LT', icon: 'live', t: 'Live Training', d: 'Instructor-led interactive webinar.' },
-  { i: 'UC', icon: 'cases', t: 'Real Use Cases', d: 'Practical Microsoft 365 scenarios.' },
-  { i: 'WF', icon: 'workflow', t: 'AI Workflows', d: 'Reusable productivity techniques.' },
-  { i: 'QA', icon: 'qa', t: 'Q&A', d: 'Ask implementation questions directly.' },
-  { i: 'LM', icon: 'materials', t: 'Learning Materials', d: 'Resources and checklists where applicable.' },
-]
-
-// The founder's credentials as pills: `v` is the figure that leads, `l` says
-// what it counts.
-export const EXPERTISE = [
-  { v: '18+ Years', l: 'Professional Experience' },
-  { v: '47+ Clients', l: 'Global Delivery Experience' },
-  { v: 'Microsoft 365', l: 'Expertise' },
-  { v: '1,200+', l: 'Automation Deliveries' },
-  { v: '200+', l: 'Lean Projects' },
-  { v: '10+', l: 'Products Built' },
-  { v: 'India Patent', l: 'Innovation' },
-]
-
-/* ⚠️ MOCK DATA — NOT REAL PEOPLE, NOT REAL QUOTES.
-   Written to design and test the feedback strip. Every name, role and quote
-   below is invented. Swap the whole array for verified participant feedback
-   before this page goes live: publishing invented reviews attributed to named
-   people is a legal and trust problem, not just a content gap. */
-export const TESTIMONIALS = [
-  { rating: 5, quote: 'I automated my monthly sales report in Excel the same week. What took a full day now takes twenty minutes.', name: 'Priya Raghavan', role: 'Sales Manager' },
-  { rating: 5, quote: 'Building an agent in Copilot Studio was the part I expected to lose. Ambrose walked it through without jargon.', name: 'Vinod Menon', role: 'Operations Head' },
-  { rating: 5, quote: 'Our finance team drafts the month-end summary with Copilot now and reviews it, instead of retyping it.', name: 'Fatima Al-Harbi', role: 'Finance Lead' },
-  { rating: 4, quote: 'Practical from the first minute. Every demonstration used a task I actually do on a Monday morning.', name: 'Sneha Kulkarni', role: 'HR Manager' },
-  { rating: 5, quote: 'I came for the Excel tips and left with a prompt library I reuse across Word and Outlook every day.', name: 'Arjun Desai', role: 'Business Owner' },
-  { rating: 5, quote: 'Straight answers in the Q&A, even on the awkward rollout and licensing questions.', name: 'Rahul Iyer', role: 'IT Administrator' },
 ]
 
 export const INCLUDED = ['Live training', 'Demonstrations', 'Q&A', 'Practical examples', 'Learning resources']
@@ -299,6 +124,10 @@ export let PREVIEW = null
 
 /* A link that points at a section on this page (#pricing) only counts while that section is shown;
    any other link always does. */
+/* A label from Site-wide content > Buttons, popups & messages, with {name}-style blanks filled from `vars`. */
+export const fill = (text, vars = {}) => (text ?? '').replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m))
+export const label = (key, vars) => fill(SHARED.labels?.[key], vars)
+
 export const linkLive = (href) => !href?.startsWith('#') || SECTIONS.some((s) => s.anchor === href)
 
 /* The offer the site-wide sale banner shows: the webinar's, else the first
@@ -331,6 +160,15 @@ export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [], sec
   // with what it saves on that program.
   const promo = courses.find((c) => c.key === 'webinar' && c.offer) ?? courses.find((c) => c.offer && c.isVisible)
   SALE = promo ? { ...promo.offer, key: promo.key, title: promo.cardTitle || promo.name, price: Number(promo.price), originalPrice: Number(promo.originalPrice ?? promo.price), url: promo.paymentUrl } : null
+  // Each program's copy, fresh on every load (the dates below write into it).
+  const details = shared['program-details']?.items ?? []
+  for (const hero of HERO_PRICES) {
+    const d = details.find((x) => x.key === hero.key)
+    Object.assign(hero, {
+      hidden: true, title: '', meta: '', descLead: '', desc: '', pointsHeading: '', points: [], facts: [],
+      scene: '', format: '', formatIcon: '', summary: '', highlights: [],
+    }, d && structuredClone(d))
+  }
   for (const k of Object.keys(CHECKOUT)) delete CHECKOUT[k]
   for (const c of courses) {
     if (c.checkout) CHECKOUT[c.key] = {
@@ -347,19 +185,19 @@ export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [], sec
       })
       if (c.key === 'webinar') {
         // The API sends the next date; once every date has passed there is none to show.
-        if (!c.startsAt && courses.some((x) => x.key === 'webinar')) WEBINAR_DATE = 'New dates announced soon'
+        if (!c.startsAt && courses.some((x) => x.key === 'webinar')) WEBINAR_DATE = label('noDates')
         MORE_DATES = (c.upcoming ?? []).slice(1).map(whenLine)
       }
       if (c.startsAt) {
         const facts = hero.facts ?? []
-        const setFact = (label, value) => { const f = facts.find(([l]) => l === label); if (f) f[1] = value }
+        const setFact = (name, value) => { const f = facts.find((x) => x.label === name); if (f) f.value = value }
         if (c.key === 'webinar') {
           const longSpan = c.endsAt ? ` · ${istTime(c.startsAt)} – ${istTime(c.endsAt)} IST` : ''
           WEBINAR_DATE = whenLine(c)
           if (c.language) hero.title = hero.title.replace(/– [^–]+$/, `– ${c.language}`)
           hero.meta = `${longDay(c.startsAt)}${longSpan}${c.language ? ` · ${c.language}` : ''}`
         } else if (c.key === 'workshop') {
-          hero.highlights[0] = longDay(c.startsAt)
+          if (hero.highlights.length) hero.highlights[0] = longDay(c.startsAt)
           setFact('Date', longDay(c.startsAt).split(', ')[1])
         }
         if (c.language) { setFact('Language', c.language); setFact('Languages', c.language) }

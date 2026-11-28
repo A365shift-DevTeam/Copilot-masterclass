@@ -1,4 +1,4 @@
-import { PAYMENT_URL } from '../data/content.js'
+import { HERO_PRICES, PAYMENT_URL, label } from '../data/content.js'
 import ReserveSeatLabel, { ReserveSeatBot } from './ReserveSeatLabel.jsx'
 import { startCheckout } from './CheckoutDialog.jsx'
 import './seat-reveal.css'
@@ -15,7 +15,9 @@ import './seat-reveal.css'
  * once per frame by SeatScrollExperience from the single scroll progress value.
  * Each one only feeds an opacity and a transform.
  */
-export default function SeatReveal({ onBook, tabbable = false, amount }) {
+/* `amount` overrides the price shown; without it, the webinar's price from the admin (it was blank before). */
+export default function SeatReveal({ onBook, tabbable = false, amount: given, content }) {
+  const amount = given ?? (HERO_PRICES[0].price ?? 0).toLocaleString('en-IN')
   const openBookingModal = () => {
     if (onBook) {
       onBook()
@@ -37,13 +39,13 @@ export default function SeatReveal({ onBook, tabbable = false, amount }) {
       <div className="seat-reveal__copy">
         <div className="seat-reveal__card">
           <h3 className="seat-reveal__headline">
-            <span>Your Seat</span>
-            <span>Is Waiting</span>
+            <span>{content.headline1}</span>
+            <span>{content.headline2}</span>
           </h3>
 
           <p className="seat-reveal__price">
             <span className="seat-reveal__amount">&#8377;{amount}</span>
-            <span className="seat-reveal__only">Only</span>
+            <span className="seat-reveal__only">{content.onlyLabel}</span>
           </p>
         </div>
 
@@ -53,7 +55,7 @@ export default function SeatReveal({ onBook, tabbable = false, amount }) {
             className="seat-reveal__cta"
             onClick={openBookingModal}
             tabIndex={tabbable ? 0 : -1}
-            aria-label={`Reserve your seat for just ₹${amount}`}
+            aria-label={`${label('reserveLabel')} ₹${amount}`}
           >
             <span><ReserveSeatLabel amount={amount} /></span>
             {/* The site's existing sweep, same as the hero's "Reserve My Seat" */}

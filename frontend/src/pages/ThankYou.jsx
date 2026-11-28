@@ -20,12 +20,15 @@ export function WhatsAppIcon() {
 /* The payment page redirects here after a successful checkout. The page
  * cannot verify the payment itself, so anyone opening /thank-you directly
  * also fires the Purchase event. */
+/* Its text is Site-wide content > Thank-you page; it renders again once that arrives. */
 export default function ThankYou() {
   const confettiRef = useRef(null)
   const leaving = useRef(false)
+  const c = SHARED['thank-you'] ?? {}
+
+  useEffect(() => { if (c.pageTitle) document.title = c.pageTitle }, [c.pageTitle])
 
   useEffect(() => {
-    document.title = 'Payment Successful - Copilot AmBot365'
 
     // Post-payment page: keep it out of search results.
     const robots = document.querySelector('meta[name="robots"]')
@@ -84,27 +87,27 @@ export default function ThankYou() {
           </span>
         </div>
 
-        <p className="ty__badge">Payment Successful</p>
+        <p className="ty__badge">{c.badge}</p>
 
         <h1 className="ty__title">
-          Thank You!
+          {c.title}
           <br />
           <span className="ty__seat">
-            Your Seat is <span className="ty__confirmed">Confirmed</span>
+            {c.seatLine} <span className="ty__confirmed">{c.seatHighlight}</span>
           </span>
         </h1>
 
         <p className="ty__lead">
-          You're registered for the
+          {c.leadLine}
           <br />
-          <strong>Microsoft 365 Copilot Masterclass.</strong>
+          <strong>{c.leadStrong}</strong>
         </p>
 
         {/* The invite comes from the admin's Settings; without it there's nothing to join. */}
         {WHATSAPP_COMMUNITY_URL && (
           <>
             <p className="ty__desc">
-              Join our WhatsApp Community to receive session updates, joining links, reminders, and important announcements.
+              {c.whatsappText}
             </p>
 
             <a
@@ -116,9 +119,9 @@ export default function ThankYou() {
                 <WhatsAppIcon />
               </span>
               <span className="ty__wa-text">
-                Join the
+                {c.whatsappLine1}
                 <br />
-                WhatsApp Community
+                {c.whatsappLine2}
                 <ChevronRight aria-hidden="true" />
               </span>
             </a>
@@ -130,7 +133,7 @@ export default function ThankYou() {
             <Mail strokeWidth={1.75} />
           </span>
           <p>
-            For any support, email us at
+            {c.supportLine}
             <br />
             <a href={`mailto:${email}`}>{email}</a>
           </p>
