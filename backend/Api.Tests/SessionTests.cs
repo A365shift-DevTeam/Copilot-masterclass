@@ -1,4 +1,4 @@
-using Api;
+using Domain;
 
 namespace Api.Tests;
 

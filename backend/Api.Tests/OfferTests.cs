@@ -1,4 +1,5 @@
-using Api;
+using Application.Gateways;
+using Domain;
 
 namespace Api.Tests;
 
