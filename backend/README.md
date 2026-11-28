@@ -1,6 +1,15 @@
 # Masterclass admin
 
-`Api/` is an ASP.NET Core 9 API on PostgreSQL. `admin/` is the admin UI (React + Vite), built into `Api/wwwroot` and served by the API, so the admin and API share one origin.
+The API is ASP.NET Core 9 on PostgreSQL, in four projects (clean architecture; each depends only on the ones above it):
+
+| Project | Holds |
+|---|---|
+| `Domain/` | Entities and their rules: programs, sessions, offers and sale pricing, payments, registrations. No dependencies. |
+| `Application/` | One service per area (`Site/`, `Programs/`, `Ledger/`, `Settings/`, `Admins/`, `Reports/`) plus registration forms and Razorpay event handling. Talks to the outside through the interfaces in `Common/Abstractions.cs`. |
+| `Infrastructure/` | EF Core + Npgsql (`AppDb`, migrations, seed), the encrypted settings store, the Razorpay HTTP client. |
+| `Api/` | The host: sign-in, CORS, rate limits, and the routes in `Endpoints/`. A refused request is an `AppException`, answered as a problem with `detail`. |
+
+`Api.Tests/` tests the pure rules in Domain and Application. `admin/` is the admin UI (React + Vite), built into `Api/wwwroot` and served by the API, so the admin and API share one origin.
 
 What the admin manages:
 - Program names, prices, payment links, session dates (IST), language, and whether each program shows on the site.
@@ -86,10 +95,10 @@ Set `VITE_API_URL=https://<api host>` in `frontend/.env.local` (or the build env
 
 ## Database
 
-Schema changes go through EF migrations (`dotnet ef migrations add <Name> --project Api`, from `backend/`; the tool is pinned in `.config/dotnet-tools.json`, so run `dotnet tool restore` first). `../database/schema.sql` is the idempotent SQL for a DBA to apply by hand:
+Schema changes go through EF migrations (`dotnet ef migrations add <Name> --project Infrastructure --startup-project Api`, from `backend/`; the tool is pinned in `.config/dotnet-tools.json`, so run `dotnet tool restore` first). `../database/schema.sql` is the idempotent SQL for a DBA to apply by hand:
 
 ```sh
-dotnet ef migrations script --idempotent --project Api -o ../database/schema.sql
+dotnet ef migrations script --idempotent --project Infrastructure --startup-project Api -o ../database/schema.sql
 ```
 
 ## Hosting on IIS (learnaiapi.ambot365.com)
