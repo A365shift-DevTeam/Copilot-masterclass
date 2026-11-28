@@ -14,7 +14,7 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import useReveal from '../hooks/useReveal.js'
-import { ATTENDEES, LICENSE_NOTE, LEARN, LEARN_FLOW_APPS } from '../data/content.js'
+import { LEARN_FLOW_APPS } from '../data/content.js'
 
 const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
 const TOP = 96 // where cards pin, in px from the top of the viewport
@@ -187,22 +187,22 @@ function useStack(stackRef, count, onFront) {
   }, [stackRef, count, onFront])
 }
 
-function Card({ item, index, front }) {
+function Card({ item, index, front, count, promptLabel }) {
   const { out, done } = useTyped(item.prompt, front)
   return (
     <article
-      className={`st__card st__card--${item.code.toLowerCase()}${front ? ' is-front' : ''}`}
+      className={`st__card st__card--${item.style}${front ? ' is-front' : ''}`}
       style={{ '--i': index, top: TOP + index * STEP }}
     >
       <div className="st__card-main">
         <span className="st__code" aria-hidden="true"><OutcomeIcon name={item.icon} /></span>
         <div>
-          <h4 className="st__card-title">{item.t}</h4>
-          <p className="st__card-desc">{item.d}</p>
+          <h4 className="st__card-title">{item.title}</h4>
+          <p className="st__card-desc">{item.text}</p>
         </div>
       </div>
       <div className="st__card-side">
-        {item.code === 'CA' && (
+        {item.style === 'ca' && (
           <span className="st__card-apps" aria-hidden="true">
             {LEARN_FLOW_APPS.map((a) => (
               <span key={a.id} className="st__card-app"><AppIcon file={a.file} mono={a.mono} name="" /></span>
@@ -210,7 +210,7 @@ function Card({ item, index, front }) {
           </span>
         )}
         <div className="st__prompt" aria-hidden="true">
-          <span className="st__prompt-label">Example prompt</span>
+          <span className="st__prompt-label">{promptLabel}</span>
           <div className="st__prompt-bar">
             <span className="st__prompt-app"><AppIcon file="copilot/copilot-365.svg" mono="C" name="" /></span>
             <span className="st__prompt-text">{out}<i className={`st__caret${done ? ' is-idle' : ''}`} /></span>
@@ -218,7 +218,7 @@ function Card({ item, index, front }) {
           </div>
         </div>
       </div>
-      <span className="st__count" aria-hidden="true">{index + 1}<em>/{LEARN.length}</em></span>
+      <span className="st__count" aria-hidden="true">{index + 1}<em>/{count}</em></span>
     </article>
   )
 }
@@ -227,8 +227,8 @@ function Card({ item, index, front }) {
    seconds; hovering holds it. Reduced motion shows the first one still. */
 const BADGE_DWELL = 2600
 
-function Badge({ index, held, onHold }) {
-  const a = ATTENDEES[index]
+function Badge({ c, index, held, onHold }) {
+  const a = c.attendees[index % c.attendees.length]
   return (
     <div
       className={`st__badge${held ? ' is-held' : ''}`}
@@ -241,39 +241,40 @@ function Badge({ index, held, onHold }) {
       <div className="st__badge-card">
         <div className="st__badge-top">
           <img className="st__badge-logo" src="/assets/logo-icon.webp" alt="" width="34" height="34" loading="lazy" decoding="async" />
-          <span className="st__badge-event">Copilot<br />Masterclass</span>
+          <span className="st__badge-event">{c.badgeEvent1}<br />{c.badgeEvent2}</span>
         </div>
         <div className="st__badge-body">
-          <span className="st__badge-label">Attendee</span>
-          <span key={a.t} className="st__badge-name">
+          <span className="st__badge-label">{c.badgeLabel}</span>
+          <span key={index} className="st__badge-name">
             {a.mark && <span className="st__badge-mark"><Mark kind={a.mark} /></span>}
-            {a.t}
+            {a.title}
           </span>
-          <span className="st__badge-role">Microsoft 365 &middot; Copilot</span>
+          <span className="st__badge-role">{c.badgeRole}</span>
         </div>
         <div className="st__badge-foot">
           <span className="st__badge-bars" />
-          <span className="st__badge-seat">Seat reserved</span>
+          <span className="st__badge-seat">{c.badgeSeat}</span>
         </div>
       </div>
     </div>
   )
 }
 
-export default function AttendLearn() {
+/* Part of the Benefits section; its text is that section's content. */
+export default function AttendLearn({ content: c }) {
   const whoRef = useReveal()
   const headRef = useReveal()
   const stackRef = useRef(null)
   const [front, setFront] = useState(0)
-  useStack(stackRef, LEARN.length, setFront)
+  useStack(stackRef, c.outcomes.length, setFront)
 
   const [who, setWho] = useState(0)
   const [held, setHeld] = useState(false)
   useEffect(() => {
     if (held || reduced()) return
-    const id = setInterval(() => setWho((k) => (k + 1) % ATTENDEES.length), BADGE_DWELL)
+    const id = setInterval(() => setWho((k) => (k + 1) % c.attendees.length), BADGE_DWELL)
     return () => clearInterval(id)
-  }, [held])
+  }, [held, c.attendees.length])
 
   return (
     <div className="st">
@@ -281,20 +282,19 @@ export default function AttendLearn() {
           audiences, and a list beside it that follows. */}
       <div id="who" ref={whoRef} className="st__who">
         <div className="st__who-intro">
-          <div className="eyebrow eyebrow--teal">WHO IT IS FOR</div>
-          <h3 className="st__title">Who Should Attend?</h3>
+          <div className="eyebrow eyebrow--teal">{c.whoEyebrow}</div>
+          <h3 className="st__title">{c.whoHeading}</h3>
           <p className="st__lead">
-            Built for Microsoft 365 users who want to move from simply using Copilot to using it
-            confidently across their daily work.
+            {c.whoText}
           </p>
         </div>
         <div className="st__pass">
-          <Badge index={who} held={held} onHold={setHeld} />
+          <Badge c={c} index={who} held={held} onHold={setHeld} />
           <div className="st__roster">
             <ul className="st__roster-list">
-              {ATTENDEES.map((a, i) => (
+              {c.attendees.map((a, i) => (
                 <li
-                  key={a.t}
+                  key={i}
                   className={`${a.mark ? 'is-core' : ''}${i === who ? ' is-on' : ''}`}
                   style={{ '--i': i }}
                   onMouseEnter={() => { setWho(i); setHeld(true) }}
@@ -302,41 +302,41 @@ export default function AttendLearn() {
                 >
                   <i className="st__roster-dot" aria-hidden="true" />
                   {a.mark && <span className="st__roster-mark"><Mark kind={a.mark} /></span>}
-                  {a.t}
+                  {a.title}
                 </li>
               ))}
             </ul>
             <p className="st__seat-note">
               <span className="st__seat-key"><KeyMark /></span>
-              {LICENSE_NOTE}
+              {c.licenseNote}
             </p>
           </div>
         </div>
       </div>
 
       {/* What you'll learn */}
-      <div id="learn" className="st__learn">
+      <div className="st__learn">
         <div ref={headRef} className="st__learn-head">
           <div>
-            <div className="eyebrow eyebrow--green">WHAT YOU GET</div>
-            <h3 className="st__title">What You’ll Learn</h3>
+            <div className="eyebrow eyebrow--green">{c.learnEyebrow}</div>
+            <h3 className="st__title">{c.learnHeading}</h3>
           </div>
-          <p className="st__hint" aria-hidden="true">Scroll through the five outcomes</p>
+          <p className="st__hint" aria-hidden="true">{c.learnHint}</p>
         </div>
 
         <div ref={stackRef} className="st__stack">
-          {LEARN.map((l, i) => (
-            <Card key={l.code} item={l} index={i} front={i === front} />
+          {c.outcomes.map((l, i) => (
+            <Card key={i} item={l} index={i} front={i === front} count={c.outcomes.length} promptLabel={c.promptLabel} />
           ))}
 
           <div
             className="st__card st__card--end"
-            style={{ '--i': LEARN.length, top: TOP + LEARN.length * STEP }}
+            style={{ '--i': c.outcomes.length, top: TOP + c.outcomes.length * STEP }}
             role="img"
-            aria-label="One prompting skill, applied across multiple Microsoft 365 apps, leads to smarter daily work."
+            aria-label={c.endLabel}
           >
             <div className="st__end">
-              <span className="st__end-step"><small>One</small>Prompting Skill</span>
+              <span className="st__end-step"><small>{c.endFromSmall}</small>{c.endFrom}</span>
               <i className="st__wire st__wire--1" />
               <span className="st__end-apps">
                 <span className="st__end-row">
@@ -346,10 +346,10 @@ export default function AttendLearn() {
                     </span>
                   ))}
                 </span>
-                <small>Multiple Microsoft 365 Apps</small>
+                <small>{c.endApps}</small>
               </span>
               <i className="st__wire st__wire--2" />
-              <span className="st__end-step st__end-step--out"><small>Smarter</small>Daily Work</span>
+              <span className="st__end-step st__end-step--out"><small>{c.endToSmall}</small>{c.endTo}</span>
             </div>
           </div>
         </div>

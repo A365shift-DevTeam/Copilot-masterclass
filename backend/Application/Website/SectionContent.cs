@@ -60,7 +60,7 @@ public static partial class SectionContent
         if (f.Kind is not "textarea" && s.Contains('\n')) throw AppException.Bad($"{at} must be one line.");
         if (s.Any(c => char.IsControl(c) && c != '\n')) throw AppException.Bad($"{at} has characters that can't be shown.");
         if (f.Kind == "link" && s.Length > 0 && !SafeLink(s))
-            throw AppException.Bad($"{at} must be a full https:// address, a #section on this page, a mailto: or a tel: link.");
+            throw AppException.Bad($"{at} must be a full https:// address, a /page or #section on this site, a mailto: or a tel: link.");
         if (f.Kind == "select" && !(f.Options ?? []).Contains(s)) throw AppException.Bad($"{at} must be one of the listed choices.");
         return s;
     }
@@ -75,11 +75,14 @@ public static partial class SectionContent
     // Links end up in href on the public site: never javascript:, data: and the like.
     public static bool SafeLink(string s) =>
         s.StartsWith('#') ? Anchor().IsMatch(s)
+        : s.StartsWith('/') ? SitePath().IsMatch(s)
         : s.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase) ? s.Length > 7 && !s.Any(char.IsWhiteSpace)
         : s.StartsWith("tel:", StringComparison.OrdinalIgnoreCase) ? Phone().IsMatch(s[4..])
         : Uri.TryCreate(s, UriKind.Absolute, out var u) && u.Scheme == Uri.UriSchemeHttps && !string.IsNullOrEmpty(u.Host);
 
     [GeneratedRegex("^#[a-z0-9][a-z0-9-]*$")] private static partial Regex Anchor();
+    // A page on this site, e.g. /legal/privacy-policy.html; not //host, which is another site.
+    [GeneratedRegex(@"^/(?!/)[A-Za-z0-9._~/-]*$")] private static partial Regex SitePath();
     [GeneratedRegex(@"^\+?[0-9 ()-]{5,20}$")] private static partial Regex Phone();
 
     static string Where(string path) => path.Length == 0 ? "" : path;

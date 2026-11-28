@@ -16,13 +16,6 @@ export let WHATSAPP_COMMUNITY_URL = null
 /* Every entry must point at a section that is actually rendered in App.jsx.
    Agenda and FAQ were dropped because Agenda.jsx and Faq.jsx are commented
    out there — re-add them here if those sections come back. */
-export const NAV_LINKS = [
-  { href: '#overview', label: 'Overview' },
-  { href: '#learn', label: "What You'll Learn" },
-  { href: '#benefits', label: 'Benefits' },
-  { href: '#speaker', label: 'Speaker' },
-  { href: '#pricing', label: 'Pricing' },
-]
 
 /* 1:1 coaching programmes shown after the Speaker section. Hidden until the admin
    sends them; name, price, package price and link come from there. */
@@ -179,20 +172,6 @@ export const TRAINER = {
 
 export const HERO_TITLE_PHRASES = ['Master Prompt', 'Develop AI Skills', 'Build Intelligent Agents']
 
-// The Overview deck. Six stages in order; `stage` is the one-word beat of
-// the story (LEARN -> USE -> BUILD -> PROMPT -> EXPAND -> MASTER) and `icon`
-
-// The Copilot Studio diagram. Step N lights row N of the circuit (one app
-// chip on each side), so the apps walk down in time with the build steps.
-export const AGENT_HEADER = { name: 'Copilot Agent', tagline: 'Your AI Work Assistant' }
-
-export const AGENT_STEPS = [
-  { n: '01', icon: 'create', short: 'Create', t: 'Create Your Agent', d: 'Build an agent for your business process.' },
-  { n: '02', icon: 'knowledge', short: 'Knowledge', t: 'Add Knowledge', d: 'Connect your files, data and business knowledge.' },
-  { n: '03', icon: 'instruct', short: 'Instruct', t: 'Set Instructions & Behavior', d: 'Define what your agent should do and how it should respond.' },
-  { n: '04', icon: 'work', short: 'Work 24/7', t: 'Agent Ready — Works 24/7', d: 'Your trained agent is ready to answer, assist and support your process anytime.' },
-]
-
 // Left column = what the agent reads from. Right column = where it acts.
 export const AGENT_APPS = [
   { id: 'excel', name: 'Excel', mono: 'X', file: 'microsoft-365/excel.svg', side: 'in' },
@@ -205,15 +184,6 @@ export const AGENT_APPS = [
   { id: 'sharepoint', name: 'SharePoint', mono: 'S', file: 'microsoft-365/sharepoint.svg', side: 'out' },
 ]
 
-// The agenda deck: four cards in one 9 AM – 1 PM session, each one a title and the three
-
-
-
-
-
-
-
-
 export const BENEFITS = [
   { i: 'LT', icon: 'live', t: 'Live Training', d: 'Instructor-led interactive webinar.' },
   { i: 'UC', icon: 'cases', t: 'Real Use Cases', d: 'Practical Microsoft 365 scenarios.' },
@@ -221,16 +191,6 @@ export const BENEFITS = [
   { i: 'QA', icon: 'qa', t: 'Q&A', d: 'Ask implementation questions directly.' },
   { i: 'LM', icon: 'materials', t: 'Learning Materials', d: 'Resources and checklists where applicable.' },
 ]
-
-// The Benefits fork. Four checkpoints up the Copilot branch, four down the
-// unchanged one; each pair sits at the same distance along its branch.
-export const CAREER_STEPS = {
-  up: ['Save Time with Copilot​', 'Work Smarter with Copilot', 'Build Future-Ready Skills', 'Career Growth'],
-  down: ['More Manual Work', 'AI Skills Gap Widens', 'Lower Career Relevance', 'Risk of Falling Behind'],
-}
-
-// The question the fork puts to the reader, typed out in the middle of the picture.
-export const CAREER_PROMPT = 'Which direction will you choose?'
 
 // The founder's credentials as pills: `v` is the figure that leads, `l` says
 // what it counts.
@@ -243,8 +203,6 @@ export const EXPERTISE = [
   { v: '10+', l: 'Products Built' },
   { v: 'India Patent', l: 'Innovation' },
 ]
-
-
 
 /* ⚠️ MOCK DATA — NOT REAL PEOPLE, NOT REAL QUOTES.
    Written to design and test the feedback strip. Every name, role and quote
@@ -261,73 +219,6 @@ export const TESTIMONIALS = [
 ]
 
 export const INCLUDED = ['Live training', 'Demonstrations', 'Q&A', 'Practical examples', 'Learning resources']
-
-// Footer content. Contact details are AmBot365's own, taken from the site.
-// TODO: the social hrefs, Disclaimer and Cookie Policy are placeholders — swap in the real URLs.
-// Terms and Privacy open the LegalDialog (key in `dialog`, copy in legal.js);
-// the href is the matching static page under public/legal/ for direct links.
-export const FOOTER = {
-  company: 'Ambot365 RPA & IT Solutions OPC Pvt Ltd',
-  tagline: 'AI • Automation • Microsoft 365 Solutions',
-  regions: 'UAE | India',
-  email: 'Connect@ambot365.in',
-  phone: '+91 88707 77365',
-  location: 'Coimbatore | Tamil Nadu',
-  // Real, working anchors on this page, plus the checkout link.
-  webinar: [
-    { href: '#overview', label: 'Overview' },
-    { href: '#learn', label: "What You'll Learn" },
-    { href: '#agenda', label: 'Agenda' },
-    { href: '#speaker', label: 'Speaker' },
-    { href: '#faq', label: 'FAQ' },
-    { href: null, label: 'Reserve a seat' }, // the webinar's payment link, set by applySiteData
-  ],
-  offerings: [
-    { href: '#', label: 'M365 Copilot' },
-    { href: '#', label: 'M365 Apps' },
-    { href: '#', label: 'OfficeBots' },
-    { href: '#', label: 'AI Chatbot' },
-    { href: '#', label: 'Business Hub CRM' },
-    { href: '#', label: 'Premium 3D Websites' },
-  ],
-  legal: [
-    { href: '/legal/terms-and-conditions.html', label: 'Terms & Conditions', dialog: 'terms' },
-    { href: '/legal/privacy-policy.html', label: 'Privacy Policy', dialog: 'privacy' },
-    { href: '/legal/disclaimer.html', label: 'Disclaimer', dialog: 'disclaimer' },
-    { href: '#', label: 'Cookie Policy' },
-  ],
-  social: [
-    { href: '#', label: 'LinkedIn', icon: 'linkedin' },
-    { href: '#', label: 'WhatsApp', icon: 'whatsapp' },
-    { href: '#', label: 'YouTube', icon: 'youtube' },
-    { href: '#', label: 'Instagram', icon: 'instagram' },
-    { href: '#', label: 'Facebook', icon: 'facebook' },
-  ],
-}
-
-// Who the masterclass is for. The first two are the core audience: the page is
-// built around Microsoft 365 and Copilot, so they carry the product marks.
-export const ATTENDEES = [
-  { t: 'Microsoft 365 Users', mark: 'm365' },
-  { t: 'Copilot Licensed Users', mark: 'copilot' },
-  { t: 'Corporate Professionals' },
-  { t: 'Managers & Team Leads' },
-  { t: 'Business Owners' },
-  { t: 'AI & Automation Learners' },
-]
-
-export const LICENSE_NOTE = 'For hands-on Premium Copilot and Agent features, an eligible Microsoft 365 Copilot license is recommended.'
-
-// The five outcomes. `code` is the two-letter monogram shown on each tile.
-// `icon` names the glyph drawn on the outcome's badge; `prompt` is the
-// example typed for it.
-export const LEARN = [
-  { code: 'SP', icon: 'prompt', t: 'Smart Prompting', d: 'Learn how to communicate effectively with Copilot.', prompt: 'Summarise this report in five bullet points for my manager, in a confident tone.' },
-  { code: 'CA', icon: 'apps', t: 'Copilot Across Apps', d: 'Apply the same prompting approach across Microsoft 365 applications.', prompt: 'Turn the figures in this Excel sheet into a three-slide update for Monday’s meeting.' },
-  { code: 'AS', icon: 'shield', t: 'Architecture & Security', d: 'Understand how Copilot works and how your business data is protected.', prompt: 'Which files can you see, and does anything I share leave our tenant?' },
-  { code: 'PK', icon: 'bulb', t: 'Practical Knowledge', d: 'Turn prompting knowledge into skills you can use in your everyday work.', prompt: 'Draft a reply to this thread with the agreed next steps and owners.' },
-  { code: 'AG', icon: 'agent', t: 'Copilot Agents', d: 'Understand how Agents work and how they can support real business processes.', prompt: 'Create an agent that answers HR policy questions from our SharePoint handbook.' },
-]
 
 // The apps the prompt fans out to in the closing flow strip.
 export const LEARN_FLOW_APPS = [
@@ -492,6 +383,6 @@ export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [], sec
   }
   // Every "Reserve a seat" button sells the webinar.
   PAYMENT_URL = HERO_PRICES[0].url ?? null
-  FOOTER.webinar.find((l) => l.label === 'Reserve a seat').href = PAYMENT_URL
+
   HERO_PRICES[0].hidden = false
 }

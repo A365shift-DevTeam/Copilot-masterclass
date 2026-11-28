@@ -16,7 +16,7 @@
  */
 import { useEffect, useState } from 'react'
 import { Clock, Database, FileSliders, UserRoundPlus } from 'lucide-react'
-import { AGENT_APPS, AGENT_HEADER, AGENT_STEPS } from '../../data/content.js'
+import { AGENT_APPS } from '../../data/content.js'
 
 // Same icon source as the hero orbit, with the same mono-letter fallback.
 const CDN = 'https://cdn.jsdelivr.net/gh/DamoBird365/microsoft-cloud-icons@master/icons/'
@@ -105,7 +105,7 @@ export default function AgentAnimation({ speed = 1 }) {
   useEffect(() => {
     if (reduced) return
     const id = setTimeout(() => {
-      setActive((prev) => (prev + 1) % AGENT_STEPS.length)
+      setActive((prev) => (prev + 1) % content.steps.length)
     }, HOLD[active] / speed)
     return () => clearTimeout(id)
   }, [active, speed, reduced])
@@ -171,24 +171,24 @@ export default function AgentAnimation({ speed = 1 }) {
             <CdnIcon file="copilot/copilot-365.svg" alt="Microsoft Copilot" mono="C" />
           </span>
           <span className="agent-pill__text">
-            <span className="agent-pill__name">{AGENT_HEADER.name}</span>
-            <span className="agent-pill__tag">{AGENT_HEADER.tagline}</span>
+            <span className="agent-pill__name">{content.agentName}</span>
+            <span className="agent-pill__tag">{content.agentTagline}</span>
           </span>
         </div>
 
         <div className="agent-panel">
           <h3 className="agent-panel__title">
-            Build Your Copilot Agent <span className="text-gradient">in 4 Steps</span>
+            {content.title} <span className="text-gradient">{content.titleHighlight}</span>
           </h3>
-          <p className="agent-panel__sub">From idea to impact — in minutes</p>
+          <p className="agent-panel__sub">{content.subtitle}</p>
 
           <ol className="agent-steps">
-            {AGENT_STEPS.map((step, i) => {
+            {content.steps.map((step, i) => {
               const Icon = ICONS[step.icon]
               const isActive = active === i
               return (
                 <li
-                  key={step.n}
+                  key={i}
                   className={`agent-step${isActive ? ' agent-step--active' : ''}`}
                   aria-current={isActive ? 'step' : undefined}
                 >
@@ -197,8 +197,8 @@ export default function AgentAnimation({ speed = 1 }) {
                     <Icon strokeWidth={1.9} aria-hidden="true" />
                   </span>
                   <span className="agent-step__text">
-                    <span className="agent-step__t">{step.t}</span>
-                    <span className="agent-step__d">{step.d}</span>
+                    <span className="agent-step__t">{step.title}</span>
+                    <span className="agent-step__d">{step.text}</span>
                   </span>
                 </li>
               )
@@ -206,11 +206,11 @@ export default function AgentAnimation({ speed = 1 }) {
           </ol>
 
           <div className="agent-timeline" aria-hidden="true">
-            {AGENT_STEPS.map((step, i) => {
+            {content.steps.map((step, i) => {
               const Icon = ICONS[step.icon]
               const state = i < active ? ' agent-tl__node--done' : i === active ? ' agent-tl__node--active' : ''
               return (
-                <div key={step.n} className="agent-tl__group">
+                <div key={i} className="agent-tl__group">
                   {i > 0 && (
                     <span className={`agent-tl__link${i <= active ? ' agent-tl__link--done' : ''}`} />
                   )}

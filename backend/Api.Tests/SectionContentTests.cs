@@ -52,6 +52,8 @@ public class SectionContentTests
     [InlineData("data:text/html,hi", false)]
     [InlineData("#Bad Anchor", false)]
     [InlineData("//evil.example", false)]
+    [InlineData("/legal/privacy-policy.html", true)]
+    [InlineData("/legal/../../x y", false)]
     public void Only_safe_links_get_through(string link, bool ok) => Assert.Equal(ok, SectionContent.SafeLink(link));
 
     [Fact]

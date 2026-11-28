@@ -26,7 +26,6 @@ test('applySiteData patches dates, prices, links and keeps indexes', () => {
   assert.deepEqual(content.MORE_DATES, ['Sat 12 Dec 2026 · 10 AM – 2 PM IST in Tamil', 'Sat 19 Dec 2026'])
   assert.equal(content.HERO_PRICES[0].meta, 'Saturday, 5 December 2026 · 10:00 AM – 2:00 PM IST · English')
   assert.equal(content.PAYMENT_URL, 'https://pay.example/w')
-  assert.equal(content.FOOTER.webinar.find((l) => l.label === 'Reserve a seat').href, 'https://pay.example/w')
   assert.equal(content.HERO_PRICES[0].hidden, false) // the webinar can't be hidden
   const ws = content.HERO_PRICES.find((p) => p.key === 'workshop')
   assert.equal(ws.highlights[0], 'Saturday, 13 February 2027')

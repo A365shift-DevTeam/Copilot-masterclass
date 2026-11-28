@@ -21,7 +21,6 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { TrendingDown, TrendingUp } from 'lucide-react'
-import { CAREER_STEPS } from '../data/content.js'
 import AttendLearn from './AttendLearn.jsx'
 import ReserveSeatButton from './ReserveSeatButton.jsx'
 
@@ -113,7 +112,7 @@ function Blocks({ dir, steps }) {
     const x = up ? LANDING.x + LANDING.w + STEP_W * i : LANDING.x - STEP_W * (i + 1)
     const y = up ? LANDING.y - RISE * (i + 1) : LANDING.y + DROP * (i + 1)
     return (
-      <g key={step} className={`stairs__block stairs__block--${dir}`} style={stepVars(i)}>
+      <g key={i} className={`stairs__block stairs__block--${dir}`} style={stepVars(i)}>
         <rect x={x} y={y} width={STEP_W} height={FLOOR - y} />
         <rect className="stairs__edge" x={x} y={y} width={STEP_W} height="5" />
       </g>
@@ -128,7 +127,7 @@ function StepLabels({ dir, steps }) {
     const x = up ? LANDING.x + LANDING.w + STEP_W * (i + 0.5) : LANDING.x - STEP_W * (i + 0.5)
     const y = up ? LANDING.y - RISE * (i + 1) : LANDING.y + DROP * (i + 1)
     return (
-      <span key={step} className={`stairs__label stairs__label--${dir}`} style={{ left: px(x), top: py(y + 5), ...stepVars(i) }}>
+      <span key={i} className={`stairs__label stairs__label--${dir}`} style={{ left: px(x), top: py(y + 5), ...stepVars(i) }}>
         {step}
       </span>
     )
@@ -136,33 +135,35 @@ function StepLabels({ dir, steps }) {
 }
 
 
-export default function Benefits() {
+/* Every line here is edited in the admin (Website > Sections > Benefits); the stairs are built for four steps each way. */
+export default function Benefits({ content }) {
+  const c = content
   const sectionRef = useRef(null)
   const stageRef = useRef(null)
   useStairsProgress(sectionRef, stageRef)
 
   return (
     <section id="benefits" className="section benefits">
-      <AttendLearn />
+      <AttendLearn content={c} />
 
       <div ref={sectionRef} className="career">
         <div ref={stageRef} className="career__stage">
           <div className="career__head">
-            <div className="eyebrow eyebrow--green">BENEFITS</div>
-            <h2 className="h2">Same Career. Two Different Futures.​</h2>
+            <div className="eyebrow eyebrow--green">{c.careerEyebrow}</div>
+            <h2 className="h2">{c.careerHeading}</h2>
             <p>
-              One professional builds Microsoft Copilot skills. The other continues working the same way. See how one decision can change the direction.​
+              {c.careerText}
             </p>
             <div className="career__outcomes">
               <div className="career__outcome career__outcome--up">
                 <span className="career__outcome-icon"><TrendingUp aria-hidden="true" /></span>
-                <div><strong>Copilot user</strong><span>Learning and adapting</span></div>
-                <em>Career value ↑</em>
+                <div><strong>{c.upTitle}</strong><span>{c.upSub}</span></div>
+                <em>{c.upResult}</em>
               </div>
               <div className="career__outcome career__outcome--down">
                 <span className="career__outcome-icon"><TrendingDown aria-hidden="true" /></span>
-                <div><strong>Manual user</strong><span>Same skills, same routine</span></div>
-                <em>Career risk ↓</em>
+                <div><strong>{c.downTitle}</strong><span>{c.downSub}</span></div>
+                <em>{c.downResult}</em>
               </div>
             </div>
           </div>
@@ -171,7 +172,7 @@ export default function Benefits() {
             <div
               className="stairs"
               role="img"
-              aria-label="Two people stand on the same landing today. The Copilot user climbs four steps: save time, work smarter, stay relevant, promotion and growth. The manual user descends four steps: more manual work, skills gap widens, lower career relevance, fear of job loss."
+              aria-label={c.stairsLabel}
             >
               <svg className="stairs__svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
                 <defs>
@@ -182,41 +183,41 @@ export default function Benefits() {
                 </defs>
                 <line className="stairs__floor" x1="0" y1={FLOOR} x2={W} y2={FLOOR} vectorEffect="non-scaling-stroke" />
                 <rect className="stairs__landing" x={LANDING.x} y={LANDING.y} width={LANDING.w} height={FLOOR - LANDING.y} />
-                <Blocks dir="up" steps={CAREER_STEPS.up} />
-                <Blocks dir="down" steps={CAREER_STEPS.down} />
+                <Blocks dir="up" steps={c.upSteps} />
+                <Blocks dir="down" steps={c.downSteps} />
               </svg>
 
               {/* Legend, fixed in the top-left corner, which no step reaches. */}
               <div className="stairs__legend">
-                <span className="stairs__legend-row stairs__legend-row--up"><i />Copilot user<small>Learning and adapting</small></span>
-                <span className="stairs__legend-row stairs__legend-row--down"><i />Manual user<small>Same skills, same routine</small></span>
+                <span className="stairs__legend-row stairs__legend-row--up"><i />{c.upTitle}<small>{c.upSub}</small></span>
+                <span className="stairs__legend-row stairs__legend-row--down"><i />{c.downTitle}<small>{c.downSub}</small></span>
               </div>
 
-              <span className="stairs__today" style={{ left: px(LANDING.x + LANDING.w / 2), top: py(FLOOR) }}>Today</span>
+              <span className="stairs__today" style={{ left: px(LANDING.x + LANDING.w / 2), top: py(FLOOR) }}>{c.today}</span>
 
-              <StepLabels dir="up" steps={CAREER_STEPS.up} />
-              <StepLabels dir="down" steps={CAREER_STEPS.down} />
+              <StepLabels dir="up" steps={c.upSteps} />
+              <StepLabels dir="down" steps={c.downSteps} />
 
               {/* The travellers: pins only, standing on their current tread. */}
               <i className="stairs__pin stairs__pin--up"><CopilotBadge /></i>
               <i className="stairs__pin stairs__pin--down"><PersonMark /></i>
 
               {/* Results, each in its reserved row. */}
-              <span className="stairs__result stairs__result--up" style={{ left: px(W - STEP_W / 2), top: py(LANDING.y - RISE * 4) }}>Career value ↑</span>
-              <span className="stairs__result stairs__result--down" style={{ left: px(STEP_W / 2), top: py(FLOOR) }}>Career risk ↓</span>
+              <span className="stairs__result stairs__result--up" style={{ left: px(W - STEP_W / 2), top: py(LANDING.y - RISE * 4) }}>{c.upResult}</span>
+              <span className="stairs__result stairs__result--down" style={{ left: px(STEP_W / 2), top: py(FLOOR) }}>{c.downResult}</span>
             </div>
 
             <div className="stairs-lists" aria-hidden="true">
               <ul className="stairs-lists__col stairs-lists__col--up">
-                {CAREER_STEPS.up.map((s) => <li key={s}>{s}</li>)}
+                {c.upSteps.map((s, i) => <li key={i}>{s}</li>)}
               </ul>
               <ul className="stairs-lists__col stairs-lists__col--down">
-                {CAREER_STEPS.down.map((s) => <li key={s}>{s}</li>)}
+                {c.downSteps.map((s, i) => <li key={i}>{s}</li>)}
               </ul>
             </div>
           </div>
 
-          <p className="career__hint" aria-hidden="true">Scroll to watch the difference</p>
+          <p className="career__hint" aria-hidden="true">{c.scrollHint}</p>
         </div>
       </div>
 

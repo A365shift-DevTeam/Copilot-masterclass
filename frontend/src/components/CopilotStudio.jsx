@@ -3,7 +3,8 @@ import AgendaDeck from './ui/AgendaDeck.jsx'
 import AgentAnimation from './ui/AgentAnimation.jsx'
 import ReserveSeatButton from './ReserveSeatButton.jsx'
 
-export default function CopilotStudio() {
+/* The agenda deck (shared agenda) and the agent diagram, whose text is this section's (Website > Sections > What you'll learn). */
+export default function CopilotStudio({ content }) {
   const leftRef = useReveal()
   const rightRef = useReveal()
 
@@ -18,7 +19,7 @@ export default function CopilotStudio() {
         </div>
 
         <div ref={rightRef}>
-          <AgentAnimation />
+          <AgentAnimation content={content} />
         </div>
       </div>
     </section>

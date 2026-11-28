@@ -3,7 +3,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 
 /**
- * Modal that shows a legal document from src/data/legal.js.
+ * Modal that shows a legal text from the admin (Site-wide content > Terms / Privacy / Disclaimer text).
  *
  * A port of the shadcn "Terms & Conditions" dialog to this site's own CSS:
  * fixed header, scrolling body, and a footer whose confirm button unlocks only
@@ -60,21 +60,21 @@ export default function LegalDialog({ doc, open, onOpenChange }) {
           >
             {doc.intro && <p className="legal-dialog__intro">{doc.intro}</p>}
             {(doc.sections || []).map((s, idx) => (
-              <section key={s.heading || idx} className="legal-dialog__section">
+              <section key={idx} className="legal-dialog__section">
                 {s.heading && <h3>{s.heading}</h3>}
                 <p>
                   {s.body}
-                  {s.email && (
+                  {/^[^\s@]+@[^\s@]+$/.test(s.email ?? '') && (
                     <>
                       {' '}
                       <a href={`mailto:${s.email}`}>{s.email}</a>.
                     </>
                   )}
                 </p>
-                {s.list && (
+                {s.list?.length > 0 && (
                   <ul>
-                    {s.list.map((item) => (
-                      <li key={item}>{item}</li>
+                    {s.list.map((item, i) => (
+                      <li key={i}>{item}</li>
                     ))}
                   </ul>
                 )}
@@ -85,7 +85,7 @@ export default function LegalDialog({ doc, open, onOpenChange }) {
           <footer className="legal-dialog__footer">
             {!readToBottom && <span className="legal-dialog__hint">{doc.hint}</span>}
             <Dialog.Close className="legal-dialog__btn legal-dialog__btn--ghost">
-              Cancel
+              {doc.cancelLabel}
             </Dialog.Close>
             <Dialog.Close
               className="legal-dialog__btn legal-dialog__btn--primary"

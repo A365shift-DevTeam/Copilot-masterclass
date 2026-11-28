@@ -12,7 +12,7 @@ export function blank(fields) {
   return Object.fromEntries(fields.map((f) => [f.key, f.kind === 'list' || f.kind === 'strings' ? [] : f.kind === 'select' ? f.options?.[0] ?? '' : '']))
 }
 
-const LINK_HINT = 'A full https:// address, a #section on this page, mailto: or tel:'
+const LINK_HINT = 'A full https:// address, a /page or #section on this site, mailto: or tel:'
 
 export default function ContentForm({ fields, value, onChange }) {
   return (
@@ -37,7 +37,7 @@ function FieldInput({ field: f, value, onChange }) {
         <textarea id={id} rows={4} value={value ?? ''} onChange={(e) => onChange(e.target.value)} maxLength={max} required={f.required} />
       ) : f.kind === 'select' ? (
         <select id={id} value={value ?? ''} onChange={(e) => onChange(e.target.value)}>
-          {f.options.map((o) => <option key={o} value={o}>{o}</option>)}
+          {f.options.map((o) => <option key={o} value={o}>{o || '(none)'}</option>)}
         </select>
       ) : (
         <input id={id} type="text" value={value ?? ''} onChange={(e) => onChange(e.target.value.replace(/\n/g, ' '))} maxLength={max}

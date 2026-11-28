@@ -7,7 +7,43 @@
       "defaultVisible": true,
       "alwaysOn": true,
       "top": true,
-      "fields": []
+      "fields": [
+        {
+          "key": "links",
+          "label": "Menu links",
+          "kind": "list",
+          "itemLabel": "Link",
+          "fields": [
+            {
+              "key": "label",
+              "label": "Label",
+              "kind": "text",
+              "max": 40,
+              "required": true
+            },
+            {
+              "key": "href",
+              "label": "Goes to",
+              "kind": "link",
+              "required": true
+            }
+          ],
+          "max": 8,
+          "hint": "A link to a #section only shows while that section is on the page."
+        },
+        {
+          "key": "ctaLabel",
+          "label": "Button label",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "ctaLink",
+          "label": "Button link",
+          "kind": "link",
+          "hint": "Leave empty to use the webinar's payment link."
+        }
+      ]
     },
     {
       "type": "hero",
@@ -102,7 +138,84 @@
       "label": "What you'll learn",
       "anchor": "#learn",
       "defaultVisible": true,
-      "fields": []
+      "fields": [
+        {
+          "key": "agentName",
+          "label": "Agent name",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "agentTagline",
+          "label": "Agent tagline",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "title",
+          "label": "Title",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "titleHighlight",
+          "label": "Title, highlighted end",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "subtitle",
+          "label": "Line under the title",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "steps",
+          "label": "Steps",
+          "kind": "list",
+          "itemLabel": "Step",
+          "fields": [
+            {
+              "key": "n",
+              "label": "Number",
+              "kind": "text",
+              "max": 4
+            },
+            {
+              "key": "icon",
+              "label": "Icon",
+              "kind": "select",
+              "options": [
+                "create",
+                "knowledge",
+                "instruct",
+                "work"
+              ]
+            },
+            {
+              "key": "short",
+              "label": "Short label (timeline)",
+              "kind": "text",
+              "max": 20
+            },
+            {
+              "key": "title",
+              "label": "Title",
+              "kind": "text",
+              "max": 80,
+              "required": true
+            },
+            {
+              "key": "text",
+              "label": "Text",
+              "kind": "textarea",
+              "max": 200
+            }
+          ],
+          "count": 4,
+          "hint": "The diagram is built for four steps."
+        }
+      ]
     },
     {
       "type": "seat-scroll",
@@ -335,7 +448,289 @@
       "label": "Benefits",
       "anchor": "#benefits",
       "defaultVisible": true,
-      "fields": []
+      "fields": [
+        {
+          "key": "whoEyebrow",
+          "label": "Who it is for: small label",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "whoHeading",
+          "label": "Who it is for: heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "whoText",
+          "label": "Who it is for: text",
+          "kind": "textarea",
+          "max": 400
+        },
+        {
+          "key": "attendees",
+          "label": "Who it is for: list",
+          "kind": "list",
+          "itemLabel": "Person",
+          "fields": [
+            {
+              "key": "title",
+              "label": "Who",
+              "kind": "text",
+              "max": 60,
+              "required": true
+            },
+            {
+              "key": "mark",
+              "label": "Logo beside it",
+              "kind": "select",
+              "options": [
+                "",
+                "m365",
+                "copilot"
+              ]
+            }
+          ],
+          "min": 1,
+          "max": 10
+        },
+        {
+          "key": "badgeEvent1",
+          "label": "Badge: event, line 1",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "badgeEvent2",
+          "label": "Badge: event, line 2",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "badgeLabel",
+          "label": "Badge: label",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "badgeRole",
+          "label": "Badge: role line",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "badgeSeat",
+          "label": "Badge: bottom line",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "licenseNote",
+          "label": "Licence note",
+          "kind": "textarea",
+          "max": 300
+        },
+        {
+          "key": "learnEyebrow",
+          "label": "What you get: small label",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "learnHeading",
+          "label": "What you get: heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "learnHint",
+          "label": "What you get: scroll hint",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "promptLabel",
+          "label": "Label above each example prompt",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "outcomes",
+          "label": "Outcomes",
+          "kind": "list",
+          "itemLabel": "Outcome",
+          "fields": [
+            {
+              "key": "style",
+              "label": "Card colour",
+              "kind": "select",
+              "options": [
+                "sp",
+                "ca",
+                "as",
+                "pk",
+                "ag"
+              ],
+              "hint": "\"ca\" also shows the Microsoft 365 app logos."
+            },
+            {
+              "key": "icon",
+              "label": "Icon",
+              "kind": "select",
+              "options": [
+                "prompt",
+                "apps",
+                "shield",
+                "bulb",
+                "agent"
+              ]
+            },
+            {
+              "key": "title",
+              "label": "Title",
+              "kind": "text",
+              "max": 80,
+              "required": true
+            },
+            {
+              "key": "text",
+              "label": "Text",
+              "kind": "textarea",
+              "max": 200
+            },
+            {
+              "key": "prompt",
+              "label": "Example prompt (typed out)",
+              "kind": "text",
+              "max": 200
+            }
+          ],
+          "count": 5,
+          "hint": "The scrolling stack is built for five cards."
+        },
+        {
+          "key": "endLabel",
+          "label": "Last card description",
+          "kind": "text",
+          "max": 200,
+          "hint": "Read out by screen readers."
+        },
+        {
+          "key": "endFromSmall",
+          "label": "Last card: left, small",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "endFrom",
+          "label": "Last card: left",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "endApps",
+          "label": "Last card: under the logos",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "endToSmall",
+          "label": "Last card: right, small",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "endTo",
+          "label": "Last card: right",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "careerEyebrow",
+          "label": "Career: small label",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "careerHeading",
+          "label": "Career: heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "careerText",
+          "label": "Career: text",
+          "kind": "textarea",
+          "max": 400
+        },
+        {
+          "key": "upTitle",
+          "label": "Climbing: who",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "upSub",
+          "label": "Climbing: line under",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "upResult",
+          "label": "Climbing: result",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "downTitle",
+          "label": "Falling: who",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "downSub",
+          "label": "Falling: line under",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "downResult",
+          "label": "Falling: result",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "upSteps",
+          "label": "Steps up",
+          "kind": "strings",
+          "count": 4
+        },
+        {
+          "key": "downSteps",
+          "label": "Steps down",
+          "kind": "strings",
+          "count": 4
+        },
+        {
+          "key": "today",
+          "label": "Starting point label",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "stairsLabel",
+          "label": "Stairs description",
+          "kind": "textarea",
+          "max": 400,
+          "hint": "Read out by screen readers."
+        },
+        {
+          "key": "scrollHint",
+          "label": "Scroll hint",
+          "kind": "text",
+          "max": 80
+        }
+      ]
     },
     {
       "type": "speaker",
@@ -500,7 +895,111 @@
       "defaultVisible": true,
       "alwaysOn": true,
       "bottom": true,
-      "fields": []
+      "fields": [
+        {
+          "key": "webinarTitle",
+          "label": "First column title",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "webinarLinks",
+          "label": "First column links",
+          "kind": "list",
+          "itemLabel": "Link",
+          "fields": [
+            {
+              "key": "label",
+              "label": "Label",
+              "kind": "text",
+              "max": 60,
+              "required": true
+            },
+            {
+              "key": "href",
+              "label": "Goes to",
+              "kind": "link",
+              "hint": "Empty: the webinar's payment link."
+            }
+          ],
+          "max": 10
+        },
+        {
+          "key": "offeringsTitle",
+          "label": "Second column title",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "offerings",
+          "label": "Second column links",
+          "kind": "list",
+          "itemLabel": "Link",
+          "fields": [
+            {
+              "key": "label",
+              "label": "Label",
+              "kind": "text",
+              "max": 60,
+              "required": true
+            },
+            {
+              "key": "href",
+              "label": "Goes to",
+              "kind": "link",
+              "hint": "Empty: shown but not clickable."
+            }
+          ],
+          "max": 10
+        },
+        {
+          "key": "contactTitle",
+          "label": "Contact column title",
+          "kind": "text",
+          "max": 40
+        },
+        {
+          "key": "legalLinks",
+          "label": "Links in the bottom bar",
+          "kind": "list",
+          "itemLabel": "Link",
+          "fields": [
+            {
+              "key": "label",
+              "label": "Label",
+              "kind": "text",
+              "max": 60,
+              "required": true
+            },
+            {
+              "key": "href",
+              "label": "Goes to",
+              "kind": "link",
+              "hint": "Empty: shown but not clickable."
+            },
+            {
+              "key": "dialog",
+              "label": "Opens in a popup",
+              "kind": "select",
+              "options": [
+                "",
+                "terms",
+                "privacy",
+                "disclaimer"
+              ],
+              "hint": "Terms, Privacy or Disclaimer open their text (Site-wide content) in a popup."
+            }
+          ],
+          "max": 8
+        },
+        {
+          "key": "copyright",
+          "label": "Copyright line",
+          "kind": "text",
+          "max": 120,
+          "hint": "© and the current year are added in front."
+        }
+      ]
     },
     {
       "type": "agenda-items",
@@ -542,6 +1041,307 @@
           ],
           "count": 4,
           "hint": "Used by the Agenda section and the card deck in \"What you'll learn\"; the deck is built for four cards."
+        }
+      ]
+    },
+    {
+      "type": "site",
+      "label": "Company & contact details",
+      "defaultVisible": false,
+      "shared": true,
+      "fields": [
+        {
+          "key": "company",
+          "label": "Company name",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "tagline",
+          "label": "Tagline",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "regions",
+          "label": "Regions",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "email",
+          "label": "Email",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "phone",
+          "label": "Phone",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "location",
+          "label": "Location",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "logoAlt",
+          "label": "Logo description",
+          "kind": "text",
+          "max": 120,
+          "hint": "Read out by screen readers in place of the logo."
+        },
+        {
+          "key": "social",
+          "label": "Social links",
+          "kind": "list",
+          "itemLabel": "Link",
+          "fields": [
+            {
+              "key": "label",
+              "label": "Name",
+              "kind": "text",
+              "max": 30,
+              "required": true
+            },
+            {
+              "key": "icon",
+              "label": "Icon",
+              "kind": "select",
+              "options": [
+                "linkedin",
+                "whatsapp",
+                "youtube",
+                "instagram",
+                "facebook"
+              ]
+            },
+            {
+              "key": "href",
+              "label": "Goes to",
+              "kind": "link",
+              "hint": "Empty: shown but not clickable."
+            }
+          ],
+          "max": 8
+        }
+      ]
+    },
+    {
+      "type": "legal-terms",
+      "label": "Terms & Conditions text",
+      "defaultVisible": false,
+      "shared": true,
+      "fields": [
+        {
+          "key": "title",
+          "label": "Title",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "kind": "textarea",
+          "max": 1000
+        },
+        {
+          "key": "hint",
+          "label": "Note until read to the end",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "agreeLabel",
+          "label": "Agree button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "cancelLabel",
+          "label": "Cancel button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "sections",
+          "label": "Sections",
+          "kind": "list",
+          "itemLabel": "Section",
+          "fields": [
+            {
+              "key": "heading",
+              "label": "Heading",
+              "kind": "text",
+              "max": 120
+            },
+            {
+              "key": "body",
+              "label": "Text",
+              "kind": "textarea",
+              "max": 3000
+            },
+            {
+              "key": "list",
+              "label": "Bullet points",
+              "kind": "strings",
+              "max": 15
+            },
+            {
+              "key": "email",
+              "label": "Email shown at the end",
+              "kind": "text",
+              "max": 120,
+              "hint": "Optional: shown as a link after the text."
+            }
+          ],
+          "max": 30
+        }
+      ]
+    },
+    {
+      "type": "legal-privacy",
+      "label": "Privacy Policy text",
+      "defaultVisible": false,
+      "shared": true,
+      "fields": [
+        {
+          "key": "title",
+          "label": "Title",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "kind": "textarea",
+          "max": 1000
+        },
+        {
+          "key": "hint",
+          "label": "Note until read to the end",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "agreeLabel",
+          "label": "Agree button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "cancelLabel",
+          "label": "Cancel button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "sections",
+          "label": "Sections",
+          "kind": "list",
+          "itemLabel": "Section",
+          "fields": [
+            {
+              "key": "heading",
+              "label": "Heading",
+              "kind": "text",
+              "max": 120
+            },
+            {
+              "key": "body",
+              "label": "Text",
+              "kind": "textarea",
+              "max": 3000
+            },
+            {
+              "key": "list",
+              "label": "Bullet points",
+              "kind": "strings",
+              "max": 15
+            },
+            {
+              "key": "email",
+              "label": "Email shown at the end",
+              "kind": "text",
+              "max": 120,
+              "hint": "Optional: shown as a link after the text."
+            }
+          ],
+          "max": 30
+        }
+      ]
+    },
+    {
+      "type": "legal-disclaimer",
+      "label": "Disclaimer text",
+      "defaultVisible": false,
+      "shared": true,
+      "fields": [
+        {
+          "key": "title",
+          "label": "Title",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "kind": "textarea",
+          "max": 1000
+        },
+        {
+          "key": "hint",
+          "label": "Note until read to the end",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "agreeLabel",
+          "label": "Agree button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "cancelLabel",
+          "label": "Cancel button",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "sections",
+          "label": "Sections",
+          "kind": "list",
+          "itemLabel": "Section",
+          "fields": [
+            {
+              "key": "heading",
+              "label": "Heading",
+              "kind": "text",
+              "max": 120
+            },
+            {
+              "key": "body",
+              "label": "Text",
+              "kind": "textarea",
+              "max": 3000
+            },
+            {
+              "key": "list",
+              "label": "Bullet points",
+              "kind": "strings",
+              "max": 15
+            },
+            {
+              "key": "email",
+              "label": "Email shown at the end",
+              "kind": "text",
+              "max": 120,
+              "hint": "Optional: shown as a link after the text."
+            }
+          ],
+          "max": 30
         }
       ]
     }

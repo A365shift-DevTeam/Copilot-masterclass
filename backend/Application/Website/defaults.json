@@ -353,5 +353,413 @@
     "heading": "The Future of Work Is Already Here.",
     "text": "Learn how to work smarter with Microsoft 365 + Copilot + AI.",
     "button": "Reserve Your Seat"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Overview",
+        "href": "#overview"
+      },
+      {
+        "label": "What You'll Learn",
+        "href": "#learn"
+      },
+      {
+        "label": "Benefits",
+        "href": "#benefits"
+      },
+      {
+        "label": "Speaker",
+        "href": "#speaker"
+      },
+      {
+        "label": "Pricing",
+        "href": "#pricing"
+      }
+    ],
+    "ctaLabel": "Contact Us",
+    "ctaLink": ""
+  },
+  "footer": {
+    "webinarTitle": "Webinar",
+    "webinarLinks": [
+      {
+        "label": "Overview",
+        "href": "#overview"
+      },
+      {
+        "label": "What You'll Learn",
+        "href": "#learn"
+      },
+      {
+        "label": "Agenda",
+        "href": "#agenda"
+      },
+      {
+        "label": "Speaker",
+        "href": "#speaker"
+      },
+      {
+        "label": "FAQ",
+        "href": "#faq"
+      },
+      {
+        "label": "Reserve a seat",
+        "href": ""
+      }
+    ],
+    "offeringsTitle": "Core offerings",
+    "offerings": [
+      {
+        "label": "M365 Copilot",
+        "href": ""
+      },
+      {
+        "label": "M365 Apps",
+        "href": ""
+      },
+      {
+        "label": "OfficeBots",
+        "href": ""
+      },
+      {
+        "label": "AI Chatbot",
+        "href": ""
+      },
+      {
+        "label": "Business Hub CRM",
+        "href": ""
+      },
+      {
+        "label": "Premium 3D Websites",
+        "href": ""
+      }
+    ],
+    "contactTitle": "Contact us",
+    "legalLinks": [
+      {
+        "label": "Terms & Conditions",
+        "href": "/legal/terms-and-conditions.html",
+        "dialog": "terms"
+      },
+      {
+        "label": "Privacy Policy",
+        "href": "/legal/privacy-policy.html",
+        "dialog": "privacy"
+      },
+      {
+        "label": "Disclaimer",
+        "href": "/legal/disclaimer.html",
+        "dialog": "disclaimer"
+      },
+      {
+        "label": "Cookie Policy",
+        "href": "",
+        "dialog": ""
+      }
+    ],
+    "copyright": "Ambot365. All rights reserved."
+  },
+  "site": {
+    "company": "Ambot365 RPA & IT Solutions OPC Pvt Ltd",
+    "tagline": "AI • Automation • Microsoft 365 Solutions",
+    "regions": "UAE | India",
+    "email": "Connect@ambot365.in",
+    "phone": "+91 88707 77365",
+    "location": "Coimbatore | Tamil Nadu",
+    "logoAlt": "AmBot365 — RPA & Digital IT Solutions",
+    "social": [
+      {
+        "label": "LinkedIn",
+        "icon": "linkedin",
+        "href": ""
+      },
+      {
+        "label": "WhatsApp",
+        "icon": "whatsapp",
+        "href": ""
+      },
+      {
+        "label": "YouTube",
+        "icon": "youtube",
+        "href": ""
+      },
+      {
+        "label": "Instagram",
+        "icon": "instagram",
+        "href": ""
+      },
+      {
+        "label": "Facebook",
+        "icon": "facebook",
+        "href": ""
+      }
+    ]
+  },
+  "legal-terms": {
+    "title": "Terms & Conditions",
+    "intro": "By accessing this website or registering for the Microsoft 365 Copilot Masterclass, you agree to the terms below.",
+    "hint": "Read all terms before accepting.",
+    "agreeLabel": "I agree",
+    "cancelLabel": "Cancel",
+    "sections": [
+      {
+        "heading": "Use of Website",
+        "body": "The content on this website is for general information purposes only. Unauthorized use or misuse is prohibited.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Registration and Payments",
+        "body": "A seat in the masterclass is confirmed only after a successful payment. Payments are processed securely by Razorpay; Ambot365 does not store your card or bank details. Session joining details are sent to the email address and phone number you provide at registration.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Intellectual Property",
+        "body": "All content, including text, design, branding, and session material, is owned by Ambot365 and may not be copied, recorded, or reused without permission.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Services",
+        "body": "Any services described on this website are subject to separate agreements, proposals, or contracts.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Limitation of Liability",
+        "body": "Ambot365 is not liable for any direct or indirect damages arising from the use of this website, its content, or the masterclass.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "External Links",
+        "body": "Our website may contain links to third-party sites. We are not responsible for their content or practices.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Changes to Terms",
+        "body": "We may update these terms at any time without prior notice.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Contact",
+        "body": "For any questions about these terms, contact us at",
+        "list": [],
+        "email": "Connect@ambot365.in"
+      }
+    ]
+  },
+  "legal-privacy": {
+    "title": "Privacy Policy",
+    "intro": "Ambot365 respects your privacy and is committed to protecting your personal information.",
+    "hint": "Read the full policy to continue.",
+    "agreeLabel": "I understand",
+    "cancelLabel": "Cancel",
+    "sections": [
+      {
+        "heading": "Information We Collect",
+        "body": "We may collect basic information such as your name, email address, phone number, and company details when you register for the masterclass, fill out forms, or contact us.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "How We Use Information",
+        "body": "We use your information to:",
+        "list": [
+          "Confirm your registration and send session joining details",
+          "Respond to inquiries and provide services",
+          "Improve our website and offerings",
+          "Communicate updates or relevant information"
+        ],
+        "email": ""
+      },
+      {
+        "heading": "Data Protection",
+        "body": "We implement appropriate security measures to protect your data. We do not sell or share your personal information with third parties without consent, except as required by law.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Cookies and Tracking",
+        "body": "Our website may use cookies or analytics tools to enhance user experience and improve performance.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Third-Party Services",
+        "body": "We may use third-party tools (such as Razorpay for payments, analytics, or hosting services) that may process your data as part of their services. Payment details are handled by Razorpay under its own privacy policy and are not stored by Ambot365.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Your Rights",
+        "body": "You can request access, correction, or deletion of your data by contacting us.",
+        "list": [],
+        "email": ""
+      },
+      {
+        "heading": "Contact",
+        "body": "For any privacy-related concerns, contact us at",
+        "list": [],
+        "email": "Connect@ambot365.in"
+      }
+    ]
+  },
+  "legal-disclaimer": {
+    "title": "Disclaimer",
+    "intro": "Microsoft, Microsoft 365, Copilot, Excel, Word, PowerPoint, Outlook, and their respective logos/icons are trademarks of Microsoft Corporation. This webinar is independently delivered by Ambot365 and is not affiliated with, endorsed by, sponsored by, or authorized by Microsoft Corporation.",
+    "hint": "Read the full disclaimer.",
+    "agreeLabel": "I understand",
+    "cancelLabel": "Cancel",
+    "sections": []
+  },
+  "benefits": {
+    "whoEyebrow": "WHO IT IS FOR",
+    "whoHeading": "Who Should Attend?",
+    "whoText": "Built for Microsoft 365 users who want to move from simply using Copilot to using it confidently across their daily work.",
+    "attendees": [
+      {
+        "title": "Microsoft 365 Users",
+        "mark": "m365"
+      },
+      {
+        "title": "Copilot Licensed Users",
+        "mark": "copilot"
+      },
+      {
+        "title": "Corporate Professionals",
+        "mark": ""
+      },
+      {
+        "title": "Managers & Team Leads",
+        "mark": ""
+      },
+      {
+        "title": "Business Owners",
+        "mark": ""
+      },
+      {
+        "title": "AI & Automation Learners",
+        "mark": ""
+      }
+    ],
+    "badgeEvent1": "Copilot",
+    "badgeEvent2": "Masterclass",
+    "badgeLabel": "Attendee",
+    "badgeRole": "Microsoft 365 · Copilot",
+    "badgeSeat": "Seat reserved",
+    "licenseNote": "For hands-on Premium Copilot and Agent features, an eligible Microsoft 365 Copilot license is recommended.",
+    "learnEyebrow": "WHAT YOU GET",
+    "learnHeading": "What You’ll Learn",
+    "learnHint": "Scroll through the five outcomes",
+    "promptLabel": "Example prompt",
+    "outcomes": [
+      {
+        "style": "sp",
+        "icon": "prompt",
+        "title": "Smart Prompting",
+        "text": "Learn how to communicate effectively with Copilot.",
+        "prompt": "Summarise this report in five bullet points for my manager, in a confident tone."
+      },
+      {
+        "style": "ca",
+        "icon": "apps",
+        "title": "Copilot Across Apps",
+        "text": "Apply the same prompting approach across Microsoft 365 applications.",
+        "prompt": "Turn the figures in this Excel sheet into a three-slide update for Monday’s meeting."
+      },
+      {
+        "style": "as",
+        "icon": "shield",
+        "title": "Architecture & Security",
+        "text": "Understand how Copilot works and how your business data is protected.",
+        "prompt": "Which files can you see, and does anything I share leave our tenant?"
+      },
+      {
+        "style": "pk",
+        "icon": "bulb",
+        "title": "Practical Knowledge",
+        "text": "Turn prompting knowledge into skills you can use in your everyday work.",
+        "prompt": "Draft a reply to this thread with the agreed next steps and owners."
+      },
+      {
+        "style": "ag",
+        "icon": "agent",
+        "title": "Copilot Agents",
+        "text": "Understand how Agents work and how they can support real business processes.",
+        "prompt": "Create an agent that answers HR policy questions from our SharePoint handbook."
+      }
+    ],
+    "endLabel": "One prompting skill, applied across multiple Microsoft 365 apps, leads to smarter daily work.",
+    "endFromSmall": "One",
+    "endFrom": "Prompting Skill",
+    "endApps": "Multiple Microsoft 365 Apps",
+    "endToSmall": "Smarter",
+    "endTo": "Daily Work",
+    "careerEyebrow": "BENEFITS",
+    "careerHeading": "Same Career. Two Different Futures.​",
+    "careerText": "One professional builds Microsoft Copilot skills. The other continues working the same way. See how one decision can change the direction.​",
+    "upTitle": "Copilot user",
+    "upSub": "Learning and adapting",
+    "upResult": "Career value ↑",
+    "downTitle": "Manual user",
+    "downSub": "Same skills, same routine",
+    "downResult": "Career risk ↓",
+    "upSteps": [
+      "Save Time with Copilot​",
+      "Work Smarter with Copilot",
+      "Build Future-Ready Skills",
+      "Career Growth"
+    ],
+    "downSteps": [
+      "More Manual Work",
+      "AI Skills Gap Widens",
+      "Lower Career Relevance",
+      "Risk of Falling Behind"
+    ],
+    "today": "Today",
+    "stairsLabel": "Two people stand on the same landing today. The Copilot user climbs four steps: save time, work smarter, stay relevant, promotion and growth. The manual user descends four steps: more manual work, skills gap widens, lower career relevance, fear of job loss.",
+    "scrollHint": "Scroll to watch the difference"
+  },
+  "copilot-studio": {
+    "agentName": "Copilot Agent",
+    "agentTagline": "Your AI Work Assistant",
+    "title": "Build Your Copilot Agent",
+    "titleHighlight": "in 4 Steps",
+    "subtitle": "From idea to impact — in minutes",
+    "steps": [
+      {
+        "n": "01",
+        "icon": "create",
+        "short": "Create",
+        "title": "Create Your Agent",
+        "text": "Build an agent for your business process."
+      },
+      {
+        "n": "02",
+        "icon": "knowledge",
+        "short": "Knowledge",
+        "title": "Add Knowledge",
+        "text": "Connect your files, data and business knowledge."
+      },
+      {
+        "n": "03",
+        "icon": "instruct",
+        "short": "Instruct",
+        "title": "Set Instructions & Behavior",
+        "text": "Define what your agent should do and how it should respond."
+      },
+      {
+        "n": "04",
+        "icon": "work",
+        "short": "Work 24/7",
+        "title": "Agent Ready — Works 24/7",
+        "text": "Your trained agent is ready to answer, assist and support your process anytime."
+      }
+    ]
   }
 }

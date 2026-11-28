@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Check, ChevronRight, Mail } from 'lucide-react'
-import { FOOTER, WHATSAPP_COMMUNITY_URL } from '../data/content.js'
+import { SHARED, WHATSAPP_COMMUNITY_URL } from '../data/content.js'
 import Confetti from '../components/ui/motion-confetti.tsx'
 
 // Matches Confetti's duration so the redirect starts when the burst ends.
@@ -45,7 +45,7 @@ export default function ThankYou() {
     }, reduced ? 0 : CONFETTI_MS)
   }
 
-  const email = FOOTER.email.toLowerCase()
+  const email = (SHARED.site?.email ?? '').toLowerCase()
 
   return (
     <main className="ty">

@@ -58,10 +58,11 @@ const SECTION = {
    Which sections show, and in what order, is the admin's (SECTIONS). */
 // eslint-disable-next-line no-unused-vars
 const Page = memo(function Page({ version }) {
-  const shown = (type) => SECTIONS.some((s) => s.type === type)
+  const navbar = SECTIONS.find((s) => s.type === 'navbar')
+  const footer = SECTIONS.find((s) => s.type === 'footer')
   return (
     <>
-      {shown('navbar') && <Navbar />}
+      {navbar && <Navbar content={navbar.content} />}
 
       {/* Opaque and stacked above the footer, which is pinned behind it —
           without both, the footer would show through the whole page. */}
@@ -76,9 +77,9 @@ const Page = memo(function Page({ version }) {
           coordinates are the page's own. */}
       <LogoTraveller />
 
-      {shown('footer') && (
+      {footer && (
         <StickyRevealFooter>
-          <Footer />
+          <Footer content={footer.content} />
         </StickyRevealFooter>
       )}
     </>

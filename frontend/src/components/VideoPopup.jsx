@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { CheckCircle2, Volume2, X } from 'lucide-react'
-import { SHARED, FOOTER } from '../data/content.js'
+import { SHARED } from '../data/content.js'
 import { WhatsAppIcon } from '../pages/ThankYou.jsx'
 import ReserveSeatButton from './ReserveSeatButton.jsx'
 import BorderBeam from './ui/BorderBeam.jsx'
@@ -133,12 +133,12 @@ export default function VideoPopup({ ready }) {
 
           <a
             className="video-popup__whatsapp"
-            href={`https://wa.me/${FOOTER.phone.replace(/\D/g, '')}`}
+            href={`https://wa.me/${(SHARED.site?.phone ?? '').replace(/\D/g, '')}`}
             target="_blank"
             rel="noopener noreferrer"
           >
             <WhatsAppIcon />
-            {FOOTER.phone}
+            {SHARED.site?.phone}
           </a>
         </div>
       </div>
