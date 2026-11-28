@@ -12,8 +12,9 @@ public class PageTests
     public void Fresh_page_has_every_type_in_order_navbar_first_footer_last()
     {
         var d = Page.Seed(null);
-        Assert.Equal(Page.Types.Select(t => t.Type), Ids(d));
-        Assert.Equal(Page.Types.Select(t => t.DefaultVisible), d.Sections.Select(s => s.Visible));
+        Assert.Equal(Page.Types.Where(t => !t.Shared).Select(t => t.Type), Ids(d));
+        Assert.Equal(Page.Types.Where(t => t.Shared).Select(t => t.Type), d.Shared.Select(s => s.Id));
+        Assert.Equal(Page.Types.Where(t => !t.Shared).Select(t => t.DefaultVisible), d.Sections.Select(s => s.Visible));
     }
 
     [Fact]
@@ -50,7 +51,8 @@ public class PageTests
         var next = Page.SetLayout(d, layout);
         Assert.Equal(layout.Select(l => l.Id), Ids(next));
         Assert.False(next.Sections[3].Visible);
-        Assert.Equal(Page.Types.Select(t => t.Type), Ids(d)); // the draft passed in is unchanged
+        Assert.Equal(Page.Types.Where(t => !t.Shared).Select(t => t.Type), Ids(d));
+        Assert.Equal(Page.Types.Where(t => t.Shared).Select(t => t.Type), d.Shared.Select(s => s.Id)); // the draft passed in is unchanged
     }
 
     [Fact]

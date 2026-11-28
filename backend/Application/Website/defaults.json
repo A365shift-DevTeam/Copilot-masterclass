@@ -39,5 +39,319 @@
         "a": "Practical checklists and reference material are shared with registered participants where applicable."
       }
     ]
+  },
+  "overview": {
+    "eyebrow": "SIX-STAGE JOURNEY",
+    "heading": "Your Copilot Learning Journey",
+    "subheading": "Learn → Use → Build → Prompt → Expand → Master",
+    "carouselLabel": "The six stages of the Copilot learning journey",
+    "stages": [
+      {
+        "n": "01",
+        "stage": "Learn",
+        "icon": "learn",
+        "title": "Copilot Fundamentals",
+        "points": [
+          "AI Basics",
+          "Copilot Essentials"
+        ]
+      },
+      {
+        "n": "02",
+        "stage": "Use",
+        "icon": "use",
+        "title": "Microsoft 365 Copilot",
+        "points": [
+          "Work Smarter",
+          "Across M365 Apps"
+        ]
+      },
+      {
+        "n": "03",
+        "stage": "Build",
+        "icon": "build",
+        "title": "Build Copilot Agents",
+        "points": [
+          "Add Knowledge",
+          "Automate Processes"
+        ]
+      },
+      {
+        "n": "04",
+        "stage": "Prompt",
+        "icon": "prompt",
+        "title": "Smarter Prompting",
+        "points": [
+          "Slash Prompts",
+          "Reusable Instructions"
+        ]
+      },
+      {
+        "n": "05",
+        "stage": "Expand",
+        "icon": "expand",
+        "title": "Beyond Copilot",
+        "points": [
+          "Multiple AI Tools",
+          "One Prompt Structure"
+        ]
+      },
+      {
+        "n": "06",
+        "stage": "Master",
+        "icon": "master",
+        "title": "AI Professional",
+        "points": [
+          "30-Day Accelerator",
+          "90-Day Transformation"
+        ]
+      }
+    ]
+  },
+  "agenda": {
+    "eyebrow": "WEBINAR AGENDA",
+    "heading": "What You Will Master"
+  },
+  "agenda-items": {
+    "items": [
+      {
+        "n": "01",
+        "day": "First half",
+        "title": "Understand Copilot",
+        "points": [
+          "How Copilot Works",
+          "Copilot Architecture",
+          "Security & Your Data"
+        ]
+      },
+      {
+        "n": "02",
+        "day": "First half",
+        "title": "Smart Prompting",
+        "points": [
+          "How to Talk to Copilot",
+          "Build Better Prompts",
+          "Use the Same Prompting Skills Across Copilot"
+        ]
+      },
+      {
+        "n": "03",
+        "day": "Second half",
+        "title": "Copilot in Microsoft 365",
+        "points": [
+          "Excel • Word • PowerPoint",
+          "Outlook • Teams",
+          "Work Faster with Copilot"
+        ]
+      },
+      {
+        "n": "04",
+        "day": "Second half",
+        "title": "Build with Copilot",
+        "points": [
+          "Connect Your Daily Work",
+          "Create Smart Workflows",
+          "Build Practical Copilot Skills"
+        ]
+      }
+    ]
+  },
+  "audience": {
+    "eyebrow": "WHO IT IS FOR",
+    "heading": "Who Should Attend?",
+    "intro": "Built for teams who already work in Microsoft 365 and want to work smarter.",
+    "people": [
+      {
+        "n": "01",
+        "icon": "owner",
+        "title": "Business Owners",
+        "text": "Drive growth, streamline operations, and make smarter decisions."
+      },
+      {
+        "n": "02",
+        "icon": "ceo",
+        "title": "CEOs / COOs",
+        "text": "Lead with clarity, align teams, and accelerate business outcomes."
+      },
+      {
+        "n": "03",
+        "icon": "managers",
+        "title": "Managers",
+        "text": "Improve team productivity, track progress, and achieve more with less effort."
+      },
+      {
+        "n": "04",
+        "icon": "m365",
+        "title": "Microsoft 365 Users",
+        "text": "Get the most out of the Microsoft 365 tools you use every day."
+      },
+      {
+        "n": "05",
+        "icon": "sales",
+        "title": "Sales Professionals",
+        "text": "Close more deals, manage pipelines, and engage customers effectively."
+      },
+      {
+        "n": "06",
+        "icon": "finance",
+        "title": "Finance Teams",
+        "text": "Automate reporting, ensure accuracy, and gain real-time financial insights."
+      },
+      {
+        "n": "07",
+        "icon": "hr",
+        "title": "HR Professionals",
+        "text": "Simplify people processes, improve engagement, and empower your workforce."
+      },
+      {
+        "n": "08",
+        "icon": "admin",
+        "title": "Administrative Teams",
+        "text": "Automate routine tasks, manage information, and keep everything organised."
+      },
+      {
+        "n": "09",
+        "icon": "educator",
+        "title": "Educators",
+        "text": "Prepare content faster, simplify assessment, and bring AI into the classroom."
+      },
+      {
+        "n": "10",
+        "icon": "it",
+        "title": "IT Professionals",
+        "text": "Deploy, govern, and support Copilot confidently across your organisation."
+      },
+      {
+        "n": "11",
+        "icon": "dx",
+        "title": "Digital Transformation Teams",
+        "text": "Champion AI adoption and modernise everyday workflows end to end."
+      }
+    ]
+  },
+  "use-cases": {
+    "eyebrow": "REAL BUSINESS USE CASES",
+    "heading": "From Daily Tasks to AI-Powered Workflows",
+    "beforeLabel": "BEFORE",
+    "afterLabel": "AFTER",
+    "cases": [
+      {
+        "before": [
+          "Open Excel",
+          "Filter information",
+          "Create formulas",
+          "Prepare report",
+          "Draft email",
+          "Send report"
+        ],
+        "prompt": "“Analyse this month’s sales and prepare an executive summary.”",
+        "after": [
+          "AI analysis",
+          "Charts",
+          "Summary",
+          "Email draft"
+        ]
+      },
+      {
+        "before": [
+          "Read 30 emails manually",
+          "Note what needs action",
+          "Reply one by one"
+        ],
+        "prompt": "“Summarise important emails and show actions requiring my attention.”",
+        "after": [
+          "Thread summaries",
+          "Action list",
+          "Draft replies"
+        ]
+      },
+      {
+        "before": [
+          "Collect the source document",
+          "Rewrite key points",
+          "Build slides manually",
+          "Format the deck"
+        ],
+        "prompt": "“Turn this document into a management presentation.”",
+        "after": [
+          "Slide structure",
+          "Presentation",
+          "Executive summary"
+        ]
+      }
+    ]
+  },
+  "live-demo": {
+    "eyebrow": "LIVE DEMONSTRATION",
+    "heading": "See Copilot in Action",
+    "intro": "Every capability is shown live inside real Microsoft 365 applications — not slides.",
+    "demos": [
+      "Excel AI analysis",
+      "Automatic document creation",
+      "AI presentations",
+      "Email assistance",
+      "Teams meeting intelligence",
+      "Business workflow automation",
+      "Copilot agents"
+    ],
+    "windowTitle": "microsoft 365 — copilot",
+    "conversations": [
+      {
+        "prompt": "Analyse this month’s sales and prepare an executive summary.",
+        "answer": "Revenue is up 12% month over month, driven by the enterprise segment. I have prepared a three-slide summary and a draft email to the leadership team."
+      },
+      {
+        "prompt": "Summarise the important emails needing my attention.",
+        "answer": "Four threads need action today: two contract approvals, one escalation from a key account, and a pending invoice query. Draft replies are ready."
+      },
+      {
+        "prompt": "Turn this proposal document into a client presentation.",
+        "answer": "Created an eight-slide deck with an executive summary, scope, timeline and commercials, matching your brand template."
+      }
+    ],
+    "chips": [
+      "Analyse",
+      "Summarise",
+      "Automate"
+    ]
+  },
+  "ecosystem": {
+    "eyebrow": "WHY AMBOT365",
+    "heading": "AI That Solves Real Business Problems",
+    "hubIcon": "A",
+    "hubTitle": "AmBot365 AI Ecosystem",
+    "hubText": "Five connected capabilities, one automation partner.",
+    "cards": [
+      {
+        "icon": "CP",
+        "title": "Microsoft Copilot Solutions",
+        "text": "AI agents for smarter daily work."
+      },
+      {
+        "icon": "OB",
+        "title": "Office AI Bots",
+        "text": "Automate repetitive office processes."
+      },
+      {
+        "icon": "HB",
+        "title": "Business Hub CRM",
+        "text": "Leads, customers, projects, finance and sales."
+      },
+      {
+        "icon": "CB",
+        "title": "AI Chatbot",
+        "text": "24/7 intelligent customer engagement."
+      },
+      {
+        "icon": "DX",
+        "title": "Premium Digital Experiences",
+        "text": "Modern interactive web solutions."
+      }
+    ]
+  },
+  "final-cta": {
+    "heading": "The Future of Work Is Already Here.",
+    "text": "Learn how to work smarter with Microsoft 365 + Copilot + AI.",
+    "button": "Reserve Your Seat"
   }
 }

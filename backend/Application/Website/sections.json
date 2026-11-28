@@ -1,35 +1,549 @@
 {
   "_about": "Every section the website can draw, in default page order, and the fields each one's content has. The backend checks every save against this; the admin builds its forms from it. Field kinds: text (one line), textarea, link (https://, #section, mailto:, tel:), select (one of options), strings (a list of lines), list (a list of items with their own fields). max is characters (text) or items (lists); count fixes a list's length where an animation needs exactly that many. Shared types are never drawn on their own: their content is used by several sections.",
   "types": [
-    { "type": "navbar", "label": "Navigation bar", "defaultVisible": true, "alwaysOn": true, "top": true, "fields": [] },
-    { "type": "hero", "label": "Hero", "anchor": "#top", "defaultVisible": true, "alwaysOn": true, "fields": [] },
-    { "type": "overview", "label": "Overview", "anchor": "#overview", "defaultVisible": true, "fields": [] },
-    { "type": "copilot-studio", "label": "What you'll learn", "anchor": "#learn", "defaultVisible": true, "fields": [] },
-    { "type": "seat-scroll", "label": "Reserve-your-seat scroll scene", "defaultVisible": true, "fields": [] },
-    { "type": "agenda", "label": "Agenda", "anchor": "#agenda", "defaultVisible": false, "fields": [] },
-    { "type": "audience", "label": "Who it's for", "defaultVisible": false, "fields": [] },
-    { "type": "use-cases", "label": "Use cases", "defaultVisible": false, "fields": [] },
-    { "type": "live-demo", "label": "Live demo", "defaultVisible": false, "fields": [] },
-    { "type": "benefits", "label": "Benefits", "anchor": "#benefits", "defaultVisible": true, "fields": [] },
-    { "type": "speaker", "label": "Speaker", "anchor": "#speaker", "defaultVisible": true, "fields": [] },
-    { "type": "coaching", "label": "1:1 coaching programmes", "anchor": "#pricing", "defaultVisible": false, "fields": [] },
-    { "type": "programs", "label": "Other programs", "anchor": "#programs", "defaultVisible": false, "fields": [] },
-    { "type": "price-ladder", "label": "Pricing", "anchor": "#pricing", "defaultVisible": true, "fields": [] },
-    { "type": "ecosystem", "label": "Ecosystem", "defaultVisible": false, "fields": [] },
     {
-      "type": "faq", "label": "FAQ", "anchor": "#faq", "defaultVisible": false, "repeatable": true,
+      "type": "navbar",
+      "label": "Navigation bar",
+      "defaultVisible": true,
+      "alwaysOn": true,
+      "top": true,
+      "fields": []
+    },
+    {
+      "type": "hero",
+      "label": "Hero",
+      "anchor": "#top",
+      "defaultVisible": true,
+      "alwaysOn": true,
+      "fields": []
+    },
+    {
+      "type": "overview",
+      "label": "Overview",
+      "anchor": "#overview",
+      "defaultVisible": true,
       "fields": [
-        { "key": "heading", "label": "Heading", "kind": "text", "max": 120 },
         {
-          "key": "items", "label": "Questions", "kind": "list", "itemLabel": "Question", "min": 1, "max": 30,
+          "key": "eyebrow",
+          "label": "Small label above the heading",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "subheading",
+          "label": "Line under the heading",
+          "kind": "text",
+          "max": 160
+        },
+        {
+          "key": "carouselLabel",
+          "label": "Carousel description",
+          "kind": "text",
+          "max": 160,
+          "hint": "Read out by screen readers; not shown."
+        },
+        {
+          "key": "stages",
+          "label": "Journey stages",
+          "kind": "list",
+          "itemLabel": "Stage",
           "fields": [
-            { "key": "q", "label": "Question", "kind": "text", "max": 200, "required": true },
-            { "key": "a", "label": "Answer", "kind": "textarea", "max": 1500, "required": true }
+            {
+              "key": "n",
+              "label": "Number",
+              "kind": "text",
+              "max": 4
+            },
+            {
+              "key": "stage",
+              "label": "Stage word",
+              "kind": "text",
+              "max": 30
+            },
+            {
+              "key": "icon",
+              "label": "Icon",
+              "kind": "select",
+              "options": [
+                "learn",
+                "use",
+                "build",
+                "prompt",
+                "expand",
+                "master"
+              ]
+            },
+            {
+              "key": "title",
+              "label": "Title",
+              "kind": "text",
+              "max": 80
+            },
+            {
+              "key": "points",
+              "label": "Points",
+              "kind": "strings",
+              "max": 4
+            }
+          ],
+          "count": 6,
+          "hint": "The carousel is built for six stages."
+        }
+      ]
+    },
+    {
+      "type": "copilot-studio",
+      "label": "What you'll learn",
+      "anchor": "#learn",
+      "defaultVisible": true,
+      "fields": []
+    },
+    {
+      "type": "seat-scroll",
+      "label": "Reserve-your-seat scroll scene",
+      "defaultVisible": true,
+      "fields": []
+    },
+    {
+      "type": "agenda",
+      "label": "Agenda",
+      "anchor": "#agenda",
+      "defaultVisible": false,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Small label above the heading",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        }
+      ]
+    },
+    {
+      "type": "audience",
+      "label": "Who it's for",
+      "defaultVisible": false,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Small label above the heading",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "kind": "textarea",
+          "max": 300
+        },
+        {
+          "key": "people",
+          "label": "Who it is for",
+          "kind": "list",
+          "itemLabel": "Card",
+          "fields": [
+            {
+              "key": "n",
+              "label": "Number",
+              "kind": "text",
+              "max": 4
+            },
+            {
+              "key": "icon",
+              "label": "Icon",
+              "kind": "select",
+              "options": [
+                "owner",
+                "ceo",
+                "managers",
+                "m365",
+                "sales",
+                "finance",
+                "hr",
+                "admin",
+                "educator",
+                "it",
+                "dx"
+              ]
+            },
+            {
+              "key": "title",
+              "label": "Title",
+              "kind": "text",
+              "max": 80
+            },
+            {
+              "key": "text",
+              "label": "Text",
+              "kind": "textarea",
+              "max": 240
+            }
+          ],
+          "min": 1,
+          "max": 16
+        }
+      ]
+    },
+    {
+      "type": "use-cases",
+      "label": "Use cases",
+      "defaultVisible": false,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Small label above the heading",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "beforeLabel",
+          "label": "\"Before\" label",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "afterLabel",
+          "label": "\"After\" label",
+          "kind": "text",
+          "max": 30
+        },
+        {
+          "key": "cases",
+          "label": "Use cases",
+          "kind": "list",
+          "itemLabel": "Use case",
+          "fields": [
+            {
+              "key": "before",
+              "label": "Steps before",
+              "kind": "strings",
+              "min": 1,
+              "max": 8
+            },
+            {
+              "key": "prompt",
+              "label": "The Copilot prompt",
+              "kind": "text",
+              "max": 200
+            },
+            {
+              "key": "after",
+              "label": "What Copilot gives",
+              "kind": "strings",
+              "min": 1,
+              "max": 6
+            }
+          ],
+          "min": 1,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "type": "live-demo",
+      "label": "Live demo",
+      "defaultVisible": false,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Small label above the heading",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "intro",
+          "label": "Intro",
+          "kind": "textarea",
+          "max": 300
+        },
+        {
+          "key": "demos",
+          "label": "What is shown",
+          "kind": "strings",
+          "min": 1,
+          "max": 10
+        },
+        {
+          "key": "windowTitle",
+          "label": "Demo window title",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "conversations",
+          "label": "Demo conversations",
+          "kind": "list",
+          "itemLabel": "Conversation",
+          "fields": [
+            {
+              "key": "prompt",
+              "label": "Prompt",
+              "kind": "text",
+              "max": 200,
+              "required": true
+            },
+            {
+              "key": "answer",
+              "label": "Copilot answer",
+              "kind": "textarea",
+              "max": 400,
+              "required": true
+            }
+          ],
+          "min": 1,
+          "max": 6
+        },
+        {
+          "key": "chips",
+          "label": "Chips under the answer",
+          "kind": "strings",
+          "max": 4
+        }
+      ]
+    },
+    {
+      "type": "benefits",
+      "label": "Benefits",
+      "anchor": "#benefits",
+      "defaultVisible": true,
+      "fields": []
+    },
+    {
+      "type": "speaker",
+      "label": "Speaker",
+      "anchor": "#speaker",
+      "defaultVisible": true,
+      "fields": []
+    },
+    {
+      "type": "coaching",
+      "label": "1:1 coaching programmes",
+      "anchor": "#pricing",
+      "defaultVisible": false,
+      "fields": []
+    },
+    {
+      "type": "programs",
+      "label": "Other programs",
+      "anchor": "#programs",
+      "defaultVisible": false,
+      "fields": []
+    },
+    {
+      "type": "price-ladder",
+      "label": "Pricing",
+      "anchor": "#pricing",
+      "defaultVisible": true,
+      "fields": []
+    },
+    {
+      "type": "ecosystem",
+      "label": "Ecosystem",
+      "defaultVisible": false,
+      "fields": [
+        {
+          "key": "eyebrow",
+          "label": "Small label above the heading",
+          "kind": "text",
+          "max": 60
+        },
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "hubIcon",
+          "label": "Centre badge letters",
+          "kind": "text",
+          "max": 3
+        },
+        {
+          "key": "hubTitle",
+          "label": "Centre title",
+          "kind": "text",
+          "max": 80
+        },
+        {
+          "key": "hubText",
+          "label": "Centre text",
+          "kind": "text",
+          "max": 160
+        },
+        {
+          "key": "cards",
+          "label": "Capabilities",
+          "kind": "list",
+          "itemLabel": "Card",
+          "fields": [
+            {
+              "key": "icon",
+              "label": "Badge letters",
+              "kind": "text",
+              "max": 3
+            },
+            {
+              "key": "title",
+              "label": "Title",
+              "kind": "text",
+              "max": 80
+            },
+            {
+              "key": "text",
+              "label": "Text",
+              "kind": "text",
+              "max": 160
+            }
+          ],
+          "min": 1,
+          "max": 8
+        }
+      ]
+    },
+    {
+      "type": "faq",
+      "label": "FAQ",
+      "anchor": "#faq",
+      "defaultVisible": false,
+      "repeatable": true,
+      "fields": [
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "items",
+          "label": "Questions",
+          "kind": "list",
+          "itemLabel": "Question",
+          "min": 1,
+          "max": 30,
+          "fields": [
+            {
+              "key": "q",
+              "label": "Question",
+              "kind": "text",
+              "max": 200,
+              "required": true
+            },
+            {
+              "key": "a",
+              "label": "Answer",
+              "kind": "textarea",
+              "max": 1500,
+              "required": true
+            }
           ]
         }
       ]
     },
-    { "type": "final-cta", "label": "Final call to action", "defaultVisible": false, "fields": [] },
-    { "type": "footer", "label": "Footer", "defaultVisible": true, "alwaysOn": true, "bottom": true, "fields": [] }
+    {
+      "type": "final-cta",
+      "label": "Final call to action",
+      "defaultVisible": false,
+      "fields": [
+        {
+          "key": "heading",
+          "label": "Heading",
+          "kind": "text",
+          "max": 120
+        },
+        {
+          "key": "text",
+          "label": "Text",
+          "kind": "textarea",
+          "max": 300
+        },
+        {
+          "key": "button",
+          "label": "Button label",
+          "kind": "text",
+          "max": 40
+        }
+      ]
+    },
+    {
+      "type": "footer",
+      "label": "Footer",
+      "defaultVisible": true,
+      "alwaysOn": true,
+      "bottom": true,
+      "fields": []
+    },
+    {
+      "type": "agenda-items",
+      "label": "Webinar agenda",
+      "defaultVisible": false,
+      "shared": true,
+      "fields": [
+        {
+          "key": "items",
+          "label": "Agenda cards",
+          "kind": "list",
+          "itemLabel": "Card",
+          "fields": [
+            {
+              "key": "n",
+              "label": "Number",
+              "kind": "text",
+              "max": 4
+            },
+            {
+              "key": "day",
+              "label": "When",
+              "kind": "text",
+              "max": 40
+            },
+            {
+              "key": "title",
+              "label": "Title",
+              "kind": "text",
+              "max": 80
+            },
+            {
+              "key": "points",
+              "label": "Points",
+              "kind": "strings",
+              "min": 1,
+              "max": 5
+            }
+          ],
+          "count": 4,
+          "hint": "Used by the Agenda section and the card deck in \"What you'll learn\"; the deck is built for four cards."
+        }
+      ]
+    }
   ]
 }

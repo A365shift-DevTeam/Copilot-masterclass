@@ -13,13 +13,15 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
-import { AGENDA } from '../../data/content.js'
+import { SHARED } from '../../data/content.js'
 
-const COUNT = AGENDA.length
 const HOLD = 3400
 const LIFT = 560
 
+// The cards are the shared agenda from the admin (Site-wide content > Webinar agenda): four, as the stack is built for.
 export default function AgendaDeck() {
+  const AGENDA = SHARED['agenda-items']?.items ?? []
+  const COUNT = Math.max(AGENDA.length, 1)
   const [front, setFront] = useState(0)
   const [leaving, setLeaving] = useState(null)
   const [playing, setPlaying] = useState(true)
@@ -41,6 +43,7 @@ export default function AgendaDeck() {
     return () => clearTimeout(timer.current)
   }, [front, playing, leaving, reduced])
 
+
   useEffect(() => {
     if (leaving === null) return
     const id = setTimeout(() => {
@@ -48,13 +51,13 @@ export default function AgendaDeck() {
       setLeaving(null)
     }, LIFT)
     return () => clearTimeout(id)
-  }, [leaving])
+  }, [leaving, COUNT])
 
   const pick = useCallback((i) => {
     clearTimeout(timer.current)
     setLeaving(null)
     setFront(((i % COUNT) + COUNT) % COUNT)
-  }, [])
+  }, [COUNT])
 
   return (
     <div className="agenda-deck">
@@ -65,7 +68,7 @@ export default function AgendaDeck() {
         const isLeaving = leaving === i
         return (
           <article
-            key={item.n}
+            key={i}
             className={`deck-card deck-card--pos${pos}${isLeaving ? ' deck-card--leaving' : ''}`}
             aria-hidden={!isFront}
             onClick={isFront ? undefined : () => pick(i)}
@@ -74,10 +77,10 @@ export default function AgendaDeck() {
               <span className="deck-card__num">{item.n}</span>
               <span className="deck-card__day">{item.day}</span>
             </div>
-            <h3 className="deck-card__title">{item.t}</h3>
+            <h3 className="deck-card__title">{item.title}</h3>
             <ul className="deck-card__points">
-              {item.points.map((point) => (
-                <li key={point}>{point}</li>
+              {item.points.map((point, k) => (
+                <li key={k}>{point}</li>
               ))}
             </ul>
             <div className="deck-card__foot">
@@ -85,10 +88,10 @@ export default function AgendaDeck() {
               <span className="deck-card__dots" role="group" aria-label="Choose a card">
                 {AGENDA.map((d, j) => (
                   <button
-                    key={d.n}
+                    key={j}
                     type="button"
                     className={`deck-card__dot${j === front ? ' deck-card__dot--on' : ''}`}
-                    aria-label={`Show ${d.t}`}
+                    aria-label={`Show ${d.title}`}
                     aria-pressed={j === front}
                     tabIndex={isFront ? 0 : -1}
                     onClick={(e) => { e.stopPropagation(); pick(j) }}

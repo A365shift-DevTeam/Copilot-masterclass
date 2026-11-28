@@ -38,7 +38,7 @@ public static partial class SectionContent
             case "strings":
                 if (value is not JsonArray lines) throw AppException.Bad($"{at} must be a list of lines.");
                 Count(f, lines.Count, at);
-                return new JsonArray(lines.Select((l, i) => (JsonNode)JsonValue.Create(Line(f with { Kind = "text", Required = true }, l ?? "", $"{at}, line {i + 1}"))).ToArray());
+                return new JsonArray(lines.Select((l, i) => (JsonNode)JsonValue.Create(Line(f with { Kind = "text", Required = true, Max = null }, l ?? "", $"{at}, line {i + 1}"))).ToArray());
             case "list":
                 if (value is not JsonArray items) throw AppException.Bad($"{at} must be a list.");
                 Count(f, items.Count, at);

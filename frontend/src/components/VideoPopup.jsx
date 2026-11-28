@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { CheckCircle2, Volume2, X } from 'lucide-react'
-import { AGENDA, FOOTER } from '../data/content.js'
+import { SHARED, FOOTER } from '../data/content.js'
 import { WhatsAppIcon } from '../pages/ThankYou.jsx'
 import ReserveSeatButton from './ReserveSeatButton.jsx'
 import BorderBeam from './ui/BorderBeam.jsx'
@@ -15,9 +15,10 @@ import './video-popup.css'
 // Served from Cloudinary's CDN; w_540 is ~1.5x the popup's display width and halves the file size.
 const VIDEO_BASE = 'https://res.cloudinary.com/dghhdz3et/video/upload'
 
-const DAYS =[...new Set(AGENDA.map((item) => item.day))]
-
 export default function VideoPopup({ ready }) {
+  // Not rendered today (see App.jsx); reads the shared agenda from the admin if it comes back.
+  const AGENDA = SHARED['agenda-items']?.items ?? []
+  const DAYS = [...new Set(AGENDA.map((item) => item.day))]
   const [open, setOpen] = useState(false)
   const [shown, setShown] = useState(false)
   const [needsTap, setNeedsTap] = useState(false)
@@ -117,7 +118,7 @@ export default function VideoPopup({ ready }) {
                   <span>
                     <span className="video-popup__day">{day}</span>
                     <br />
-                    <strong>{items.map((item) => item.t).join(' & ')}</strong>
+                    <strong>{items.map((item) => item.title).join(' & ')}</strong>
                     <br />
                     <span className="video-popup__points">
                       {items.flatMap((item) => item.points).join(' • ')}
