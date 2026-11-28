@@ -81,6 +81,7 @@ api.MapAdmins(siteOrigins.FirstOrDefault());
 api.MapPrograms();
 api.MapLedger();
 api.MapSettings();
+api.MapWebsite();
 
 // Unknown /api paths answer 404, not the admin page.
 app.MapFallback("/api/{**rest}", () => Results.NotFound()).AllowAnonymous();

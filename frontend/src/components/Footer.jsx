@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
-import { FOOTER } from '../data/content.js'
+import { FOOTER, linkLive } from '../data/content.js'
 import { LEGAL } from '../data/legal.js'
 import LegalDialog from './ui/LegalDialog.jsx'
 // lucide v1 removed its brand icons, so these four are inlined locally.
@@ -95,7 +95,7 @@ export default function Footer() {
             </p>
           </div>
 
-          <LinkColumn title="Webinar" links={FOOTER.webinar} />
+          <LinkColumn title="Webinar" links={FOOTER.webinar.filter((l) => linkLive(l.href))} />
           <LinkColumn title="Core offerings" links={FOOTER.offerings} />
 
           <div className="footer__col">

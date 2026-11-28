@@ -16,6 +16,8 @@ public class AppDb(DbContextOptions<AppDb> options) : DbContext(options), IAppDb
     public DbSet<CheckoutAttempt> CheckoutAttempts => Set<CheckoutAttempt>();
     public DbSet<FormField> FormFields => Set<FormField>();
     public DbSet<PaymentAnswer> PaymentAnswers => Set<PaymentAnswer>();
+    public DbSet<SitePage> SitePages => Set<SitePage>();
+    public DbSet<SitePublish> SitePublishes => Set<SitePublish>();
 
     public void Log(string actor, string action, string summary) =>
         Activity.Add(new ActivityLog { Actor = actor, Action = action, Summary = summary });
@@ -69,6 +71,19 @@ public class AppDb(DbContextOptions<AppDb> options) : DbContext(options), IAppDb
             e.Property(o => o.DiscountValue).HasPrecision(12, 2);
             e.HasIndex(o => new { o.StartsAt, o.EndsAt });
             e.HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OfferId).OnDelete(DeleteBehavior.Cascade);
+        });
+        // json, not jsonb: kept exactly as written, so draft and published compare as text.
+        b.Entity<SitePage>(e =>
+        {
+            e.HasKey(p => p.Key);
+            e.Property(p => p.Draft).HasColumnType("json");
+            e.Property(p => p.Published).HasColumnType("json");
+            e.Property(p => p.Version).IsConcurrencyToken();
+        });
+        b.Entity<SitePublish>(e =>
+        {
+            e.Property(p => p.Snapshot).HasColumnType("json");
+            e.HasIndex(p => new { p.PageKey, p.PublishedAt });
         });
         b.Entity<OfferItem>(e =>
         {

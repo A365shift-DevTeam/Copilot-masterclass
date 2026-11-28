@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NAV_LINKS, PAYMENT_URL } from '../data/content.js'
+import { NAV_LINKS, PAYMENT_URL, linkLive } from '../data/content.js'
 
 function SunIcon() {
   return (
@@ -65,7 +65,7 @@ export default function Navbar() {
         </a>
         <div className="nav__right">
           <div className="nav__links">
-            {NAV_LINKS.map((l) => (
+            {NAV_LINKS.filter((l) => linkLive(l.href)).map((l) => (
               <a key={l.href} href={l.href}>{l.label}</a>
             ))}
           </div>
@@ -89,7 +89,7 @@ export default function Navbar() {
       </nav>
 
       <div className={`menu-panel${menuOpen ? ' open' : ''}`}>
-        {NAV_LINKS.map((l) => (
+        {NAV_LINKS.filter((l) => linkLive(l.href)).map((l) => (
           <a key={l.href} href={l.href} onClick={close}>{l.label}</a>
         ))}
         <a href={PAYMENT_URL} target="_blank" rel="noopener noreferrer" className="menu-panel__cta" onClick={close}>Contact Us</a>

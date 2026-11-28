@@ -48,3 +48,15 @@ test('applySiteData patches dates, prices, links and keeps indexes', () => {
   content.applySiteData({ courses: [{ key: 'excel', name: 'Excel', price: 799, paymentUrl: 'https://pay.example/x', isVisible: true }] })
   assert.deepEqual([ex.price, ex.originalPrice, content.SALE], [799, null, null])
 })
+
+test('sections come from the admin, and links only point at sections that are shown', () => {
+  content.applySiteData({ courses: [], preview: 'draft', sections: [
+    { id: 'navbar', type: 'navbar', anchor: null, content: {} },
+    { id: 'overview', type: 'overview', anchor: '#overview', content: {} },
+  ] })
+  assert.deepEqual(content.SECTIONS.map((s) => s.type), ['navbar', 'overview'])
+  assert.equal(content.PREVIEW, 'draft')
+  assert.equal(content.linkLive('#overview'), true)
+  assert.equal(content.linkLive('#pricing'), false) // Pricing hidden in the admin
+  assert.equal(content.linkLive('https://pay.example/w'), true)
+})

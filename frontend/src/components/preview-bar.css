@@ -1,0 +1,37 @@
+/* PreviewBar.jsx: pinned to the bottom so it never covers the navbar or the offer strip. */
+.preview-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 190; /* under the preloader (200), over the page */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 12px 10px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: #fff;
+  background: #1f2937;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.preview-bar--expired { background: #92400e; }
+
+.preview-bar button {
+  flex: none;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  color: #1f2937;
+  background: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .preview-bar { left: 16px; right: 16px; transform: none; border-radius: 14px; flex-wrap: wrap; }
+}

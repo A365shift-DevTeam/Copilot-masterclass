@@ -464,6 +464,16 @@ function istTime(iso, short) {
 // 'Saturday, 28 November 2026'
 const longDay = (iso) => { const p = istParts(iso, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); return `${p.weekday}, ${p.day} ${p.month} ${p.year}` }
 
+/* The page's sections from the admin, visible ones only, in order: [{ id, type, anchor, content }].
+   App.jsx draws one component per entry. */
+export let SECTIONS = []
+// 'draft' while the admin's Preview link is open, 'expired' for an old link (the live page is shown), else null.
+export let PREVIEW = null
+
+/* A link that points at a section on this page (#pricing) only counts while that section is shown;
+   any other link always does. */
+export const linkLive = (href) => !href?.startsWith('#') || SECTIONS.some((s) => s.anchor === href)
+
 /* The offer the site-wide sale banner shows: the webinar's, else the first
    program's. { badge, endsAt } or null. */
 export let SALE = null
@@ -479,7 +489,9 @@ function whenLine({ startsAt, endsAt, language }) {
   return [`${s.weekday} ${s.day} ${s.month} ${s.year}`, span].filter(Boolean).join(' · ') + (language ? ` in ${language}` : '')
 }
 
-export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [] } = {}) {
+export function applySiteData({ courses = [], whatsappUrl, pricingTabs = [], sections = [], preview = null } = {}) {
+  SECTIONS = sections
+  PREVIEW = preview
   // Tab names and their one-line intro, where renamed in the admin.
   for (const t of pricingTabs) {
     const g = PRICE_LADDER.find((x) => x.id === t.id)

@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDb>());
         services.AddScoped<ISettingsStore, SettingsStore>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<IPreviewTokens, PreviewTokens>();
         services.AddHttpClient<IRazorpayGateway, RazorpayClient>(c =>
         {
             c.BaseAddress = new Uri("https://api.razorpay.com/v1/");
@@ -43,6 +44,18 @@ public static class DependencyInjection
         var db = scope.ServiceProvider.GetRequiredService<AppDb>();
         db.Database.Migrate();
         Seed.Run(db, config);
+    }
+}
+
+// Signed with the data protection keys, so a token can't be forged and stops working after two hours.
+class PreviewTokens(IDataProtectionProvider dp) : IPreviewTokens
+{
+    readonly ITimeLimitedDataProtector protector = dp.CreateProtector("Website.Preview.v1").ToTimeLimitedDataProtector();
+    public string Issue() => protector.Protect("preview", TimeSpan.FromHours(2));
+    public bool IsValid(string token)
+    {
+        try { return protector.Unprotect(token) == "preview"; }
+        catch (Exception e) when (e is System.Security.Cryptography.CryptographicException or FormatException) { return false; }
     }
 }
 

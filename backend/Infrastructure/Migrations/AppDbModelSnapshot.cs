@@ -478,6 +478,67 @@ namespace Infrastructure.Migrations
                     b.ToTable("PaymentAnswers", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.SitePage", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Draft")
+                        .IsRequired()
+                        .HasColumnType("json");
+
+                    b.Property<string>("Published")
+                        .IsRequired()
+                        .HasColumnType("json");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("SitePages", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.SitePublish", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PageKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PublishedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Snapshot")
+                        .IsRequired()
+                        .HasColumnType("json");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PageKey", "PublishedAt");
+
+                    b.ToTable("SitePublishes", (string)null);
+                });
+
             modelBuilder.Entity("Domain.SiteSetting", b =>
                 {
                     b.Property<string>("Key")

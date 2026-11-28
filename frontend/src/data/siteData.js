@@ -17,12 +17,18 @@ export const onSiteData = (fn) => { rerender = fn }
 // One load at a time: several countdowns reaching zero together share it.
 let inflight = null
 
+// ?preview=<token> from the admin's Preview button: the draft page instead of the published one.
+const preview = new URLSearchParams(window.location.search).get('preview')
+
 export function loadSiteData() {
   const api = import.meta.env.VITE_API_URL
   if (inflight) return inflight
-  inflight = (api ? fetch(`${api}/api/public/site`, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
+  const url = `${api}/api/public/site${preview ? `?preview=${encodeURIComponent(preview)}` : ''}`
+  inflight = (api ? fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) })
     : Promise.reject(new Error('VITE_API_URL is not set')))
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`site data: ${r.status}`))))
+    // An API from before the page builder has no sections: nothing to draw.
+    .then((data) => (Array.isArray(data?.sections) ? data : Promise.reject(new Error('site data has no sections'))))
     .then((data) => { applySiteData(data); version += 1; failed = false; rerender() })
     // A later refresh (an offer ending) that fails keeps the values already loaded from the API.
     .catch((e) => { console.warn('Admin API unavailable:', e.message); if (version === 0) { failed = true; rerender() } })
